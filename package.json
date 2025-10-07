@@ -1,0 +1,29 @@
+{
+  "name": "boot_dex",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest -- run",
+    "build": "npx tsc",
+    "start": "node dist/main.js",
+    "dev": "npx tsc && node dist/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hybridgreen/boot_dex.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hybridgreen/boot_dex/issues"
+  },
+  "homepage": "https://github.com/hybridgreen/boot_dex#readme",
+  "description": "Don't know yet, but it's gonna be good",
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
