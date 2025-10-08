@@ -1,0 +1,18 @@
+
+#core
+fastapi[standard]
+uvicorn[standard]
+
+#Database
+SQLAlchemy
+GeoAlchemy2
+
+#Cyptography & Authentication
+pyJWT
+
+
+# Environment Manager
+python-dotenv
+
+#
+gpxpy
