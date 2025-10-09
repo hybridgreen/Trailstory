@@ -4,8 +4,11 @@ fastapi[standard]
 uvicorn[standard]
 
 #Database
+postgres
+postgis
 SQLAlchemy
 GeoAlchemy2
+psycopg2
 
 #Cyptography & Authentication
 pyJWT
