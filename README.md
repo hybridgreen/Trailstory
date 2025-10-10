@@ -35,18 +35,8 @@ Third-Party API: [Garmin Connect](https://github.com/cyberjunky/python-garmincon
 
 ## Roadmap
 
-  - Database schema (Users, Trips, Rides, Photos tables)
-  - Auth endpoints (register, login, token refresh)
-  - Trip CRUD (create, read, update, delete)
-  - GPX upload (parse, store geometry in PostGIS)
-  - Photo upload (S3, link to trip/location)
-  - Trip retrieval (with route data, photos)
-
 ## Contributing
 
 ## License 
 MIT License © 2025 Yasser Yaya-Oye
 
-Author
-
-Yasser Yaya-Oye 
