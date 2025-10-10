@@ -9,7 +9,8 @@ Base.metadata.create_all(bind= engine)
 
 app = FastAPI()
 
-app.include_router(users.router)
+app.include_router(users.auth_router)
+app.include_router(users.user_router)
 
 @app.exception_handler(UserNotFoundError)
 async def user_not_found_handler(request: Request, exc: UserNotFoundError):
@@ -24,6 +25,7 @@ async def database_error_handler(req: Request, exc: DatabaseError):
     return JSONResponse(content={"detail": str(exc)}, status_code = 500)
 
 
-@app.get('/')
+@app.get('/') #Should show signup page
 def index():
     return{"Welcome to Trailstory"}
+

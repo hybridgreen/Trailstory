@@ -7,7 +7,7 @@ from app.errors import *
 def create_user(user_data):
     try: 
         with Session(engine) as session:
-            new_user = User(**user_data.dict())
+            new_user = User(**user_data)
             session.add(new_user)
             session.commit()
             session.refresh(new_user)
