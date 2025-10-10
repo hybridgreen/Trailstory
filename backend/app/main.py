@@ -1,35 +1,29 @@
-from fastapi import FastAPI
-from db.queries.users import create_user
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from db.schema import engine, Base
-from pydantic import BaseModel
-from datetime import date
-
-
-app = FastAPI()
+from app.routers import users
+from .errors import * 
+# Clear database and recreate (Temporary)
+Base.metadata.drop_all(bind= engine) 
 Base.metadata.create_all(bind= engine)
 
+app = FastAPI()
 
-class User(BaseModel):
-    email: str
-    username: str
-    firstname : str | None
-    lastname : str | None
+app.include_router(users.router)
 
+@app.exception_handler(UserNotFoundError)
+async def user_not_found_handler(request: Request, exc: UserNotFoundError):
+    return JSONResponse(content={"detail": str(exc)}, status_code= 404)
+
+@app.exception_handler(ValueError)
+async def user_not_found_handler(request: Request, exc: ValueError):
+    return JSONResponse(content={"detail": str(exc)}, status_code = 400)
+
+@app.exception_handler(DatabaseError)
+async def database_error_handler(req: Request, exc: DatabaseError):
+    return JSONResponse(content={"detail": str(exc)}, status_code = 500)
 
 
 @app.get('/')
-def root():
+def index():
     return{"Welcome to Trailstory"}
-
-
-@app.post('/users')
-async def handler_create_user(user:User):
-    try:
-        create_user()
-        return {"Hello from create"}
-    except:
-        return{"Welcome to Trailstory"}
-
-@app.get('/users/{id}')
-async def handler_get_user(user_id:str):
-    pass

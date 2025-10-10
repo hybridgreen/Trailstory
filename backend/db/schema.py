@@ -13,20 +13,24 @@ import os
 class Base(DeclarativeBase):
     pass
 
-class User(Base):
+class TimestampMixin:
+    created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())
+    updated_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now(), onupdate= datetime.now)
+    
+class User(Base, TimestampMixin):
     __tablename__ = "users"
     id: Mapped[str] = mapped_column(primary_key=True, default= lambda : str(uuid4()))
-    email: Mapped[str] = mapped_column(nullable= False)
-    username: Mapped[str] = mapped_column(nullable= False)
+    email: Mapped[str] = mapped_column(nullable= False, unique= True)
+    username: Mapped[str] = mapped_column(nullable= False, unique= True)
     firstname : Mapped[str | None]
     lastname : Mapped[str | None]
+    #trips: Mapped[List['Trips]] = relationship("Trips", back_populates = "users")
     email_verified : Mapped[bool] = mapped_column (default= False)
-    created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())
-    updated_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now(), onupdate= lambda : datetime.now())
+
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, name={self.username!r})"
 
-class Trip(Base):
+class Trip(Base, TimestampMixin):
     __tablename__ = "trips"
     id: Mapped[str] = mapped_column(primary_key= True, default= lambda : str(uuid4()))
     user_id : Mapped[str] = mapped_column(ForeignKey("users.id"))
@@ -35,10 +39,9 @@ class Trip(Base):
     start_date: Mapped[date]
     end_date: Mapped[date]
     slug:Mapped[str]
-    created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())
-    updated_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now(), onupdate= lambda: datetime.now())
-    
-class Activities(Base):
+
+
+class Activities(Base, TimestampMixin):
     __tablename__ = "activities"
     id: Mapped[str] = mapped_column(primary_key= True, default= lambda : str(uuid4()))
     trip_id : Mapped[str] = mapped_column(ForeignKey('trips.id'))
@@ -48,10 +51,8 @@ class Activities(Base):
     elevation_gain : Mapped[int]
     moving_time : Mapped [timedelta]
     gpx_url: Mapped[str]
-    created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())
-    updated_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now(), onupdate= lambda: datetime.now())
 
-class Photos(Base):
+class Photos(Base, TimestampMixin):
     __tablename__ = "photos"
     id: Mapped[str] = mapped_column(primary_key=True)
     signed_url: Mapped[str]
@@ -63,13 +64,12 @@ class Photos(Base):
     # * caption (text)
     # *  location (PostGIS POINT) - lat/lng from EXIF or manual pin
     # * taken_at (timestamp from EXIF)
-    created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())
-    updated_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now(), onupdate= lambda: datetime.now())
 
-
+  
 load_dotenv()
 connection_str = f"postgresql://server:{os.getenv('POSTGRES_PASSWORD')}@localhost/trailstory_db"
 engine = create_engine(connection_str, echo= True, plugins= ['geoalchemy2'])
+
 
 
     
