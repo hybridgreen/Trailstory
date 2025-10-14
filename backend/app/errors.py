@@ -8,6 +8,5 @@ class DuplicateUserError(Exception):
 class DatabaseError(Exception):
     pass
 
-
-
-    
+class AuthenticationError(Exception):
+    pass

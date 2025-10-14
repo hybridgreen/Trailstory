@@ -11,7 +11,7 @@ GeoAlchemy2
 psycopg2
 
 #Cyptography & Authentication
-pyJWT
+pyJWT[crypto]
 bcrypt
 
 # Environment Manager

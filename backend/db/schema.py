@@ -6,8 +6,7 @@ from geoalchemy2 import Geometry
 from datetime import date, datetime, timedelta
 from uuid import uuid4
 
-from dotenv import load_dotenv
-import os
+from app.config import config 
 
 
 class Base(DeclarativeBase):
@@ -70,13 +69,8 @@ class Ride(Base, TimestampMixin):
     # * caption (text)
     # * location (PostGIS POINT) - lat/lng from EXIF or manual pin
     # * taken_at (timestamp from EXIF)
-
-  
-load_dotenv()
-
-connection_str = f"postgresql://server:{os.getenv('POSTGRES_PASSWORD')}@localhost/trailstory_db"
-engine = create_engine(connection_str, echo= True, plugins= ['geoalchemy2'])
-
+    # 
+engine = create_engine(config.db.url, echo= True, plugins= ['geoalchemy2'])
 
 
     

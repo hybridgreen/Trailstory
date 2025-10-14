@@ -7,6 +7,7 @@ from .errors import *
 Base.metadata.drop_all(bind= engine) 
 Base.metadata.create_all(bind= engine)
 
+
 app = FastAPI()
 
 app.include_router(users.auth_router)
@@ -24,7 +25,10 @@ async def user_not_found_handler(request: Request, exc: ValueError):
 async def database_error_handler(req: Request, exc: DatabaseError):
     return JSONResponse(content={"detail": str(exc)}, status_code = 500)
 
-
+@app.exception_handler(AuthenticationError)
+async def auth_error_handler(req:Request, exc: AuthenticationError):   
+    return JSONResponse(content={'detail': str(exc)}, status_code= 403)
+    
 @app.get('/') #Should show signup page
 def index():
     return{"Welcome to Trailstory"}

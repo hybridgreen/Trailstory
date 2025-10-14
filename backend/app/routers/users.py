@@ -36,12 +36,17 @@ auth_router = APIRouter(
 )
 
 @user_router.post('/')
-async def handler_create_user(user_data:UserModel)-> UserResponse:
-        hashed_password =  hash_password(user_data.password)
-        user = user_data.model_dump(exclude={'password'})
-        user['hashed_password'] =  hashed_password
-        new_user = create_user(user)
-        return new_user
+async def handler_create_user(user_data:UserModel) :
+        new_user = user_data.model_dump(exclude={'password'})
+        new_user['hashed_password'] = hash_password(user_data.password)
+        db_User = create_user(new_user)
+        token = makeJWT(user_id= db_User.id)
+        return {
+            'access_token' : token,
+            'user': db_User,
+            "token_type" : "Bearer",
+            "expires_in" : 3600
+            }
 
 @user_router.get('/{username}')
 async def handler_get_user_name(username:str) -> UserResponse:
@@ -71,6 +76,12 @@ def index(form_data: loginForm):
         return JSONResponse(content="Invalid username or password", status_code= 401)
     
     if(validate_password(form_data.password, user.hashed_password)):
-        return JSONResponse(content='User logged in', status_code= 200)
+        token = makeJWT(user.id)
+        return {
+            'access_token' : token,
+            'user': user,
+            "token_type" : "Bearer",
+            "expires_in" : 3600
+            }
     else:
         return JSONResponse(content="Invalid username or password", status_code= 401)
