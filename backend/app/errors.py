@@ -10,3 +10,6 @@ class DatabaseError(Exception):
 
 class AuthenticationError(Exception):
     pass
+
+class UnauthorizedError(Exception):
+    pass

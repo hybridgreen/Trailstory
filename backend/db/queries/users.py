@@ -58,7 +58,7 @@ def delete_user(user_id: str):
 def update_user(user_id: str, user_data):
     try:
         with Session(engine) as session:
-            query = update(User).where(User.id == user_id).values(user_data.dict())
+            query = update(User).where(User.id == user_id).values(**user_data)
             session.execute(query)
             updated_user = session.get(User, user_id)
             return updated_user

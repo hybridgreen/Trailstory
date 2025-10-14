@@ -1,7 +1,5 @@
 import bcrypt
 import jwt
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.backends import default_backend
 from db.schema import User
 from datetime import datetime, timedelta, timezone
 from .config import config
@@ -30,12 +28,13 @@ def makeJWT(user_id: str):
     }
     return jwt.encode(payload, config.auth.secret , algorithm="HS256")
 
-def verifyJWT(user: User, token : str):
+def verifyJWT(token : str):
     try:
         payload = jwt.decode(token, config.auth.secret, algorithms="HS256")
-        if payload['sub'] == user.id:
-            return True
-        return False
+        
+        if payload['iss'] != 'trailstory':
+            raise AuthenticationError('Invalid claim')
+        return payload['sub']
     except jwt.ExpiredSignatureError:
         raise AuthenticationError('Token Expired')
     except Exception as e:
