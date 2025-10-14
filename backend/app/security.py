@@ -20,7 +20,6 @@ def hash_password(password:str):
 def validate_password(password: str , hashed_pwd: bytes):
     return bcrypt.checkpw(password.encode('utf-8'), hashed_pwd)
 
-
 def makeJWT(user_id: str):
     
     payload = {

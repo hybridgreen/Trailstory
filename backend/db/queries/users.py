@@ -35,6 +35,16 @@ def get_user_by_username(username:str):
     except Exception as e:
         raise DatabaseError(f"Internal database Error: {e}")
     
+def get_user_by_email(email:str):
+    try:
+        with Session(engine) as session:
+            query = select(User).where(User.email == email)
+            user = session.scalars(query).one()
+            return user
+    except NoResultFound:
+        raise UserNotFoundError(f"User with name {email} not found.")
+    except Exception as e:
+        raise DatabaseError(f"Internal database Error: {e}")
 
 def delete_user(user_id: str):
     try:

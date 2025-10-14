@@ -11,11 +11,15 @@ GeoAlchemy2
 psycopg2
 
 #Cyptography & Authentication
-pyJWT[crypto]
+pyJWT
 bcrypt
 
 # Environment Manager
 python-dotenv
 
-#
+#GPX Parsing
 gpxpy
+
+#Testing
+pytest
+httpx
