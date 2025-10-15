@@ -28,6 +28,10 @@ async def database_error_handler(req: Request, exc: DatabaseError):
 @app.exception_handler(AuthenticationError)
 async def auth_error_handler(req:Request, exc: AuthenticationError):   
     return JSONResponse(content={'detail': str(exc)}, status_code= 401)
+
+@app.exception_handler(UnauthorizedError)
+async def auth_error_handler(req:Request, exc: UnauthorizedError):   
+    return JSONResponse(content={'detail': str(exc)}, status_code= 403)
     
 @app.get('/') #Should show signup page
 def index():

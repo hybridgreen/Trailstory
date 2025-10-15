@@ -38,6 +38,7 @@ class loginForm(BaseModel):
     
 class AuthResponse(BaseModel):
     access_token: str
+    refresh_token: str
     user: UserResponse
     token_type: str | None
     expires_in: int | None

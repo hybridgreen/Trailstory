@@ -1,12 +1,9 @@
-from sqlalchemy import ForeignKey, String, create_engine, column
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-
-from geoalchemy2 import Geometry
-
 from datetime import date, datetime, timedelta
 from uuid import uuid4
-
-from app.config import config 
+from sqlalchemy import ForeignKey, String, create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from geoalchemy2 import Geometry
+from app.config import config
 
 
 class Base(DeclarativeBase):
@@ -69,7 +66,16 @@ class Ride(Base, TimestampMixin):
     # * caption (text)
     # * location (PostGIS POINT) - lat/lng from EXIF or manual pin
     # * taken_at (timestamp from EXIF)
-    # 
+
+class refresh_tokens(Base):
+    __tablename__ = "refresh_tokens"
+    id: Mapped[str] = mapped_column(primary_key= True, default= lambda : str(uuid4()))
+    token: Mapped[str] = mapped_column(unique=True)
+    user_id : Mapped[str] = mapped_column(ForeignKey('users.id', ondelete="CASCADE"))
+    created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())
+    expires_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now() + timedelta(days= 30))
+    revoked : Mapped[bool] = mapped_column(default= False)
+
 engine = create_engine(config.db.url, echo= True, plugins= ['geoalchemy2'])
 
 

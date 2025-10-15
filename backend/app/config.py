@@ -3,8 +3,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-
 def EnvOrThrow(key:str):
     var = os.getenv(key)
     if not var:
@@ -16,8 +14,9 @@ class DBConfig:
         self.url = url
 
 class AuthConfig:
-    def __init__(self, secret: str):
+    def __init__(self, secret: str, jwt_expiry: int = 3600):
         self.secret = secret
+        self.jwt_expiry = jwt_expiry
 
 class APIConfig():
     def __init__(self, db: DBConfig, auth: AuthConfig):
@@ -28,4 +27,5 @@ class APIConfig():
 config = APIConfig(
     db = DBConfig(url = EnvOrThrow('DB_URL')),
     auth = AuthConfig(secret=EnvOrThrow('SERVER_SECRET'))
+    
 )

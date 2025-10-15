@@ -1,9 +1,11 @@
 import bcrypt
 import jwt
-from db.schema import User
+import secrets
 from datetime import datetime, timedelta, timezone
 from .config import config
-from .errors import *
+from .errors import AuthenticationError
+
+
 
 class JWTPayload():
     iss: str
@@ -18,7 +20,7 @@ def hash_password(password:str):
 def validate_password(password: str , hashed_pwd: bytes):
     return bcrypt.checkpw(password.encode('utf-8'), hashed_pwd)
 
-def makeJWT(user_id: str):
+def make_JWT(user_id: str):
     
     payload = {
         "iss":"trailstory",
@@ -28,14 +30,17 @@ def makeJWT(user_id: str):
     }
     return jwt.encode(payload, config.auth.secret , algorithm="HS256")
 
-def verifyJWT(token : str):
+def verify_JWT(token : str):
     try:
         payload = jwt.decode(token, config.auth.secret, algorithms="HS256")
         
         if payload['iss'] != 'trailstory':
             raise AuthenticationError('Invalid claim')
         return payload['sub']
-    except jwt.ExpiredSignatureError:
-        raise AuthenticationError('Token Expired')
+    except jwt.ExpiredSignatureError as e:
+        raise AuthenticationError('Token Expired') from e
     except Exception as e:
-        raise AuthenticationError(e)
+        raise AuthenticationError from e
+
+def create_refresh_Token():
+    return secrets.token_hex(256)
