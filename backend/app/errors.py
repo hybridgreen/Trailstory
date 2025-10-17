@@ -1,5 +1,5 @@
 
-class UserNotFoundError(Exception):
+class NotFoundError(Exception):
     pass
 
 class DuplicateUserError(Exception):
@@ -12,4 +12,10 @@ class AuthenticationError(Exception):
     pass
 
 class UnauthorizedError(Exception):
+    pass
+
+class InvalidGPXError(Exception):
+    pass
+
+class InputError(Exception):
     pass

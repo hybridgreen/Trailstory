@@ -18,14 +18,19 @@ class AuthConfig:
         self.secret = secret
         self.jwt_expiry = jwt_expiry
 
+class APILimits:
+    def __init__(self):
+        self.max_upload_size = 50*(1<<20)
+
 class APIConfig():
-    def __init__(self, db: DBConfig, auth: AuthConfig):
+    def __init__(self, db: DBConfig, auth: AuthConfig, api_limits: APILimits):
         self.db = db
         self.auth = auth
+        self.limits = api_limits
             
             
 config = APIConfig(
     db = DBConfig(url = EnvOrThrow('DB_URL')),
-    auth = AuthConfig(secret=EnvOrThrow('SERVER_SECRET'))
-    
+    auth = AuthConfig(secret=EnvOrThrow('SERVER_SECRET')),
+    api_limits = APILimits()
 )

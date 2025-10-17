@@ -26,7 +26,7 @@ def get_token(token:str):
     except db_err.NoResultFound as exc:
         raise UnauthorizedError("Invalid token") from exc
     except Exception as e:
-        raise DatabaseError("Internal database Error-") from e
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
 def revoke_tokens_for_user(user_id:str):
     try:
@@ -35,7 +35,7 @@ def revoke_tokens_for_user(user_id:str):
             session.execute(query)
             session.commit()
     except Exception as e:
-        raise DatabaseError("Internal database Error-") from e
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
 def revoke_refresh_token(token_id:str):
     try:
@@ -45,4 +45,4 @@ def revoke_refresh_token(token_id:str):
             session.commit()
             return 0
     except Exception as e:
-        raise DatabaseError("Internal database Error-") from e
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e

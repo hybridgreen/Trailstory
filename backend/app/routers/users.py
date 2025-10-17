@@ -1,13 +1,13 @@
 import re
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from db.queries.users import create_user, update_user, get_user_by_username, User
+from db.queries.users import User, delete_user, create_user, update_user, get_user_by_username, get_user_by_id
 from db.queries.refresh_tokens import register_refresh_token
 from app.security import make_JWT, hash_password, create_refresh_Token
 from app.models import AuthResponse, UserModel, UserResponse, UserUpdate
 from app.errors import *
 from app.config import config 
-from app.dependencies import *
+from app.dependencies import get_auth_user
 
 
 user_router = APIRouter(
@@ -31,7 +31,7 @@ async def handler_create_user(user_data:UserModel) -> AuthResponse:
         new_user = user_data.model_dump(exclude={'password'})
         
         new_user['hashed_password'] = hash_password(user_data.password)
-        db_User : UserResponse = create_user(new_user)
+        db_User : UserResponse = create_user(User(**new_user))
         access_token = make_JWT(user_id= db_User.id)
         refresh_token = register_refresh_token(db_User.id, create_refresh_Token())
         return {

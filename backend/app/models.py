@@ -1,6 +1,6 @@
 
 from pydantic import BaseModel, ConfigDict
-from datetime import datetime
+from datetime import datetime, date
 
 ### User Models 
 
@@ -42,4 +42,24 @@ class AuthResponse(BaseModel):
     user: UserResponse
     token_type: str | None
     expires_in: int | None
-    
+
+### Trip Models
+class TripModel(BaseModel):
+    title: str
+    description: str | None
+    start_date: date
+    end_date: date | None = None
+
+
+### Ride Models
+class RideResponse(BaseModel):
+    id: str
+    trip_id : str
+    title: str | None
+    notes: str | None
+    date: date
+    distance : float
+    elevation_gain : float
+    high_point : float
+    moving_time : float
+    gpx_url: str | None

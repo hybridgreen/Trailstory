@@ -7,7 +7,7 @@ from app.security import make_JWT, validate_password, create_refresh_Token
 from app.models import loginForm, AuthResponse
 from app.dependencies import get_bearer_token
 from app.config import config 
-from app.errors import UserNotFoundError, UnauthorizedError, AuthenticationError
+from app.errors import NotFoundError, UnauthorizedError, AuthenticationError
 
 """
 Missing Auth endpoints
@@ -27,7 +27,7 @@ def index(form_data: loginForm) -> AuthResponse:
     try:
         user: User = get_user_by_email(form_data.email)
         
-    except UserNotFoundError:
+    except NotFoundError:
         return JSONResponse(content="Wrong username or password", status_code= 401)
     
     if(validate_password(form_data.password, user.hashed_password)):
