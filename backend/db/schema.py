@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+import secrets
 from uuid import uuid4
 from sqlalchemy import ForeignKey, String, create_engine, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -15,7 +16,7 @@ class TimestampMixin:
     
 class User(Base, TimestampMixin):
     __tablename__ = "users"
-    id: Mapped[str] = mapped_column(primary_key=True, default= lambda : str(uuid4()))
+    id: Mapped[str] = mapped_column(primary_key=True, default= lambda : secrets.token_hex(8))
     email: Mapped[str] = mapped_column(nullable= False, unique= True)
     username: Mapped[str] = mapped_column(nullable= False, unique= True)
     hashed_password: Mapped[bytes] = mapped_column(nullable= False)
@@ -29,13 +30,14 @@ class User(Base, TimestampMixin):
 
 class Trip(Base, TimestampMixin):
     __tablename__ = "trips"
-    id: Mapped[str] = mapped_column(primary_key= True, default= lambda : str(uuid4()))
+    id: Mapped[str] = mapped_column(primary_key= True, default= lambda : secrets.token_hex(8))
     user_id : Mapped[str] = mapped_column(ForeignKey("users.id", ondelete= "CASCADE"))
     title: Mapped[str]
     description: Mapped[str | None] = mapped_column(String(300))
     start_date: Mapped[date]
     end_date: Mapped[date | None]
     slug:Mapped[str] = mapped_column()
+    route: Mapped[str | None] = mapped_column(Geometry('LINESTRING'),default= None)
     bounding_box: Mapped[str | None] = mapped_column(Geometry('POLYGON'), default= None)
     user: Mapped[User] = relationship(back_populates='trips')
     rides : Mapped [list['Ride']] = relationship( back_populates='trip')

@@ -1,6 +1,6 @@
 import re
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from db.queries.users import User, delete_user, create_user, update_user, get_user_by_username, get_user_by_id
 from db.queries.refresh_tokens import register_refresh_token
 from app.security import make_JWT, hash_password, create_refresh_Token
@@ -24,7 +24,7 @@ def validateCredentials(email, password):
         raise ValueError('Weak Password')
 
 @user_router.post('/')
-async def handler_create_user(user_data:UserModel) -> AuthResponse:
+async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> AuthResponse:
     
         validateCredentials(user_data.email, user_data.password)
     

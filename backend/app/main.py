@@ -4,7 +4,7 @@ from db.schema import engine, Base
 from app.routers import users, auth, trips
 from .errors import *
 # Clear database and recreate (Temporary)
-#Base.metadata.drop_all(bind= engine) 
+Base.metadata.drop_all(bind= engine) 
 Base.metadata.create_all(bind= engine)
 
 

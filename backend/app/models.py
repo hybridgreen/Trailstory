@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime, date
 
@@ -44,9 +43,16 @@ class AuthResponse(BaseModel):
     expires_in: int | None
 
 ### Trip Models
-class TripModel(BaseModel):
+class TripDraft(BaseModel):
     title: str
     description: str | None
+    start_date: date
+    end_date: date | None = None
+
+
+class TripModel(BaseModel):
+    title: str
+    description: str
     start_date: date
     end_date: date | None = None
 

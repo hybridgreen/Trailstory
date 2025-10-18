@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.responses import JSONResponse
 from db.queries.users import get_user_by_email, User
 from db.queries.refresh_tokens import revoke_tokens_for_user,revoke_refresh_token, register_refresh_token, get_token,refresh_tokens
@@ -10,7 +10,7 @@ from app.config import config
 from app.errors import NotFoundError, UnauthorizedError, AuthenticationError
 
 """
-Missing Auth endpoints
+Future Auth endpoints
 POST /auth/logout
 POST auth/password/reset
 POST /auth/password/reset/confirm
@@ -23,12 +23,12 @@ auth_router = APIRouter(
 )
 
 @auth_router.post('/login')
-def index(form_data: loginForm) -> AuthResponse:
+def index(form_data: Annotated[loginForm, Form()]) -> AuthResponse:
     try:
         user: User = get_user_by_email(form_data.email)
         
     except NotFoundError:
-        return JSONResponse(content="Wrong username or password", status_code= 401)
+        return JSONResponse(content="Wrong email or password", status_code= 401)
     
     if(validate_password(form_data.password, user.hashed_password)):
         access_token = make_JWT(user.id)
@@ -41,7 +41,7 @@ def index(form_data: loginForm) -> AuthResponse:
             "expires_in" : config.auth.jwt_expiry
             }
     else:
-        return JSONResponse(content="Wrong username or password", status_code= 401)
+        return JSONResponse(content="Wrong email or password", status_code= 401)
     
 @auth_router.get('/refresh')
 def refresh_handler(token : Annotated[str, Depends(get_bearer_token)]):
