@@ -17,7 +17,7 @@ bcrypt
 # Environment Manager
 python-dotenv
 
-#GPX Parsing
+#Geospatial Parsing
 gpxpy
 
 #Testing

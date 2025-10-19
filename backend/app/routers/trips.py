@@ -4,16 +4,15 @@ from typing import Annotated
 from datetime import datetime, date
 from fastapi import APIRouter, Depends, UploadFile, Form
 from shapely.geometry import LineString, Polygon
-from shapely import bounds
+from shapely import bounds, to_geojson, line_merge
 from geoalchemy2.shape import from_shape, to_shape
 from db.queries.trips import create_trip, get_trip, get_user_trips, delete_trip, update_trip
 from db.queries.rides import create_ride, get_trip_rides_asc
 from db.schema import User, Ride, Trip
-from app.models import TripModel , RideResponse, TripDraft
+from app.models import TripModel , RideResponse, TripDraft, TripsResponse
 from app.config import config 
 from app.dependencies import get_auth_user
 from app.errors import UnauthorizedError, InvalidGPXError, InputError
-
 
 trip_router = APIRouter(
     prefix="/trips",
@@ -31,45 +30,72 @@ def generate_slug(text: str) -> str:
 def aggregate_trip(trip: Trip):
     rides = get_trip_rides_asc(trip.id)
     agg_route = []
-    if rides:
-        for ride in rides:
-            agg_route.append(ride.route)
-        return agg_route
-    raise Exception("Error: No rides found in trip")
+    distance = 0.0
+    elevation = 0.0
+    high_point = float('-inf')
+    if not rides:
+        raise Exception("Error: No rides found in trip")
+    for ride in rides:
+        agg_route.extend(list(to_shape(ride.route).coords))
+        distance += ride.distance
+        elevation += ride.elevation_gain
+        if ride.high_point > high_point:
+            high_point = ride.high_point
+    route = LineString(agg_route)
+    return route, distance, elevation, high_point
 
-def generate_bounding_box(trip: Trip):
+def generate_bounding_box(route):
     
-    if not trip.route:
-        raise Exception("Error: Cannot generate bounding box. Trip has no route")
-    coords = bounds(to_shape(trip.route)).tolist()
+    coords = bounds(route).tolist()
+    
     box = Polygon([
         (coords[0], coords[1]),#   (min_x, min_y)  
-        (coords[2], coords[1]),#   (max_x, min_y)
+        (coords[2], coords[1]),#    (max_x, min_y)
         (coords[2], coords[3]),#   (max_x, max_y)
         (coords[0], coords[3]),#   (min_x, max_y)
         (coords[0], coords[1])])#  (min_x, min_y)
     
     return from_shape(box, srid= 4326)
     
-       
+@trip_router.get('/{trip_id}')
+async def handler_get_trip(trip_id: str):
+    trip = get_trip(trip_id)
+    
+    trip.route = to_geojson(to_shape(trip.route))
+    trip.route = to_geojson(to_shape(trip.bounding_box))
+    return trip
+
+@trip_router.get('/{user_id}')
+async def handler_get_trips(user_id: str):
+    trips: list[TripsResponse] = get_user_trips(user_id)
+    return
 
 @trip_router.post('/')
 async def handler_draft_trip(
-    trip_data: Annotated[TripDraft, Form()],
+    form_data: Annotated[TripDraft, Form()],
     auth_user: Annotated[User, Depends(get_auth_user)]):
     
-    slug = generate_slug(trip_data.title)
+    slug = generate_slug(form_data.title)
     
     new_trip = Trip(user_id = auth_user.id,
-                    title = trip_data.title,
-                    description = trip_data.description,
-                    start_date = trip_data.start_date,
-                    end_date= trip_data.end_date,
+                    title = form_data.title,
+                    description = form_data.description,
+                    start_date = form_data.start_date,
+                    end_date= form_data.end_date,
                     slug = slug
                     )
     
     return create_trip(new_trip)
 
+@trip_router.get("/{trip_id}/rides")
+async def handler_get_rides(trip_id:str) -> list[RideResponse]:
+    rides = get_trip_rides_asc(trip_id)
+    
+    for ride in rides:
+        ride.route = to_geojson(to_shape(ride.route))
+        
+    return rides
+    
 
 @trip_router.post('/{trip_id}/upload')
 async def handler_add_ride(
@@ -145,8 +171,7 @@ async def handler_add_ride(
     except Exception as e:
         raise Exception(f"Error creating ride: {e}")
 
-
-@trip_router.post('/{trip_id}/submit')
+@trip_router.put('/{trip_id}/submit')
 async def handler_save_trip(
     trip_id:str,
     form_data: Annotated[TripModel, Form()],
@@ -155,7 +180,20 @@ async def handler_save_trip(
     trip = get_trip(trip_id)
     if(trip.user_id != auth_user.id):
         raise UnauthorizedError("Error: Trip does not belong to user")
+
+    values_dict = form_data.model_dump()
     
-    trip.route = aggregate_trip(trip)
-    trip.bounding_box = generate_bounding_box(trip) 
+    route,total_distance,total_elevation,high_point = aggregate_trip(trip)
+    values_dict['slug'] = generate_slug(form_data.title)
+    values_dict['route'] = from_shape(route, srid= 4326)
+    values_dict['total_distance'] = total_distance
+    values_dict['total_elevation'] = total_elevation
+    values_dict['high_point'] = high_point
+    values_dict['bounding_box'] = generate_bounding_box(route)
+    
+    trip = update_trip(trip.id, values_dict)
+    trip.bounding_box = to_geojson(to_shape(trip.bounding_box))
+    trip.route = to_geojson(to_shape(trip.route))
+    
+    return trip
     

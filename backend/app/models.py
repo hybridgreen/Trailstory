@@ -49,14 +49,35 @@ class TripDraft(BaseModel):
     start_date: date
     end_date: date | None = None
 
-
 class TripModel(BaseModel):
     title: str
     description: str
     start_date: date
-    end_date: date | None = None
+    end_date: date 
+    
+class TripResponse(BaseModel):
+    title:str
+    description: str
+    start_date: date
+    end_date: date
+    total_distance: float
+    total_elevation: float
+    high_point: float
+    route: str | None
+    bounding_box: str | None
+    slug: str | None
+    
+    model_config = ConfigDict (from_attributes = True )# Allows conversion from SQLAlchemy model 
 
-
+class TripsResponse(BaseModel):
+    model_config = ConfigDict (from_attributes = True )# Allows conversion from SQLAlchemy model 
+    id:str
+    title:str
+    description: str
+    total_distance: float
+    total_elevation: float
+    high_point: float
+    
 ### Ride Models
 class RideResponse(BaseModel):
     id: str

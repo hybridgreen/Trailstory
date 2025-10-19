@@ -37,6 +37,9 @@ class Trip(Base, TimestampMixin):
     start_date: Mapped[date]
     end_date: Mapped[date | None]
     slug:Mapped[str] = mapped_column()
+    total_distance: Mapped[float | None]
+    total_elevation: Mapped[float| None]
+    high_point: Mapped[float| None]
     route: Mapped[str | None] = mapped_column(Geometry('LINESTRING'),default= None)
     bounding_box: Mapped[str | None] = mapped_column(Geometry('POLYGON'), default= None)
     user: Mapped[User] = relationship(back_populates='trips')

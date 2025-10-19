@@ -1,11 +1,9 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from db.schema import engine, Base
-from app.routers import users, auth, trips
+from app.routers import users, auth, trips, admin
 from .errors import *
 # Clear database and recreate (Temporary)
-Base.metadata.drop_all(bind= engine) 
-Base.metadata.create_all(bind= engine)
+
 
 
 app = FastAPI()
@@ -13,7 +11,7 @@ app = FastAPI()
 app.include_router(auth.auth_router)
 app.include_router(users.user_router)
 app.include_router(trips.trip_router)
-
+app.include_router(admin.admin_router)
 
 @app.exception_handler(NotFoundError)
 async def user_not_found_handler(req: Request, exc: NotFoundError):

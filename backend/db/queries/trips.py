@@ -34,18 +34,16 @@ def get_trip(trip_id):
                 raise NotFoundError(f"Trip with ID: {trip}, not found.")
         return trip
     
-def update_trip(trip_id: str, trip: Trip):
+def update_trip(trip_id: str, values:dict):
     try: 
         with Session(engine) as session:
-            query = update(Trip).where(Trip.id == trip_id).values(trip)
+            query = update(Trip).where(Trip.id == trip_id).values(**values)
             session.execute(query)
             session.commit()
-            session.refresh(trip)
-            return trip
+            return session.get(Trip, trip_id)
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
     
-
     
 def delete_trip(trip_id: str):
     try: 
