@@ -112,6 +112,7 @@ def extract_gpx_data(trip_id:str, content: bytes):
     except Exception as e:
         raise Exception(f"Error creating ride: {e}") from e
 
+
 @trip_router.get('/{trip_id}')
 async def handler_get_trip(trip_id: str):
     trip = get_trip(trip_id)
@@ -126,13 +127,16 @@ async def handler_get_trip(trip_id: str):
         
     return {'trip': trip, 'rides': rides}
 
-@trip_router.get('/{user_id}')
-async def handler_get_trips(user_id: str) -> list[TripsResponse]:
+@trip_router.get("/{trip_id}/rides")
+async def handler_get_rides(trip_id:str) -> list[RideResponse]:
     
-    trips: list[TripsResponse] = get_user_trips(user_id)
+    rides = get_trip_rides_asc(trip_id)
     
-    return trips
-
+    for ride in rides:
+        ride.route = to_geojson(to_shape(ride.route))
+        
+    return rides
+    
 @trip_router.post('/')
 async def handler_draft_trip(
     form_data: Annotated[TripDraft, Form()],
@@ -150,16 +154,28 @@ async def handler_draft_trip(
     
     return create_trip(new_trip)
 
-@trip_router.get("/{trip_id}/rides")
-async def handler_get_rides(trip_id:str) -> list[RideResponse]:
+@trip_router.post('/{trip_id}/upload')
+async def handler_add_ride(
+    trip_id: str, 
+    file: UploadFile,
+    auth_user: Annotated[User, Depends(get_auth_user)]
+    ) -> RideResponse:
     
-    rides = get_trip_rides_asc(trip_id)
+    trip = get_trip(trip_id)
+    if auth_user.id != trip.user_id:
+        raise UnauthorizedError("Error: Trip does not belong to user")
+    if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
+        raise InputError(f"Invalid content type header. Received: {file.content_type}")           
+    if not file.filename.endswith('.gpx'):
+        raise InputError('Invalid file type. Supported types: .gpx')
+    if file.size > config.limits.max_upload_size:
+        raise InputError("Maximum file size exceeded. 15MB")
     
-    for ride in rides:
-        ride.route = to_geojson(to_shape(ride.route))
-        
-    return rides
-    
+    content = await file.read()
+    ride_data = extract_gpx_data(trip_id, content)
+
+    return create_ride(ride_data)
+
 @trip_router.post('/{trip_id}/upload/multi')
 async def handler_add_rides(
     trip_id: str, 
@@ -187,28 +203,6 @@ async def handler_add_rides(
         rides.append(ride)
         
     return create_rides(rides)
-
-@trip_router.post('/{trip_id}/upload')
-async def handler_add_ride(
-    trip_id: str, 
-    file: UploadFile,
-    auth_user: Annotated[User, Depends(get_auth_user)]
-    ) -> RideResponse:
-    
-    trip = get_trip(trip_id)
-    if auth_user.id != trip.user_id:
-        raise UnauthorizedError("Error: Trip does not belong to user")
-    if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
-        raise InputError(f"Invalid content type header. Received: {file.content_type}")           
-    if not file.filename.endswith('.gpx'):
-        raise InputError('Invalid file type. Supported types: .gpx')
-    if file.size > config.limits.max_upload_size:
-        raise InputError("Maximum file size exceeded. 15MB")
-    
-    content = await file.read()
-    ride_data = extract_gpx_data(trip_id, content)
-
-    return create_ride(ride_data)
 
 @trip_router.put('/{ride_id}')
 async def handler_update_ride(
@@ -249,7 +243,7 @@ async def handler_save_trip(
     
     return trip
 
-@trip_router.delete('delete/{trip_id}', status_code= 204)
+@trip_router.delete('/{trip_id}', status_code= 204)
 async def handler_delete_trip(
     trip_id:str,
     auth_user: Annotated[User, Depends(get_auth_user)]):

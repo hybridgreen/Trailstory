@@ -2,9 +2,10 @@ import re
 from typing import Annotated
 from fastapi import APIRouter, Depends, Form
 from db.queries.users import User, delete_user, create_user, update_user, get_user_by_username, get_user_by_id
+from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
 from app.security import make_JWT, hash_password, create_refresh_Token
-from app.models import AuthResponse, UserModel, UserResponse, UserUpdate
+from app.models import AuthResponse, UserModel, UserResponse, UserUpdate, TripsResponse
 from app.errors import *
 from app.config import config 
 from app.dependencies import get_auth_user
@@ -55,7 +56,14 @@ async def handler_get_user_name(username:str) -> UserResponse:
 async def handler_get_user_id(id:str) -> UserResponse:
        user = get_user_by_id(id)
        return user
-   
+
+@user_router.get('/{user_id}/trips')
+async def handler_get_trips(user_id: str) -> list[TripsResponse]:
+    
+    trips: list[TripsResponse] = get_user_trips(user_id)
+    
+    return trips
+
 @user_router.put('/{id}')
 async def handler_update_user(
     id:str,
