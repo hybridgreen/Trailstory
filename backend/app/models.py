@@ -53,19 +53,22 @@ class TripModel(BaseModel):
     title: str
     description: str
     start_date: date
-    end_date: date 
+    end_date: date
+    is_published: bool
     
 class TripResponse(BaseModel):
+    id: str
     title:str
     description: str
-    start_date: date
-    end_date: date
-    total_distance: float
-    total_elevation: float
-    high_point: float
+    start_date: date| None
+    end_date: date| None
+    total_distance: float| None
+    total_elevation: float| None
+    high_point: float| None
     route: str | None
     bounding_box: str | None
     slug: str | None
+    is_published: bool
     
     model_config = ConfigDict (from_attributes = True )# Allows conversion from SQLAlchemy model 
 
@@ -73,10 +76,10 @@ class TripsResponse(BaseModel):
     model_config = ConfigDict (from_attributes = True )# Allows conversion from SQLAlchemy model 
     id:str
     title:str
-    description: str
-    total_distance: float
-    total_elevation: float
-    high_point: float
+    description: str | None
+    total_distance: float | None
+    total_elevation: float | None
+    high_point: float | None
     
 ### Ride Models
 class RideResponse(BaseModel):
@@ -90,3 +93,8 @@ class RideResponse(BaseModel):
     high_point : float
     moving_time : float
     gpx_url: str | None
+    
+class RideModel(BaseModel):
+    title: str | None
+    notes: str | None
+    date: date

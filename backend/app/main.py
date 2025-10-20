@@ -18,8 +18,8 @@ async def user_not_found_handler(req: Request, exc: NotFoundError):
     return JSONResponse(content={"detail": str(exc)}, status_code= 404)
 
 @app.exception_handler(ValueError)
-async def user_not_found_handler(req: Request, exc: ValueError):
-    return JSONResponse(content={"detail": str(exc)}, status_code = 401)
+async def value_not_found_handler(req: Request, exc: ValueError):
+    return JSONResponse(content={"detail": str(exc)}, status_code = 409)
 
 @app.exception_handler(DatabaseError)
 async def database_error_handler(req: Request, exc: DatabaseError):
@@ -30,11 +30,11 @@ async def auth_error_handler(req:Request, exc: AuthenticationError):
     return JSONResponse(content={'detail': str(exc)}, status_code= 401)
 
 @app.exception_handler(InvalidGPXError)
-async def auth_error_handler(req:Request, exc: InvalidGPXError):   
+async def gpx_error_handler(req:Request, exc: InvalidGPXError):   
     return JSONResponse(content={'detail': str(exc)}, status_code= 400)
     
 @app.exception_handler(InputError)
-async def auth_error_handler(req:Request, exc: InputError):   
+async def input_error_handler(req:Request, exc: InputError):   
     return JSONResponse(content={'detail': str(exc)}, status_code= 400)
 
 

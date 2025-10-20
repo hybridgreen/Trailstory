@@ -11,6 +11,8 @@ def create_trip(trip: Trip):
             session.commit()
             session.refresh(trip)
             return trip
+    except db_err.IntegrityError as e:
+        raise ValueError("Mutiple trips cannot start on the same day.")
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 

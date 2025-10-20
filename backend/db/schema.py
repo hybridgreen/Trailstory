@@ -30,6 +30,7 @@ class User(Base, TimestampMixin):
 
 class Trip(Base, TimestampMixin):
     __tablename__ = "trips"
+    __table_args__ = (UniqueConstraint("user_id","start_date"),)
     id: Mapped[str] = mapped_column(primary_key= True, default= lambda : secrets.token_hex(8))
     user_id : Mapped[str] = mapped_column(ForeignKey("users.id", ondelete= "CASCADE"))
     title: Mapped[str]
@@ -42,6 +43,7 @@ class Trip(Base, TimestampMixin):
     high_point: Mapped[float| None]
     route: Mapped[str | None] = mapped_column(Geometry('LINESTRING'),default= None)
     bounding_box: Mapped[str | None] = mapped_column(Geometry('POLYGON'), default= None)
+    is_published: Mapped[bool] = mapped_column(default= False)
     user: Mapped[User] = relationship(back_populates='trips')
     rides : Mapped [list['Ride']] = relationship( back_populates='trip')
 

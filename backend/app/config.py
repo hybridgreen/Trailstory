@@ -21,7 +21,7 @@ class AuthConfig:
 
 class APILimits:
     def __init__(self):
-        self.max_upload_size = 25*(1<<20)
+        self.max_upload_size = 15*(1<<20)
 
 class APIConfig():
     def __init__(self, db: DBConfig, auth: AuthConfig, api_limits: APILimits, env: str):

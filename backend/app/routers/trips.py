@@ -4,12 +4,12 @@ from typing import Annotated
 from datetime import datetime, date
 from fastapi import APIRouter, Depends, UploadFile, Form
 from shapely.geometry import LineString, Polygon
-from shapely import bounds, to_geojson, line_merge
+from shapely import bounds, to_geojson
 from geoalchemy2.shape import from_shape, to_shape
 from db.queries.trips import create_trip, get_trip, get_user_trips, delete_trip, update_trip
-from db.queries.rides import create_ride, get_trip_rides_asc
+from db.queries.rides import create_ride, get_trip_rides_asc, create_rides, get_ride, update_ride
 from db.schema import User, Ride, Trip
-from app.models import TripModel , RideResponse, TripDraft, TripsResponse
+from app.models import TripModel , RideResponse, TripDraft, TripsResponse, TripResponse, RideModel
 from app.config import config 
 from app.dependencies import get_auth_user
 from app.errors import UnauthorizedError, InvalidGPXError, InputError
@@ -35,6 +35,7 @@ def aggregate_trip(trip: Trip):
     high_point = float('-inf')
     if not rides:
         raise Exception("Error: No rides found in trip")
+    
     for ride in rides:
         agg_route.extend(list(to_shape(ride.route).coords))
         distance += ride.distance
@@ -56,24 +57,86 @@ def generate_bounding_box(route):
         (coords[0], coords[1])])#  (min_x, min_y)
     
     return from_shape(box, srid= 4326)
-    
+
+def extract_gpx_data(trip_id:str, content: bytes):
+    try:
+        # Get route coordinates
+        coords = []
+        gpx = gpxpy.parse(content) 
+        
+        if not gpx.tracks:
+            raise InvalidGPXError("GPX file contains no tracks")
+        for track in gpx.tracks:
+            if not track.segments:
+                raise InvalidGPXError("Track contains no segments")
+            for segment in track.segments:
+                if len(segment.points) < 10:
+                    raise InvalidGPXError(f"Segment has insufficient points (found {len(segment.points)}, minimum 10 required)")     
+        
+        for track in gpx.tracks:
+            for segment in track.segments:
+                for point in segment.points:
+                    coords.append((point.longitude, point.latitude))
+                    
+        timestamp = gpx.tracks[0].segments[0].points[0].time
+        
+        if not date:
+            raise InvalidGPXError('GPX does not contain timestamps.')
+            
+        line = LineString(coords)
+        linestring = from_shape(line, srid= 4326)
+        
+        # Get moving data
+        moving_data = gpx.get_moving_data()
+        distance = gpx.length_2d()
+        ascent = gpx.get_uphill_downhill().uphill 
+        high_point = gpx.get_elevation_extremes().maximum
+        moving_time = moving_data.moving_time
+        ride_date = timestamp.date()
+        
+        new_ride = Ride (
+            trip_id = trip_id,
+            notes = None,
+            date = ride_date,
+            distance = distance,
+            elevation_gain = ascent,
+            high_point = high_point,
+            moving_time = moving_time,
+            route = linestring,
+            title = None,
+        )
+        return new_ride
+        
+    except InvalidGPXError as e:
+        raise InvalidGPXError(f"Error creating ride: {e}")
+    except Exception as e:
+        raise Exception(f"Error creating ride: {e}") from e
+
 @trip_router.get('/{trip_id}')
 async def handler_get_trip(trip_id: str):
     trip = get_trip(trip_id)
     
     trip.route = to_geojson(to_shape(trip.route))
     trip.route = to_geojson(to_shape(trip.bounding_box))
-    return trip
+    
+    rides = get_trip_rides_asc(trip_id)
+    
+    for ride in rides:
+        ride.route = to_geojson(to_shape(ride.route))
+        
+    return {'trip': trip, 'rides': rides}
 
 @trip_router.get('/{user_id}')
-async def handler_get_trips(user_id: str):
+async def handler_get_trips(user_id: str) -> list[TripsResponse]:
+    
     trips: list[TripsResponse] = get_user_trips(user_id)
-    return
+    
+    return trips
 
 @trip_router.post('/')
 async def handler_draft_trip(
     form_data: Annotated[TripDraft, Form()],
-    auth_user: Annotated[User, Depends(get_auth_user)]):
+    auth_user: Annotated[User, Depends(get_auth_user)]) -> TripResponse:
     
     slug = generate_slug(form_data.title)
     
@@ -89,6 +152,7 @@ async def handler_draft_trip(
 
 @trip_router.get("/{trip_id}/rides")
 async def handler_get_rides(trip_id:str) -> list[RideResponse]:
+    
     rides = get_trip_rides_asc(trip_id)
     
     for ride in rides:
@@ -96,87 +160,75 @@ async def handler_get_rides(trip_id:str) -> list[RideResponse]:
         
     return rides
     
+@trip_router.post('/{trip_id}/upload/multi')
+async def handler_add_rides(
+    trip_id: str, 
+    files: list[UploadFile],
+    auth_user: Annotated[User, Depends(get_auth_user)]
+    ) -> list[RideResponse]:
+    
+    trip = get_trip(trip_id)
+    rides = []
+    if len(files) > 15:
+        raise InputError('Max number of files: 15')
+    if auth_user.id != trip.user_id:
+        raise UnauthorizedError("Error: Trip does not belong to user")
+    for file in files:
+        if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
+            raise InputError(f"Invalid content type header. Received: {file.content_type}")           
+        if not file.filename.endswith('.gpx'):
+            raise InputError('Invalid file type. Supported types: .gpx')
+        if file.size > config.limits.max_upload_size:
+            raise InputError("Maximum file size exceeded. 15MB")
+    
+    for file in files:
+        content = await file.read()
+        ride = extract_gpx_data(trip_id, content)
+        rides.append(ride)
+        
+    return create_rides(rides)
 
 @trip_router.post('/{trip_id}/upload')
 async def handler_add_ride(
     trip_id: str, 
-    notes: Annotated[str, Form()],
-    date: Annotated[date, Form()],
     file: UploadFile,
-    auth_user: Annotated[User, Depends(get_auth_user)],
-    title: Annotated[str | None, Form()] = None) -> RideResponse:
+    auth_user: Annotated[User, Depends(get_auth_user)]
+    ) -> RideResponse:
     
     trip = get_trip(trip_id)
-    
     if auth_user.id != trip.user_id:
         raise UnauthorizedError("Error: Trip does not belong to user")
-        
     if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
-        raise InputError(f"Invalid content type header. Received: {file.content_type}")
-        
+        raise InputError(f"Invalid content type header. Received: {file.content_type}")           
     if not file.filename.endswith('.gpx'):
         raise InputError('Invalid file type. Supported types: .gpx')
-    
     if file.size > config.limits.max_upload_size:
-        raise InputError("Maximum file size exceeded. 50MB")
+        raise InputError("Maximum file size exceeded. 15MB")
     
-    if date < trip.start_date:
-        raise InputError('Error: Ride date cannot start before trip')
+    content = await file.read()
+    ride_data = extract_gpx_data(trip_id, content)
 
+    return create_ride(ride_data)
+
+@trip_router.put('/{ride_id}')
+async def handler_update_ride(
+    ride_id: str, 
+    form_data: Annotated[RideModel, Form()],
+    auth_user: Annotated[User, Depends(get_auth_user)]
+    ) -> RideResponse:
     
-### Extract Data
-    try:
-        # Get route coordinates
-        coords = []
-        content = await file.read()
-        gpx = gpxpy.parse(content) 
-        
-        if not gpx.tracks:
-            raise InvalidGPXError("GPX file contains no tracks")
-        for track in gpx.tracks:
-            if not track.segments:
-                raise InvalidGPXError("Track contains no segments")
-            for segment in track.segments:
-                if len(segment.points) < 10:
-                    raise InvalidGPXError(f"Segment has insufficient points (found {len(segment.points)}, minimum 10 required)")
-                    
-        for track in gpx.tracks:
-            for segment in track.segments:
-                for point in segment.points:
-                    coords.append((point.longitude, point.latitude))
-        line = LineString(coords)
-        linestring = from_shape(line, srid= 4326)
-        
-        # Get moving data
-        moving_data = gpx.get_moving_data()
-        distance = gpx.length_2d()
-        ascent = gpx.get_uphill_downhill().uphill 
-        high_point = gpx.get_elevation_extremes().maximum
-        moving_time = moving_data.moving_time
-        
-        
-        new_ride = Ride(
-            trip_id = trip_id,
-            notes = notes,
-            date= date,
-            distance= distance,
-            elevation_gain= ascent,
-            high_point = high_point,
-            moving_time = moving_time,
-            route = linestring,
-            title = title
-            )
-        return create_ride(new_ride)
-        
-    except Exception as e:
-        raise Exception(f"Error creating ride: {e}")
+    trip = get_trip(get_ride(ride_id))
+    if auth_user.id != trip.user_id:
+        raise UnauthorizedError("Error: Ride does not belong to user")
+    
+    return update_ride(form_data.model_dump())
 
 @trip_router.put('/{trip_id}/submit')
 async def handler_save_trip(
     trip_id:str,
     form_data: Annotated[TripModel, Form()],
-    auth_user: Annotated[User, Depends(get_auth_user)]
-    ):
+    auth_user: Annotated[User, Depends(get_auth_user)]) -> TripsResponse:
+    
     trip = get_trip(trip_id)
     if(trip.user_id != auth_user.id):
         raise UnauthorizedError("Error: Trip does not belong to user")
@@ -196,4 +248,14 @@ async def handler_save_trip(
     trip.route = to_geojson(to_shape(trip.route))
     
     return trip
+
+@trip_router.delete('delete/{trip_id}', status_code= 204)
+async def handler_delete_trip(
+    trip_id:str,
+    auth_user: Annotated[User, Depends(get_auth_user)]):
     
+    trip = get_trip(trip_id)
+    if trip.user_id != auth_user.id:
+        raise UnauthorizedError('Trip does not belong to user')
+    
+    delete_trip(trip_id)

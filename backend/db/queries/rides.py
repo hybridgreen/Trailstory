@@ -1,16 +1,29 @@
 from db.schema import Ride, engine
 from sqlalchemy.orm import Session
 from sqlalchemy import exc as db_err
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, insert
 from app.errors import DatabaseError, NotFoundError
 
-def create_ride(ride_data: Ride):
+def create_ride(ride: Ride):
     try: 
         with Session(engine) as session:
-            session.add(ride_data)
+            session.add(ride)
             session.commit()
-            session.refresh(ride_data)
-            return ride_data
+            session.refresh(ride)
+            return ride
+    except db_err.IntegrityError as e:
+        raise ValueError("Duplicate ride detected.") from e
+    except Exception as e:
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
+
+def create_rides(rides: list[Ride]):
+    try:
+        with Session(engine) as session:
+            session.add_all(rides)
+            session.commit()
+            for ride in rides:
+                session.refresh(ride)
+            return rides
     except db_err.IntegrityError as e:
         raise ValueError("Duplicate ride detected.") from e
     except Exception as e:
@@ -35,7 +48,7 @@ def get_trip_rides_asc(trip_ip:str):
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
     
 
-def update_ride(ride_id: str, ride: Ride):
+def update_ride(ride_id: str, ride):
     try: 
         with Session(engine) as session:
             query = update(Ride).where(Ride.id == ride_id).values(ride)
