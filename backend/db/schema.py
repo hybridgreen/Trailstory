@@ -34,7 +34,7 @@ class Trip(Base, TimestampMixin):
     id: Mapped[str] = mapped_column(primary_key= True, default= lambda : secrets.token_hex(8))
     user_id : Mapped[str] = mapped_column(ForeignKey("users.id", ondelete= "CASCADE"))
     title: Mapped[str]
-    description: Mapped[str | None] = mapped_column(String(300))
+    description: Mapped[str | None] = mapped_column(String(3000))
     start_date: Mapped[date]
     end_date: Mapped[date | None]
     slug:Mapped[str] = mapped_column()
@@ -86,7 +86,8 @@ class refresh_tokens(Base):
     expires_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now() + timedelta(days= 30))
     revoked : Mapped[bool] = mapped_column(default= False)
 
-engine = create_engine(config.db.url, echo= True, plugins= ['geoalchemy2'])
+
+engine = create_engine(config.db.url, echo= config.db.echo_flag, plugins= ['geoalchemy2'])
 
 
     

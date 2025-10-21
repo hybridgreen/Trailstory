@@ -10,8 +10,9 @@ def EnvOrThrow(key:str):
     return var
 
 class DBConfig:
-    def __init__(self, url: str):
+    def __init__(self, url: str, echo_flag: str):
         self.url = url
+        self.echo_flag = echo_flag
 
 class AuthConfig:
     def __init__(self, secret: str,admin_token: str, jwt_expiry: int = 3600):
@@ -29,10 +30,21 @@ class APIConfig():
         self.auth = auth
         self.limits = api_limits
         self.environment = env
+       
             
-            
+if EnvOrThrow('ENVIRONMENT') == 'DEV':
+    db_url = EnvOrThrow('TEST_DB_URL')
+    echo_flag = True
+if EnvOrThrow('ENVIRONMENT') == 'TEST':
+    db_url = EnvOrThrow('TEST_DB_URL')
+    echo_flag = False
+elif EnvOrThrow('ENVIRONMENT') == 'PROD':
+    db_url = EnvOrThrow('DB_URL')
+    echo_flag = False
+    
+    
 config = APIConfig(
-    db = DBConfig(url = EnvOrThrow('DB_URL')),
+    db = DBConfig(url = db_url, echo_flag= echo_flag),
     auth = AuthConfig(secret=EnvOrThrow('SERVER_SECRET'), admin_token= EnvOrThrow('ADMIN_TOKEN')),
     api_limits = APILimits(),
     env = EnvOrThrow('ENVIRONMENT')

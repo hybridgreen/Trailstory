@@ -1,12 +1,12 @@
 import re
 import gpxpy
 from typing import Annotated
-from datetime import datetime, date
+from datetime import date
 from fastapi import APIRouter, Depends, UploadFile, Form
 from shapely.geometry import LineString, Polygon
 from shapely import bounds, to_geojson
 from geoalchemy2.shape import from_shape, to_shape
-from db.queries.trips import create_trip, get_trip, get_user_trips, delete_trip, update_trip
+from db.queries.trips import create_trip, get_trip, delete_trip, update_trip
 from db.queries.rides import create_ride, get_trip_rides_asc, create_rides, get_ride, update_ride
 from db.schema import User, Ride, Trip
 from app.models import TripModel , RideResponse, TripDraft, TripsResponse, TripResponse, RideModel
@@ -66,6 +66,8 @@ def extract_gpx_data(trip_id:str, content: bytes):
         
         if not gpx.tracks:
             raise InvalidGPXError("GPX file contains no tracks")
+        if len(gpx.tracks) > 1:
+            raise InvalidGPXError("GPX file contains multiple tracks")
         for track in gpx.tracks:
             if not track.segments:
                 raise InvalidGPXError("Track contains no segments")
@@ -110,7 +112,7 @@ def extract_gpx_data(trip_id:str, content: bytes):
     except InvalidGPXError as e:
         raise InvalidGPXError(f"Error creating ride: {e}")
     except Exception as e:
-        raise Exception(f"Error creating ride: {e}") from e
+        raise InvalidGPXError(f"Error creating ride: {e}") from e
 
 
 @trip_router.get('/{trip_id}')
@@ -128,7 +130,7 @@ async def handler_get_trip(trip_id: str):
     return {'trip': trip, 'rides': rides}
 
 @trip_router.get("/{trip_id}/rides")
-async def handler_get_rides(trip_id:str) -> list[RideResponse]:
+async def handler_get_rides(trip_id:str) -> RideResponse | list[RideResponse]:
     
     rides = get_trip_rides_asc(trip_id)
     
@@ -173,8 +175,10 @@ async def handler_add_ride(
     
     content = await file.read()
     ride_data = extract_gpx_data(trip_id, content)
-
-    return create_ride(ride_data)
+    
+    ride = create_ride(ride_data)
+    ride.route = to_geojson(to_shape(ride.route))
+    return ride
 
 @trip_router.post('/{trip_id}/upload/multi')
 async def handler_add_rides(
@@ -185,6 +189,7 @@ async def handler_add_rides(
     
     trip = get_trip(trip_id)
     rides = []
+    
     if len(files) > 15:
         raise InputError('Max number of files: 15')
     if auth_user.id != trip.user_id:
@@ -193,16 +198,22 @@ async def handler_add_rides(
         if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
             raise InputError(f"Invalid content type header. Received: {file.content_type}")           
         if not file.filename.endswith('.gpx'):
-            raise InputError('Invalid file type. Supported types: .gpx')
+            raise InputError(f'File : {file.filename} has Invalid file type. Supported types: .gpx')
         if file.size > config.limits.max_upload_size:
             raise InputError("Maximum file size exceeded. 15MB")
+        if file.size == 0 :
+            raise InputError(f"File : {file.filename} is empty")
     
     for file in files:
         content = await file.read()
         ride = extract_gpx_data(trip_id, content)
         rides.append(ride)
+    
+    rides = create_rides(rides)
+    for ride in rides:
+        ride.route = to_geojson(to_shape(ride.route))
         
-    return create_rides(rides)
+    return rides
 
 @trip_router.put('/{ride_id}')
 async def handler_update_ride(
@@ -221,15 +232,19 @@ async def handler_update_ride(
 async def handler_save_trip(
     trip_id:str,
     form_data: Annotated[TripModel, Form()],
-    auth_user: Annotated[User, Depends(get_auth_user)]) -> TripsResponse:
+    auth_user: Annotated[User, Depends(get_auth_user)]):
     
     trip = get_trip(trip_id)
-    if(trip.user_id != auth_user.id):
+    if trip.user_id != auth_user.id:
         raise UnauthorizedError("Error: Trip does not belong to user")
 
+    if form_data.end_date < form_data.start_date:
+        raise InputError('End date cannot be before start date')
+    
     values_dict = form_data.model_dump()
     
     route,total_distance,total_elevation,high_point = aggregate_trip(trip)
+    
     values_dict['slug'] = generate_slug(form_data.title)
     values_dict['route'] = from_shape(route, srid= 4326)
     values_dict['total_distance'] = total_distance
@@ -240,7 +255,6 @@ async def handler_save_trip(
     trip = update_trip(trip.id, values_dict)
     trip.bounding_box = to_geojson(to_shape(trip.bounding_box))
     trip.route = to_geojson(to_shape(trip.route))
-    
     return trip
 
 @trip_router.delete('/{trip_id}', status_code= 204)

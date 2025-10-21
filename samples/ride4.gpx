@@ -15,34 +15,6 @@
         <ele>180.0</ele>
         <time>2025-01-15T10:10:00Z</time>
       </trkpt>
-      <trkpt lat="35.6945" lon="139.6870">
-        <ele>160.0</ele>
-        <time>2025-01-15T10:15:00Z</time>
-      </trkpt>
-      <trkpt lat="35.6950" lon="139.6880">
-        <ele>140.0</ele>
-        <time>2025-01-15T10:20:00Z</time>
-      </trkpt>
-      <trkpt lat="35.6955" lon="139.6890">
-        <ele>120.0</ele>
-        <time>2025-01-15T10:25:00Z</time>
-      </trkpt>
-      <trkpt lat="35.6960" lon="139.6900">
-        <ele>100.0</ele>
-        <time>2025-01-15T10:30:00Z</time>
-      </trkpt>
-      <trkpt lat="35.6965" lon="139.6910">
-        <ele>85.0</ele>
-        <time>2025-01-15T10:35:00Z</time>
-      </trkpt>
-      <trkpt lat="35.6970" lon="139.6920">
-        <ele>75.0</ele>
-        <time>2025-01-15T10:40:00Z</time>
-      </trkpt>
-      <trkpt lat="35.6975" lon="139.6930">
-        <ele>70.0</ele>
-        <time>2025-01-15T10:45:00Z</time>
-      </trkpt>
     </trkseg>
   </trk>
 </gpx>

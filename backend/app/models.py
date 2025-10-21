@@ -93,6 +93,7 @@ class RideResponse(BaseModel):
     high_point : float
     moving_time : float
     gpx_url: str | None
+    route : str
     
 class RideModel(BaseModel):
     title: str | None
