@@ -37,6 +37,9 @@ async def gpx_error_handler(req:Request, exc: InvalidGPXError):
 async def input_error_handler(req:Request, exc: InputError):   
     return JSONResponse(content={'detail': str(exc)}, status_code= 400)
 
+@app.exception_handler(ServerError)
+async def server_error_handler(req:Request, exc: ServerError):   
+    return JSONResponse(content={'detail': str(exc)}, status_code= 500)
 
 @app.get('/') #Should show signup page
 def index():

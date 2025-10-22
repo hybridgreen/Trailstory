@@ -12,7 +12,7 @@ from db.schema import User, Ride, Trip
 from app.models import TripModel , RideResponse, TripDraft, TripsResponse, TripResponse, RideModel
 from app.config import config 
 from app.dependencies import get_auth_user
-from app.errors import UnauthorizedError, InvalidGPXError, InputError
+from app.errors import UnauthorizedError, InvalidGPXError, InputError, ServerError
 
 trip_router = APIRouter(
     prefix="/trips",
@@ -34,7 +34,7 @@ def aggregate_trip(trip: Trip):
     elevation = 0.0
     high_point = float('-inf')
     if not rides:
-        raise Exception("Error: No rides found in trip")
+        raise ServerError("Error: No rides found in trip")
     
     for ride in rides:
         agg_route.extend(list(to_shape(ride.route).coords))
@@ -238,6 +238,7 @@ async def handler_save_trip(
     auth_user: Annotated[User, Depends(get_auth_user)]):
     
     trip = get_trip(trip_id)
+    
     if trip.user_id != auth_user.id:
         raise UnauthorizedError("Error: Trip does not belong to user")
 

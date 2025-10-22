@@ -19,3 +19,6 @@ class InvalidGPXError(Exception):
 
 class InputError(Exception):
     pass
+
+class ServerError(Exception):
+    pass
