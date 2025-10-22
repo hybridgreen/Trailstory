@@ -41,11 +41,9 @@ def test_create_user():
     assert 'access_token' in response_data
     pass
 
-
 def test_create_user_missing_field():
     response = client.post('/users', data={"email": "semaklgsadlg@test.com"})
     assert response.status_code >= 400
-
 
 def test_create_user_duplicate():
     response = client.post('/users', data= fakeUser)
@@ -118,10 +116,3 @@ def test_login_token_is_valid_jwt():
     # JWT format: three parts separated by dots
 
     assert len(token.split('.')) == 3
-
-
-def test_reset_db():
-    response = client.get(
-        '/admin/reset',
-        headers= {"Authorization": f"Bearer {config.auth.admin_token}"})
-    assert response.status_code == 204

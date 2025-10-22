@@ -82,7 +82,7 @@ def extract_gpx_data(trip_id:str, content: bytes):
                     
         timestamp = gpx.tracks[0].segments[0].points[0].time
         
-        if not date:
+        if not timestamp:
             raise InvalidGPXError('GPX does not contain timestamps.')
             
         line = LineString(coords)
@@ -114,6 +114,18 @@ def extract_gpx_data(trip_id:str, content: bytes):
     except Exception as e:
         raise InvalidGPXError(f"Error creating ride: {e}") from e
 
+def validate_gpx_upload(file: UploadFile):
+    
+    if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
+            raise InputError(f"Invalid content type header. Received: {file.content_type}")           
+    if not file.filename.endswith('.gpx'):
+            raise InputError(f'File : {file.filename} has Invalid file type. Supported types: .gpx')
+    if file.size > config.limits.max_upload_size:
+            raise InputError("Maximum file size exceeded. 15MB")
+    if file.size == 0 :
+            raise InputError(f"File : {file.filename} is empty")
+
+    return True
 
 @trip_router.get('/{trip_id}')
 async def handler_get_trip(trip_id: str):
@@ -164,14 +176,11 @@ async def handler_add_ride(
     ) -> RideResponse:
     
     trip = get_trip(trip_id)
+    
     if auth_user.id != trip.user_id:
         raise UnauthorizedError("Error: Trip does not belong to user")
-    if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
-        raise InputError(f"Invalid content type header. Received: {file.content_type}")           
-    if not file.filename.endswith('.gpx'):
-        raise InputError('Invalid file type. Supported types: .gpx')
-    if file.size > config.limits.max_upload_size:
-        raise InputError("Maximum file size exceeded. 15MB")
+    
+    validate_gpx_upload(file)
     
     content = await file.read()
     ride_data = extract_gpx_data(trip_id, content)
@@ -194,15 +203,9 @@ async def handler_add_rides(
         raise InputError('Max number of files: 15')
     if auth_user.id != trip.user_id:
         raise UnauthorizedError("Error: Trip does not belong to user")
+    
     for file in files:
-        if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
-            raise InputError(f"Invalid content type header. Received: {file.content_type}")           
-        if not file.filename.endswith('.gpx'):
-            raise InputError(f'File : {file.filename} has Invalid file type. Supported types: .gpx')
-        if file.size > config.limits.max_upload_size:
-            raise InputError("Maximum file size exceeded. 15MB")
-        if file.size == 0 :
-            raise InputError(f"File : {file.filename} is empty")
+        validate_gpx_upload(file)
     
     for file in files:
         content = await file.read()

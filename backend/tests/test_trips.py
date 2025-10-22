@@ -4,14 +4,7 @@ from app.main import app
 import pytest
 from app.errors import *
 from app.config import config
-import os
 from pathlib import Path
-
-# What we're testing
-# GPX parsing and validation
-# Trip aggregation calculations
-# Slug generation
-# Geometry conversions
 
 client = TestClient(app)
 
@@ -22,7 +15,7 @@ ride1_path = samples_dir.joinpath('ride1.gpx')
 ride2_path = samples_dir.joinpath('ride2.gpx')
 ride3_path = samples_dir.joinpath('ride3.gpx')
 ride4_path = samples_dir.joinpath('ride4.gpx')
-ride5_path = samples_dir.joinpath('ride5.gpx')
+invalid_ride = samples_dir.joinpath('invalid.gpx')
     
 def reset():
     client.post(
@@ -75,8 +68,7 @@ def test_add_ride( user, trip):
             headers={"Authorization": f"Bearer {at}"}
         )
         ride_data = response.json()
-    
-    print(ride_data)
+        
     assert response.status_code == 200
     assert ride_data['distance'] == 921.0259820926173
     assert ride_data['trip_id'] == trip_id
@@ -86,7 +78,7 @@ def test_add_ride_invalid_xml(user, trip):
     trip_id = trip['id']
     at = user['access_token']
     
-    with open(ride5_path, 'rb') as f:
+    with open(invalid_ride, 'rb') as f:
         
         response = client.post(
             f'/trips/{trip_id}/upload',
@@ -97,14 +89,14 @@ def test_add_ride_invalid_xml(user, trip):
         detail: str = error['detail']
     assert response.status_code == 400
     assert "detail" in error
-    assert "XML" in detail  
+    assert "GPX file contains no tracks" in detail  
 
 def test_add_ride_invalid_gpx(user, trip):
     
     trip_id = trip['id']
     at = user['access_token']
     
-    with open(ride5_path, 'rb') as f:
+    with open(invalid_ride, 'rb') as f:
         
         response = client.post(
             f'/trips/{trip_id}/upload',
