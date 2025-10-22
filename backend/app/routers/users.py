@@ -10,25 +10,32 @@ from app.errors import *
 from app.config import config 
 from app.dependencies import get_auth_user
 
+# todo endpoints:
+# Update password
+# Verify email
 
 user_router = APIRouter(
     prefix="/users",
     tags=["Users"]
 )
 
-def validateCredentials(email, password):
+def validate_email(email):
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    password_pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$'
     if not re.match(email_pattern, email):
         raise ValueError('Invalid email')
+
+
+def validate_password(password):
+    password_pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$'
     if not re.match(password_pattern, password):
         raise ValueError('Weak Password')
 
 @user_router.post('/')
 async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> AuthResponse:
-    
-        validateCredentials(user_data.email, user_data.password)
-    
+
+        validate_email(user_data.email)
+        validate_password(user_data.password)
+        
         new_user = user_data.model_dump(exclude={'password'})
         
         new_user['hashed_password'] = hash_password(user_data.password)
@@ -64,27 +71,20 @@ async def handler_get_trips(user_id: str) -> list[TripsResponse]:
     
     return trips
 
-@user_router.put('/{id}')
+@user_router.put('/')
 async def handler_update_user(
-    id:str,
-    user_data: UserUpdate,
+    user_data: Annotated[UserUpdate, Form()],
     authed_user: Annotated[User, Depends(get_auth_user)]) -> UserResponse:
     
-    if authed_user.id != id:
-        raise UnauthorizedError('Not allowed')
+    if user_data.email:
+        validate_email(user_data.email)
     
-    if user_data.email or user_data.password:
-        validateCredentials(user_data.email, user_data.password)
+    updated_user = user_data.model_dump(exclude_unset=True)
+    user = update_user(authed_user.id,updated_user)
     
-    updated_user = user_data.model_dump(exclude_unset=True, exclude='password')
-    updated_user['hashed_password'] = hash_password(user_data.password)
-    
-    user = update_user(id,updated_user)
     return user
 
-@user_router.delete('/{id}', status_code= 204)
-async def handler_delete_user(id:str, authed_user: Annotated[User, Depends(get_auth_user)]):
-    if authed_user.id != id:
-        raise UnauthorizedError('Not allowed')
-    delete_user(id)
+@user_router.delete('/', status_code= 204)
+async def handler_delete_user( authed_user: Annotated[User, Depends(get_auth_user)]):
+    delete_user(authed_user.id)
     return

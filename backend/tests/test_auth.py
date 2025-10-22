@@ -50,18 +50,15 @@ def test_create_user_duplicate():
     assert response.status_code >=400
     assert response.json() == {'detail':"User already exists"}
 
-
 def test_invalid_email():
     response = client.post('/users', data= fakeUser2)
     assert response.status_code >= 400
     assert response.json() == {"detail": "Invalid email"}
 
-
 def test_weak_password():
     response = client.post('/users', data= fakeUser3)
     assert response.status_code >= 400
     assert response.json() == {"detail": "Weak Password"}
-
 
 def test_login_success():
     client.post('/users', data={"email": "test@example.com", "password": "ValidPass123", "username": "testuser"})
@@ -77,13 +74,11 @@ def test_login_success():
     assert 'password' not in data['user']
     assert data['user']['email'] == "test@example.com"
 
-
 def test_login_user_not_found():
     response = client.post('/auth/login', data={"email": "nonexistent@example.com", "password": "anything"})
     
     assert response.status_code == 401
     assert response.json() == "Wrong email or password"
-
 
 def test_login_wrong_password():
     # Arrange: create user
@@ -96,13 +91,11 @@ def test_login_wrong_password():
     assert response.status_code == 401
     assert response.json() == "Wrong email or password"
 
-
 def test_login_empty_credentials():
     response = client.post('/auth/login', data={"email": "", "password": ""})
     
     # Should either be 401 or 422 (validation error) depending on your Pydantic model
     assert response.status_code in [401, 422]
-
 
 def test_login_token_is_valid_jwt():
     # Arrange

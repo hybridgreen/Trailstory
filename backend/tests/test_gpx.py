@@ -21,7 +21,6 @@ two_segments = samples_dir.joinpath('two_segments.gpx')
 no_segments = samples_dir.joinpath('no_segments.gpx')
 
 
-
 def test_valid_ride():
     with open(ride1_path, 'rb') as f:
         upload = UploadFile(

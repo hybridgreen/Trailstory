@@ -11,7 +11,7 @@ class UserModel(BaseModel):
     lastname : str | None = None
     email_verified : bool = None
 
-class UserUpdate(UserModel):
+class UserUpdate(BaseModel):
     email: str | None = None
     username: str | None = None
     firstname : str | None = None

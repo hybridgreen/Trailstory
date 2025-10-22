@@ -8,8 +8,8 @@ from pathlib import Path
 
 client = TestClient(app)
 
-tests_dir = Path(__file__).parent.parent # /Users/yasseryaya-oye/workspace/hybridgreen/Trailstory/backend/tests
-samples_dir =tests_dir.joinpath('../samples') #/Users/yasseryaya-oye/workspace/hybridgreen/Trailstory/samples/ride1.gpx
+tests_dir = Path(__file__).parent.parent  
+samples_dir =tests_dir.joinpath('../samples') 
 
 ride1_path = samples_dir.joinpath('ride1.gpx')
 ride2_path = samples_dir.joinpath('ride2.gpx')
@@ -148,7 +148,7 @@ def test_add_rides(user, trip):
     )
     f1.close()
     f2.close()
-    
+    f3.close()
     assert response.status_code == 200
     
 def test_trip_aggregation(user, trip):
@@ -293,5 +293,26 @@ def test_slug_generation():
     
     assert generate_slug("   ") == ""
     assert generate_slug("!!!") == ""
+
+def test_delete_trip(setup):
     
+    user_response, trip_data = setup
+    at = user_response['access_token']
+    user_data = user_response['user']
+    user_id = user_data['id']
+    pass
+
+
+def submit_trip(setup):
+    pass
+
+#Trip with rides, then update trip dates to exclude rides
+def submit_invalid_trip(setup):
+    pass
+
+#Upload ride to non-existent trip
+
+#Upload rides with dates outside trip date range
+
+
 reset()
