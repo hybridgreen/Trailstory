@@ -4,18 +4,13 @@
 
 Trailstory is a hybrid cycling and travel logging app that bridges the gap between performance tracking and storytelling. Designed for bikepackers and ultra-riders, it combines route data, gear loadouts, notes, and photos into one cohesive journey log.
 
+## Motivation
 
 ## Demo
 
+## Quick Start
 
-## Features 
-
-  ### Core
-    - Multiday trip aggregation
-    - Trip summary page
-      - Highlights, Personal Notes, Route Notes
-      - Gear breakdown, Food & H2O
-      - Photo Linked to GPX
+## Usage
 
 ## Tech Stack
 
