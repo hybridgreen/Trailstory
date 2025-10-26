@@ -1,18 +1,18 @@
 //import { useState } from "react";
-import { AuthCard } from "./Auth.tsx";
+import Auth from "./Auth.tsx";
 
 export default function App() {
   return (
-    <>
+    <div className="app-container">
       <NavBar />
       <div>
-        <AuthCard />
+        <Auth />
       </div>
-    </>
+    </div>
   );
 }
 
-export function NavBar() {
+function NavBar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">

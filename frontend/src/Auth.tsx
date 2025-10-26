@@ -1,6 +1,7 @@
 import { useState } from "react";
+import "./auth.css";
 
-export function AuthCard() {
+export default function AuthCard() {
   const [newUser, setUserStatus] = useState(true);
   const DisplayForm = newUser ? RegisterForm : LoginForm;
   return (
@@ -22,10 +23,14 @@ function RegisterForm() {
     if (!confirmed) {
       alert("Passwords do not match");
     }
+    //return {
+    //email: email,
+    //password: password,
+    //};
   }
 
   return (
-    <div className="authCard">
+    <div>
       <form action={register}>
         <div>
           <label>Email</label>
@@ -60,7 +65,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="authCard">
+    <div>
       <form action={login}>
         <div>
           <label>Email</label>
