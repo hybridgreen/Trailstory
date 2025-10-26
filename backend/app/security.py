@@ -12,7 +12,7 @@ class JWTPayload():
     sub: str
     iat: datetime
     exp: datetime
-
+    
 def hash_password(password:str):
     hashed_pwd = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     return hashed_pwd
