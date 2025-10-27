@@ -3,9 +3,11 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #2c2c2c;
+  /* Dark text */
+  background-color: #faf8f3;
+  /* Light cream */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,13 +16,15 @@
 }
 
 .navbar {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #3d4f2f;
+  /* Dark olive */
+  color: #faf8f3;
   padding: 1rem 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-container {
-  max-width: 1200px;
+  max-width: auto;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -28,8 +32,10 @@
 }
 
 .navbar-logo {
-  font-size: 1.25rem;
+  font-size: 2rem;
   font-weight: bold;
+  color: #e07a3f;
+  /* Orange highlight */
 }
 
 .navbar-links {
@@ -39,12 +45,14 @@
 }
 
 .navbar-links a {
-  color: white;
+  color: #faf8f3;
   text-decoration: none;
+  transition: color 0.2s;
 }
 
 .navbar-links a:hover {
-  color: #d1d1d1;
+  color: #e07a3f;
+  /* Orange on hover */
 }
 
 button {
@@ -54,18 +62,21 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #e07a3f;
+  /* Orange */
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background-color 0.25s;
 }
+
 button:hover {
-  border-color: #646cff;
+  background-color: #c66a31;
+  /* Darker orange */
 }
 
 button:focus,
-
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto #e07a3f;
 }
 
 .button-container {
@@ -74,7 +85,8 @@ button:focus-visible {
 
 .button-container button {
   padding: 0.5rem 1rem;
-  background-color: #4a5568;
+  background-color: #e07a3f;
+  /* Orange */
   color: white;
   border: none;
   border-radius: 4px;
@@ -82,5 +94,6 @@ button:focus-visible {
 }
 
 .button-container button:hover {
-  background-color: #2d3748;
+  background-color: #c66a31;
+  /* Darker orange */
 }
