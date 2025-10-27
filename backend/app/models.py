@@ -5,7 +5,7 @@ from datetime import datetime, date
 
 class UserModel(BaseModel):
     email: str
-    username: str | None = None
+    username: str
     password: str
     firstname : str | None = None
     lastname : str | None = None
@@ -79,6 +79,7 @@ class TripsResponse(BaseModel):
     total_distance: float | None
     total_elevation: float | None
     high_point: float | None
+
     
 ### Ride Models
 class RideResponse(BaseModel):

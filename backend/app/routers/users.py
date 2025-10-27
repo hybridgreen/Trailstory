@@ -5,7 +5,7 @@ from db.queries.users import User, delete_user, create_user, update_user, get_us
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
 from app.security import make_JWT, hash_password, create_refresh_Token
-from app.models import AuthResponse, UserModel, UserResponse, UserUpdate, TripsResponse
+from app.models import AuthResponse, UserModel, UserResponse, UserUpdate, TripResponse
 from app.errors import *
 from app.config import config 
 from app.dependencies import get_auth_user
@@ -65,9 +65,9 @@ async def handler_get_user_id(id:str) -> UserResponse:
        return user
 
 @user_router.get('/{user_id}/trips')
-async def handler_get_trips(user_id: str) -> list[TripsResponse]:
+async def handler_get_trips(user_id: str) -> list[TripResponse]:
     
-    trips: list[TripsResponse] = get_user_trips(user_id)
+    trips: list[TripResponse] = get_user_trips(user_id)
     
     return trips
 

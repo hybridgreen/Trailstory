@@ -2,11 +2,20 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.routers import users, auth, trips, admin
 from .errors import *
+from fastapi.middleware.cors import CORSMiddleware
 # Clear database and recreate (Temporary)
 
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth.auth_router)
 app.include_router(users.user_router)
