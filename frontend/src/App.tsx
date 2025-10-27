@@ -1,13 +1,18 @@
 //import { useState } from "react";
 import Auth from "./Auth.tsx";
+import Dashboard from "./Dashboard.tsx";
+import { BrowserRouter, Routes, Route } from "react-router";
 
 export default function App() {
   return (
     <div className="app-container">
-      <NavBar />
-      <div>
-        <Auth />
-      </div>
+      <BrowserRouter>
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
