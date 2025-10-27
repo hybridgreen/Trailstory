@@ -1,32 +1,95 @@
 import { useState } from "react";
 import "./auth.css";
+const baseURL = "http://127.0.0.1:8000/";
 
-export default function AuthCard() {
-  const [newUser, setUserStatus] = useState(true);
-  const DisplayForm = newUser ? RegisterForm : LoginForm;
-  return (
-    <div className="auth-card">
-      <button onClick={() => setUserStatus(!newUser)}>
-        {newUser ? "Already have an account? Login" : "New user? Register"}
-      </button>
-      <DisplayForm />
-    </div>
-  );
+interface authResponse {
+  access_token: string;
+  refresh_token: string;
+  user: userResponse;
+  token_type: string;
+  expires_in: number;
+}
+
+interface userResponse {
+  id: string;
+  email: string;
+  username: string;
+  firstname: string | null;
+  lastname: string | null;
+  email_verified: boolean;
+}
+
+function storeTokens(data: authResponse) {
+  localStorage.setItem("access_token", data.access_token);
+  localStorage.setItem("refresh_token", data.refresh_token);
+}
+
+function setActiveUser(user_data: userResponse) {
+  localStorage.setItem("user", JSON.stringify(user_data));
+}
+
+export function getActiveUser() {
+  return JSON.parse(localStorage.getItem("user") as string) as userResponse;
+}
+
+function removeTokens() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+}
+
+export async function refreshTokens() {
+  const response = await fetch(baseURL + "auth/refresh", {
+    method: "GET",
+    headers: {
+      authorization: `Bearer ${localStorage.getItem("refresh_token")}`,
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    storeTokens(data);
+  } else {
+    const error = await response.json();
+    console.error("Token refresh failed:", error);
+  }
 }
 
 function RegisterForm() {
-  function register(formData: FormData) {
-    const email = formData.get("email");
-    const password = formData.get("password");
-    const confirmed = password == formData.get("c_password");
+  async function register(formData: FormData) {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const username = formData.get("username") as string;
+    const confirmPassword = formData.get("c_password") as string;
 
-    if (!confirmed) {
+    if (password !== confirmPassword) {
       alert("Passwords do not match");
+      return;
     }
-    //return {
-    //email: email,
-    //password: password,
-    //};
+
+    const registrationData = new FormData();
+    registrationData.append("email", email);
+    registrationData.append("password", password);
+    registrationData.append("username", username);
+
+    try {
+      const response = await fetch(baseURL + "users/", {
+        method: "POST",
+        body: registrationData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Registration successful:", data);
+        storeTokens(data);
+        setActiveUser(data.user);
+      } else {
+        const error = await response.json();
+        console.error("Registration failed:", error);
+        alert("Registration failed: " + (error.detail || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    }
   }
 
   return (
@@ -39,16 +102,22 @@ function RegisterForm() {
           <input name="email" />
         </div>
         <div>
+          <label>Choose a username</label>
+        </div>
+        <div>
+          <input name="username" />
+        </div>
+        <div>
           <label>Password</label>
         </div>
         <div>
-          <input name="password" />
+          <input type="password" name="password" />
         </div>
         <div>
           <label>Confirm password</label>
         </div>
         <div>
-          <input name="c_password" />
+          <input type="password" name="c_password" />
         </div>
         <div>
           <button type="submit"> Sign Up</button>
@@ -59,9 +128,25 @@ function RegisterForm() {
 }
 
 function LoginForm() {
-  function login(formData: FormData) {
-    const email = formData.get("email");
-    const password = formData.get("password");
+  async function login(formData: FormData) {
+    try {
+      const response = await fetch(baseURL + "auth/login", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Login successful:", data);
+        storeTokens(data);
+      } else {
+        const error = await response.json();
+        console.error("Login failed:", error);
+        alert("Login failed: " + (error.detail || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    }
   }
 
   return (
@@ -71,18 +156,31 @@ function LoginForm() {
           <label>Email</label>
         </div>
         <div>
-          <input name="email" />
+          <input type="email" name="email" />
         </div>
         <div>
-          <label>Choose a password</label>
+          <label>Password</label>
         </div>
         <div>
-          <input name="password" />
+          <input type="password" name="password" />
         </div>
         <div>
           <button type="submit"> Log In</button>
         </div>
       </form>
+    </div>
+  );
+}
+
+export default function AuthCard() {
+  const [newUser, setUserStatus] = useState(true);
+  const DisplayForm = newUser ? RegisterForm : LoginForm;
+  return (
+    <div className="auth-card">
+      <button onClick={() => setUserStatus(!newUser)}>
+        {newUser ? "Already have an account? Login" : "New user? Register"}
+      </button>
+      <DisplayForm />
     </div>
   );
 }
