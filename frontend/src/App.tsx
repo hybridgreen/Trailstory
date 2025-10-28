@@ -1,6 +1,7 @@
 //import { useState } from "react";
 import Auth, { removeTokens } from "./Auth.tsx";
 import Trips from "./TripsPage.tsx";
+import DraftTrip from "./CreateTrip.tsx";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
 
@@ -13,7 +14,8 @@ export default function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={<Auth />} />
-          <Route path="/mytrips" element={<Trips />} />
+          <Route path="/trips" element={<Trips />} />
+          <Route path="/trips/new" element={<DraftTrip />} />
         </Routes>
       </BrowserRouter>
     </div>
@@ -38,7 +40,7 @@ function NavBar() {
 
         <div className="navbar-links">
           <a href="/dashboard">Dashboard</a>
-          <a href="/mytrips">Trips</a>
+          <a href="/trips">Trips</a>
           <a href="/profile">My Profile</a>
           <button onClick={logoutHandler}> Logout</button>
         </div>

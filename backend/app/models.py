@@ -82,7 +82,6 @@ class TripsResponse(BaseModel):
     slug: str | None
     is_published: bool
 
-    
 ### Ride Models
 class RideResponse(BaseModel):
     id: str

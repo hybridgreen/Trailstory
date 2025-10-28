@@ -1,42 +1,64 @@
-export default function CreateTrip({ children }) {
-  return <div className="create-trip">{children}</div>;
-}
+import { serverBaseURL } from "./App";
+import { useNavigate } from "react-router";
 
-function TripFrom() {
-  function draftTrip(formData: FormData) {
-    const title = formData.get("title");
-    const description = formData.get("description");
-    const start_date: str = formData.get("start_date");
-    const end_date: str = formData.get("end_date");
+export default function DraftTripForm() {
+  const navigate = useNavigate();
 
-    if (end_date && Date.parse(end_date) < Date.parse(start_date)) {
-      alert("End date cannot be before start date");
+  async function draftTrip(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    if (formData.get("end_date") === "") {
+      formData.delete("end_date");
+    }
+    try {
+      const response = await fetch(`${serverBaseURL}trips`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const tripDraft = await response.json();
+        console.log("Created trip", tripDraft);
+        navigate(`/trips/${tripDraft.id}/edit`);
+      } else {
+        const error = await response.json();
+        console.error("Error:", error);
+        alert("Failed to create trip: " + (error.detail || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
     }
   }
 
   return (
     <div>
-      <form action={draftTrip}>
+      <form onSubmit={draftTrip}>
         <div>
           <label>Title</label>
         </div>
         <div>
-          <input name="title" />
+          <input type="text" name="title" required />
         </div>
         <div>
           <label>Description</label>
         </div>
         <div>
-          <input name="description" />
+          <textarea name="description" rows={4} />
         </div>
         <div>
-          <span>
-            Trip date
-            <input> name= "start_date"</input>
-          </span>
+          <label>Start Date</label>
+          <input type="date" name="start_date" required />
         </div>
         <div>
-          <button type="submit"> Sign Up</button>
+          <label>End Date (optional)</label>
+          <input type="date" name="end_date" />
+        </div>
+        <div>
+          <button type="submit">Create Draft</button>
         </div>
       </form>
     </div>

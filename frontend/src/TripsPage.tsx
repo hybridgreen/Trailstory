@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getActiveUser } from "./Auth";
 
 import { serverBaseURL } from "./App";
+import { useNavigate } from "react-router";
 
 interface tripData {
   id: string;
@@ -37,9 +38,14 @@ async function fetchUserTrips(userID: string): Promise<tripData[]> {
 }
 
 function NewTripButton() {
+  const navigate = useNavigate();
+
+  function newTripHandler() {
+    navigate("/trips/new");
+  }
   return (
     <div className="add-trip-button">
-      <button>New Trip</button>
+      <button onClick={newTripHandler}>New Trip</button>
     </div>
   );
 }
