@@ -1,21 +1,19 @@
+/* Trips.css */
+
 .trips {
-    padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;
-
+    padding: 2rem;
 }
 
-
 .add-trip-button {
-    margin-top: 1rem;
-    size: 100px;
+    margin-bottom: 2rem;
 }
 
 .trip-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
-    margin-top: 2rem;
 }
 
 .trip-card {
@@ -23,6 +21,7 @@
     border-radius: 8px;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
+    background-color: white;
 }
 
 .trip-card:hover {
@@ -33,6 +32,7 @@
 .trip-card a {
     text-decoration: none;
     color: inherit;
+    display: block;
 }
 
 .trip-card img {
@@ -45,10 +45,12 @@
     padding: 1rem;
     margin: 0;
     color: #3d4f2f;
+    font-size: 1.1rem;
 }
 
 .trip-card p {
     padding: 0 1rem 1rem;
     margin: 0;
     color: #666;
+    font-size: 0.9rem;
 }

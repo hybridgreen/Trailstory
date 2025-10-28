@@ -4,7 +4,9 @@ import { getActiveUser } from "./Auth";
 import { serverBaseURL } from "./App";
 import { useNavigate } from "react-router";
 
-interface tripData {
+import "./tripspage.css";
+
+interface tripsData {
   id: string;
   user_id: string;
   title: string;
@@ -14,7 +16,7 @@ interface tripData {
   is_published: boolean;
 }
 
-async function fetchUserTrips(userID: string): Promise<tripData[]> {
+async function fetchUserTrips(userID: string): Promise<tripsData[]> {
   try {
     const response = await fetch(`${serverBaseURL}users/${userID}/trips`, {
       method: "GET",
@@ -50,7 +52,7 @@ function NewTripButton() {
   );
 }
 
-function TripCard({ trip }: { trip: tripData }) {
+function TripCard({ trip }: { trip: tripsData }) {
   return (
     <div className="trip-card">
       <a href={`${serverBaseURL}${trip.user_id}/${trip.slug}`}>
@@ -69,7 +71,7 @@ function TripCard({ trip }: { trip: tripData }) {
 }
 
 export default function Trips() {
-  const [trips, setTrips] = useState<tripData[]>([]);
+  const [trips, setTrips] = useState<tripsData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
