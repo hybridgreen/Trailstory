@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getActiveUser } from "./Auth";
 
-import { baseURL } from "./App";
+import { serverBaseURL } from "./App";
 
 interface tripData {
   id: string;
@@ -15,7 +15,7 @@ interface tripData {
 
 async function fetchUserTrips(userID: string): Promise<tripData[]> {
   try {
-    const response = await fetch(`${baseURL}users/${userID}/trips`, {
+    const response = await fetch(`${serverBaseURL}users/${userID}/trips`, {
       method: "GET",
       headers: {
         authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -47,7 +47,7 @@ function NewTripButton() {
 function TripCard({ trip }: { trip: tripData }) {
   return (
     <div className="trip-card">
-      <a href={`${baseURL}${trip.user_id}/${trip.slug}`}>
+      <a href={`${serverBaseURL}${trip.user_id}/${trip.slug}`}>
         <div>
           <img
             src="https://placehold.co/300x200/3d4f2f/faf8f3?text=Bikepacking+Trip"

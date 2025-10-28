@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./auth.css";
 import { useNavigate } from "react-router";
 
-import { baseURL } from "./App";
+import { serverBaseURL } from "./App";
 
 interface authResponse {
   access_token: string;
@@ -37,7 +37,7 @@ export function removeTokens() {
 }
 
 export async function refreshTokens() {
-  const response = await fetch(baseURL + "auth/refresh", {
+  const response = await fetch(serverBaseURL + "auth/refresh", {
     method: "GET",
     headers: {
       authorization: `Bearer ${localStorage.getItem("refresh_token")}`,
@@ -63,7 +63,7 @@ export function getActiveUser() {
 
 export async function fetchUser(userID: string): Promise<userResponse | null> {
   try {
-    const response = await fetch(`${baseURL}users/${userID}`, {
+    const response = await fetch(`${serverBaseURL}users/${userID}`, {
       method: "GET",
     });
     if (response.ok) {
@@ -99,7 +99,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
     registrationData.append("username", username);
 
     try {
-      const response = await fetch(baseURL + "users/", {
+      const response = await fetch(serverBaseURL + "users/", {
         method: "POST",
         body: registrationData,
       });
@@ -158,7 +158,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   async function login(formData: FormData) {
     try {
-      const response = await fetch(baseURL + "auth/login", {
+      const response = await fetch(serverBaseURL + "auth/login", {
         method: "POST",
         body: formData,
       });

@@ -4,7 +4,7 @@ import Trips from "./TripsPage.tsx";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
 
-export const baseURL = "http://127.0.0.1:8000/";
+export const serverBaseURL = "http://127.0.0.1:8000/";
 
 export default function App() {
   return (
