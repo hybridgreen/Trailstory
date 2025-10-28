@@ -35,27 +35,28 @@ export default function DraftTripForm() {
   }
 
   return (
-    <div>
+    <div className="trip-page">
       <form onSubmit={draftTrip}>
-        <div>
-          <label>Title</label>
-        </div>
-        <div>
-          <input type="text" name="title" required />
-        </div>
-        <div>
-          <label>Description</label>
-        </div>
-        <div>
-          <textarea name="description" rows={4} />
-        </div>
-        <div>
-          <label>Start Date</label>
-          <input type="date" name="start_date" required />
-        </div>
-        <div>
-          <label>End Date (optional)</label>
-          <input type="date" name="end_date" />
+        <div className="trip-info-section">
+          <h3>Create New Trip</h3>
+          <div className="trip-info-form">
+            <div>
+              <label>Title</label>
+              <input type="text" name="title" required />
+            </div>
+            <div>
+              <label>Description</label>
+              <textarea name="description" rows={4} />
+            </div>
+            <div>
+              <label>Start Date</label>
+              <input type="date" name="start_date" required />
+            </div>
+            <div>
+              <label>End Date (optional)</label>
+              <input type="date" name="end_date" />
+            </div>
+          </div>
         </div>
         <div>
           <button type="submit">Create Draft</button>
@@ -64,7 +65,3 @@ export default function DraftTripForm() {
     </div>
   );
 }
-
-function RideUpload() {}
-
-function RideCard() {}

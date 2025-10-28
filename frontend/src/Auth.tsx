@@ -1,7 +1,6 @@
-import { useState } from "react";
 import "./auth.css";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-
 import { serverBaseURL } from "./App";
 
 interface authResponse {

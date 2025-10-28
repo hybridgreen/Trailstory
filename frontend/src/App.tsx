@@ -2,6 +2,7 @@
 import Auth, { removeTokens } from "./Auth.tsx";
 import Trips from "./TripsPage.tsx";
 import DraftTrip from "./CreateTrip.tsx";
+import EditTripPage from "./EditTrip.tsx";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
 
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/" element={<Auth />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/trips/new" element={<DraftTrip />} />
+          <Route path="/trips/:id/edit" element={<EditTripPage />} />
         </Routes>
       </BrowserRouter>
     </div>
