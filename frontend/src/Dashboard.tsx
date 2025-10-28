@@ -5,17 +5,22 @@ const baseURL = "http://127.0.0.1:8000/";
 
 interface tripData {
   id: string;
+  user_id: string;
   title: string;
-  description: string | null;
-  total_distance: number | null;
-  total_elevation: number | null;
-  high_point: number | null;
-  slug: string;
+  description: string;
   start_date: number | null;
-  end_date: number | null;
-  route: string | null;
-  bounding_box: string | null;
+  slug: string | null;
   is_published: boolean;
+}
+
+interface userResponse {
+  id: string;
+  email: string;
+  username: string;
+  firstname: string | null;
+  lastname: string | null;
+  email_verified: boolean;
+  created_at: number;
 }
 
 async function fetchUserTrips(userID: string): Promise<tripData[]> {
@@ -28,6 +33,7 @@ async function fetchUserTrips(userID: string): Promise<tripData[]> {
     });
     if (response.ok) {
       const trips = await response.json();
+      console.log("Fetched trips", trips);
       return trips;
     } else {
       const error = await response.json();
@@ -37,6 +43,26 @@ async function fetchUserTrips(userID: string): Promise<tripData[]> {
   } catch (error) {
     console.error("Unknown error:", error);
     return [];
+  }
+}
+
+async function fetchUser(userID: string): Promise<userResponse | null> {
+  try {
+    const response = await fetch(`${baseURL}users/${userID}`, {
+      method: "GET",
+    });
+    if (response.ok) {
+      const user = await response.json();
+      console.log("Fetched user", user);
+      return user;
+    } else {
+      const error = await response.json();
+      console.error("Error:", error);
+      return null;
+    }
+  } catch (error) {
+    console.error("Unknown error:", error);
+    return null;
   }
 }
 
@@ -51,7 +77,7 @@ function NewTripButton() {
 function TripCard({ trip }: { trip: tripData }) {
   return (
     <div className="trip-card">
-      <a href={`${baseURL}${trip.slug}`}>
+      <a href={`${baseURL}${trip.user_id}/${trip.slug}`}>
         <div>
           <img
             src="https://placehold.co/300x200/3d4f2f/faf8f3?text=Bikepacking+Trip"
@@ -73,6 +99,7 @@ export default function Dashboard() {
   useEffect(() => {
     async function loadTrips() {
       const user = getActiveUser();
+      console.log("Active user:", user.username);
       const userTrips = await fetchUserTrips(user.id);
       setTrips(userTrips);
       setLoading(false);
