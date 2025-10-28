@@ -57,6 +57,7 @@ class TripModel(BaseModel):
     
 class TripResponse(BaseModel):
     id: str
+    user_id: str
     title:str
     description: str
     start_date: date| None
@@ -73,12 +74,13 @@ class TripResponse(BaseModel):
 
 class TripsResponse(BaseModel):
     model_config = ConfigDict (from_attributes = True )# Allows conversion from SQLAlchemy model 
-    id:str
+    id: str
+    user_id: str
     title:str
-    description: str | None
-    total_distance: float | None
-    total_elevation: float | None
-    high_point: float | None
+    description: str
+    start_date: date| None
+    slug: str | None
+    is_published: bool
 
     
 ### Ride Models
