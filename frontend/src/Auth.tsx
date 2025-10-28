@@ -139,6 +139,7 @@ function LoginForm() {
         const data = await response.json();
         console.log("Login successful:", data);
         storeTokens(data);
+        setActiveUser(data.user);
       } else {
         const error = await response.json();
         console.error("Login failed:", error);
