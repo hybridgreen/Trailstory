@@ -131,13 +131,15 @@ def validate_gpx_upload(file: UploadFile):
 async def handler_get_trip(trip_id: str):
     trip = get_trip(trip_id)
     
-    trip.route = to_geojson(to_shape(trip.route))
-    trip.route = to_geojson(to_shape(trip.bounding_box))
+    if(trip.route):
+        trip.route = to_geojson(to_shape(trip.route))
+        trip.bounding_box = to_geojson(to_shape(trip.bounding_box))
     
     rides = get_trip_rides_asc(trip_id)
     
     for ride in rides:
-        ride.route = to_geojson(to_shape(ride.route))
+        if(ride):
+            ride.route = to_geojson(to_shape(ride.route))
         
     return {'trip': trip, 'rides': rides}
 
