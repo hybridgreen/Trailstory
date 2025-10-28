@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./auth.css";
-const baseURL = "http://127.0.0.1:8000/";
+import { useNavigate } from "react-router";
+
+import { baseURL } from "./App";
 
 interface authResponse {
   access_token: string;
@@ -10,13 +12,14 @@ interface authResponse {
   expires_in: number;
 }
 
-interface userResponse {
+export interface userResponse {
   id: string;
   email: string;
   username: string;
   firstname: string | null;
   lastname: string | null;
   email_verified: boolean;
+  created_at: number;
 }
 
 function storeTokens(data: authResponse) {
@@ -28,11 +31,7 @@ function setActiveUser(user_data: userResponse) {
   localStorage.setItem("user", JSON.stringify(user_data));
 }
 
-export function getActiveUser() {
-  return JSON.parse(localStorage.getItem("user") as string) as userResponse;
-}
-
-function removeTokens() {
+export function removeTokens() {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
 }
@@ -54,7 +53,35 @@ export async function refreshTokens() {
   }
 }
 
-function RegisterForm() {
+export const isAuthenticated = () => {
+  return localStorage.getItem("access_token") !== null;
+};
+
+export function getActiveUser() {
+  return JSON.parse(localStorage.getItem("user") as string) as userResponse;
+}
+
+export async function fetchUser(userID: string): Promise<userResponse | null> {
+  try {
+    const response = await fetch(`${baseURL}users/${userID}`, {
+      method: "GET",
+    });
+    if (response.ok) {
+      const user = await response.json();
+      console.log("Fetched user", user);
+      return user;
+    } else {
+      const error = await response.json();
+      console.error("Error:", error);
+      return null;
+    }
+  } catch (error) {
+    console.error("Unknown error:", error);
+    return null;
+  }
+}
+
+function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   async function register(formData: FormData) {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -82,6 +109,7 @@ function RegisterForm() {
         console.log("Registration successful:", data);
         storeTokens(data);
         setActiveUser(data.user);
+        onSuccess();
       } else {
         const error = await response.json();
         console.error("Registration failed:", error);
@@ -127,7 +155,7 @@ function RegisterForm() {
   );
 }
 
-function LoginForm() {
+function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   async function login(formData: FormData) {
     try {
       const response = await fetch(baseURL + "auth/login", {
@@ -140,6 +168,7 @@ function LoginForm() {
         console.log("Login successful:", data);
         storeTokens(data);
         setActiveUser(data.user);
+        onSuccess();
       } else {
         const error = await response.json();
         console.error("Login failed:", error);
@@ -173,15 +202,27 @@ function LoginForm() {
   );
 }
 
+function logoutHandler() {
+  removeTokens();
+  localStorage.removeItem("user");
+  alert("You have been logged out");
+}
+
 export default function AuthCard() {
-  const [newUser, setUserStatus] = useState(true);
+  const navigate = useNavigate();
+
+  const [newUser, setUserStatus] = useState(false);
   const DisplayForm = newUser ? RegisterForm : LoginForm;
   return (
     <div className="auth-card">
       <button onClick={() => setUserStatus(!newUser)}>
         {newUser ? "Already have an account? Login" : "New user? Register"}
       </button>
-      <DisplayForm />
+      <DisplayForm
+        onSuccess={() => {
+          navigate("/dashboard");
+        }}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getActiveUser } from "./Auth";
 
-const baseURL = "http://127.0.0.1:8000/";
+import { baseURL } from "./App";
 
 interface tripData {
   id: string;
@@ -11,16 +11,6 @@ interface tripData {
   start_date: number | null;
   slug: string | null;
   is_published: boolean;
-}
-
-interface userResponse {
-  id: string;
-  email: string;
-  username: string;
-  firstname: string | null;
-  lastname: string | null;
-  email_verified: boolean;
-  created_at: number;
 }
 
 async function fetchUserTrips(userID: string): Promise<tripData[]> {
@@ -43,26 +33,6 @@ async function fetchUserTrips(userID: string): Promise<tripData[]> {
   } catch (error) {
     console.error("Unknown error:", error);
     return [];
-  }
-}
-
-async function fetchUser(userID: string): Promise<userResponse | null> {
-  try {
-    const response = await fetch(`${baseURL}users/${userID}`, {
-      method: "GET",
-    });
-    if (response.ok) {
-      const user = await response.json();
-      console.log("Fetched user", user);
-      return user;
-    } else {
-      const error = await response.json();
-      console.error("Error:", error);
-      return null;
-    }
-  } catch (error) {
-    console.error("Unknown error:", error);
-    return null;
   }
 }
 
@@ -92,14 +62,13 @@ function TripCard({ trip }: { trip: tripData }) {
   );
 }
 
-export default function Dashboard() {
+export default function Trips() {
   const [trips, setTrips] = useState<tripData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadTrips() {
       const user = getActiveUser();
-      console.log("Active user:", user.username);
       const userTrips = await fetchUserTrips(user.id);
       setTrips(userTrips);
       setLoading(false);
@@ -112,7 +81,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard">
+    <div className="trips">
       <NewTripButton />
       <div className="trip-grid">
         {trips.length === 0 ? (
