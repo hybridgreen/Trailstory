@@ -95,6 +95,12 @@ export async function fetchUser(userID: string): Promise<userResponse | null> {
   }
 }
 
+function logoutHandler() {
+  removeTokens();
+  localStorage.removeItem("user");
+  alert("You have been logged out");
+}
+
 function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   async function register(formData: FormData) {
     const email = formData.get("email") as string;
@@ -214,12 +220,6 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
       </form>
     </div>
   );
-}
-
-function logoutHandler() {
-  removeTokens();
-  localStorage.removeItem("user");
-  alert("You have been logged out");
 }
 
 export default function AuthCard() {

@@ -94,3 +94,120 @@
 .trip-page button[type="submit"]:hover {
     background-color: #c66a31;
 }
+.trip-page button[name="delete"] {
+    background-color: #d32f2f;
+    color: white;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.trip-page button[name="delete"]:hover {
+    background-color: #901d1d;
+}
+
+.rides-section {
+    margin-top: 2rem;
+}
+
+.rides-section h3 {
+    color: #3d4f2f;
+    margin-bottom: 1rem;
+}
+
+.ride-card {
+    border: 1px solid #d1cfc7;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: white;
+}
+
+.ride-card .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ride-card .section-header>div {
+    flex: 1;
+}
+
+.ride-card h4 {
+    margin: 0 0 0.25rem 0;
+    color: #3d4f2f;
+}
+
+.ride-stats-preview {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.ride-details {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+.ride-form>div {
+    margin-bottom: 1rem;
+}
+
+.ride-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #3d4f2f;
+}
+
+.ride-form input,
+.ride-form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1cfc7;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.ride-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: #faf8f3;
+    border-radius: 4px;
+}
+
+.ride-stats .stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.ride-stats .stat label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.ride-stats .stat span {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #3d4f2f;
+}
+
+.ride-actions {
+    text-align: right;
+    padding-top: 1rem;
+}
+
+.delete-btn {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #b71c1c;
+}
