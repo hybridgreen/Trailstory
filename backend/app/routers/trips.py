@@ -7,9 +7,9 @@ from shapely.geometry import LineString, Polygon
 from shapely import bounds, to_geojson
 from geoalchemy2.shape import from_shape, to_shape
 from db.queries.trips import create_trip, get_trip, delete_trip, update_trip
-from db.queries.rides import create_ride, get_trip_rides_asc, create_rides, get_ride, update_ride
+from db.queries.rides import create_ride, get_trip_rides_asc, create_rides, get_ride, update_ride, delete_ride
 from db.schema import User, Ride, Trip
-from app.models import TripModel , RideResponse, TripDraft, TripsResponse, TripResponse, RideModel
+from app.models import TripModel , RideResponse, TripDraft, TripDetailResponse, TripResponse, RideModel
 from app.config import config 
 from app.dependencies import get_auth_user
 from app.errors import UnauthorizedError, InvalidGPXError, InputError, ServerError
@@ -116,7 +116,7 @@ def extract_gpx_data(trip_id:str, content: bytes):
 
 def validate_gpx_upload(file: UploadFile):
     
-    if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml", "application/octet-stream"] :
+    if file.content_type not in ["multipart/form-data","application/gpx+xml", "application/xml", "text/xml;charset=utf-8", "application/octet-stream"] :
             raise InputError(f"Invalid content type header. Received: {file.content_type}")           
     if not file.filename.endswith('.gpx'):
             raise InputError(f'File : {file.filename} has Invalid file type. Supported types: .gpx')
@@ -128,7 +128,7 @@ def validate_gpx_upload(file: UploadFile):
     return True
 
 @trip_router.get('/{trip_id}')
-async def handler_get_trip(trip_id: str):
+async def handler_get_trip(trip_id: str) -> TripDetailResponse:
     trip = get_trip(trip_id)
     
     if(trip.route):
@@ -273,3 +273,14 @@ async def handler_delete_trip(
         raise UnauthorizedError('Trip does not belong to user')
     
     delete_trip(trip_id)
+    
+@trip_router.delete('/{ride_id}', status_code= 204)
+async def handler_delete_ride(
+    ride_id:str,
+    auth_user: Annotated[User, Depends(get_auth_user)]):
+    ride = get_ride(ride_id)
+    trip = get_trip(ride.trip_id)
+    if trip.trip_id != auth_user.id:
+        raise UnauthorizedError('Trip does not belong to user')
+    
+    delete_ride(ride_id)
