@@ -274,13 +274,12 @@ async def handler_delete_trip(
     
     delete_trip(trip_id)
     
-@trip_router.delete('/{ride_id}', status_code= 204)
+@trip_router.delete('/ride/{ride_id}', status_code= 204)
 async def handler_delete_ride(
     ride_id:str,
     auth_user: Annotated[User, Depends(get_auth_user)]):
     ride = get_ride(ride_id)
     trip = get_trip(ride.trip_id)
-    if trip.trip_id != auth_user.id:
+    if trip.user_id != auth_user.id:
         raise UnauthorizedError('Trip does not belong to user')
-    
     delete_ride(ride_id)
