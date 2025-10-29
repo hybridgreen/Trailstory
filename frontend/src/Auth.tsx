@@ -24,10 +24,25 @@ export interface userResponse {
 function storeTokens(data: authResponse) {
   localStorage.setItem("access_token", data.access_token);
   localStorage.setItem("refresh_token", data.refresh_token);
+
+  const expiryTime = Date.now() + data.expires_in * 1000;
+  localStorage.setItem("token_expiry", expiryTime.toString());
 }
 
 function setActiveUser(user_data: userResponse) {
   localStorage.setItem("user", JSON.stringify(user_data));
+}
+
+export function isTokenExpiring() {
+  const expiry = localStorage.getItem("token_expiry");
+  if (!expiry) return true;
+
+  const expiryTime = parseInt(expiry);
+  const now = Date.now();
+  const fiveMinutes = 5 * 60 * 1000;
+
+  // Refresh if less than 5 minutes left
+  return expiryTime - now < fiveMinutes;
 }
 
 export function removeTokens() {

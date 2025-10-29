@@ -1,5 +1,6 @@
 import { serverBaseURL } from "./App";
 import { useNavigate } from "react-router";
+import { isTokenExpiring, refreshTokens } from "./Auth";
 
 export default function DraftTripForm() {
   const navigate = useNavigate();
@@ -12,6 +13,9 @@ export default function DraftTripForm() {
       formData.delete("end_date");
     }
     try {
+      if (isTokenExpiring()) {
+        await refreshTokens();
+      }
       const response = await fetch(`${serverBaseURL}trips`, {
         method: "POST",
         headers: {

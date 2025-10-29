@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getActiveUser } from "./Auth";
 
-import { serverBaseURL } from "./App";
+import { clientBaseURL, serverBaseURL } from "./App";
 import { useNavigate } from "react-router";
 
 import "./tripspage.css";
@@ -62,6 +62,8 @@ function TripCard({ trip }: { trip: tripsData }) {
             alt="Trip thumbnail"
           />
         </div>
+      </a>
+      <a href={`${clientBaseURL}trips/${trip.id}/edit`}>
         <div>
           <h3>{trip.title}</h3>
         </div>

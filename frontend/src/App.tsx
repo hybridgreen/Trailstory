@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
 
 export const serverBaseURL = "http://127.0.0.1:8000/";
+export const clientBaseURL = "http://localhost:5173/";
 
 export default function App() {
   return (
