@@ -54,8 +54,7 @@ def update_ride(ride_id: str, ride):
             query = update(Ride).where(Ride.id == ride_id).values(ride)
             session.execute(query)
             session.commit()
-            session.refresh(ride_id)
-            return ride
+            return session.get(Ride, ride_id)
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
     

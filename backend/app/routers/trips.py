@@ -220,19 +220,20 @@ async def handler_add_rides(
         
     return rides
 
-@trip_router.put('/{ride_id}')
+@trip_router.put('/rides/{ride_id}')
 async def handler_update_ride(
     ride_id: str, 
     form_data: Annotated[RideModel, Form()],
     auth_user: Annotated[User, Depends(get_auth_user)]
     ) -> RideResponse:
-    
-    trip = get_trip(get_ride(ride_id))
+    ride = get_ride(ride_id)
+    trip = get_trip(ride.trip_id)
     if auth_user.id != trip.user_id:
         raise UnauthorizedError("Error: Ride does not belong to user")
+    ride = update_ride(ride_id, form_data.model_dump())
+    ride.route = to_geojson(to_shape(ride.route))
     
-    return update_ride(form_data.model_dump())
-
+    return ride
 @trip_router.put('/{trip_id}/submit')
 async def handler_save_trip(
     trip_id:str,
@@ -274,7 +275,7 @@ async def handler_delete_trip(
     
     delete_trip(trip_id)
     
-@trip_router.delete('/ride/{ride_id}', status_code= 204)
+@trip_router.delete('/rides/{ride_id}', status_code= 204)
 async def handler_delete_ride(
     ride_id:str,
     auth_user: Annotated[User, Depends(get_auth_user)]):

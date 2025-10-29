@@ -99,7 +99,6 @@ class RideResponse(BaseModel):
 class RideModel(BaseModel):
     title: str | None
     notes: str | None
-    date: date
 
 ### Complex models
 class TripDetailResponse(BaseModel):
