@@ -22,7 +22,7 @@ auth_router = APIRouter(
     tags=["Authentication"]
 )
 
-@auth_router.post('/login', status_code= 200)
+@auth_router.post('/login/', status_code= 200)
 def loginHandler(form_data: Annotated[loginForm, Form()]) -> LoginResponse:
     try:
         user: User = get_user_by_email(form_data.email)
@@ -43,7 +43,7 @@ def loginHandler(form_data: Annotated[loginForm, Form()]) -> LoginResponse:
     else:
         raise AuthenticationError("Wrong email or password")
     
-@auth_router.get('/refresh', status_code= 200)
+@auth_router.get('/refresh/', status_code= 200)
 def refresh_handler(token : Annotated[str, Depends(get_bearer_token)]) -> RefreshResponse:
     
     token: refresh_tokens = get_token(token)

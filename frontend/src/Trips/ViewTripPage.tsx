@@ -19,7 +19,7 @@ export default function ViewTripPage() {
     async function fetchTripData() {
       try {
         // Fetch trip
-        const tripResponse = await fetch(`${serverBaseURL}/trips/${id}`);
+        const tripResponse = await fetch(`${serverBaseURL}/trips/${id}/`);
         const tripData = await tripResponse.json();
 
         setTrip(tripData.trip);

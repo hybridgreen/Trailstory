@@ -10,7 +10,7 @@ import { useNavigate } from "react-router";
 import { removeTokens, isAuthenticated } from "./utils.tsx";
 
 export const serverBaseURL = "https://trailstory-production.up.railway.app";
-export const clientBaseURL = "http://localhost:5173";
+export const clientBaseURL = import.meta.env.VITE_CLIENT_URL;
 
 export default function App() {
   return (

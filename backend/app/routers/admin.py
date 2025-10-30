@@ -10,7 +10,7 @@ admin_router = APIRouter(
     tags=["Administrator"]
 )
 
-@admin_router.post('/reset', status_code= 204)
+@admin_router.post('/reset/', status_code= 204)
 async def handler_reset(authorization : Annotated[str, Depends(get_bearer_token)]):
     if config.auth.admin_token != authorization:
         raise UnauthorizedError('Invalid admin token')

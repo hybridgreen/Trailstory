@@ -27,7 +27,7 @@ export default function ProfilePage() {
       }
 
       try {
-        const response = await fetch(`${serverBaseURL}/users/me`, {
+        const response = await fetch(`${serverBaseURL}/users/me/`, {
           method: "GET",
           headers: {
             authorization: `Bearer ${localStorage.getItem("access_token")}`,

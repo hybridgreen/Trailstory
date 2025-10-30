@@ -184,7 +184,7 @@ function RideCard({
       if (isTokenExpiring()) {
         await refreshTokens();
       }
-      const response = await fetch(`${serverBaseURL}/rides/${ride.id}`, {
+      const response = await fetch(`${serverBaseURL}/rides/${ride.id}/`, {
         method: "DELETE",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -307,7 +307,7 @@ export default function EditTripPage() {
         await refreshTokens();
       }
       try {
-        const response = await fetch(`${serverBaseURL}/trips/${id}`, {
+        const response = await fetch(`${serverBaseURL}/trips/${id}/`, {
           method: "GET",
         });
 
@@ -339,7 +339,7 @@ export default function EditTripPage() {
       if (isTokenExpiring()) {
         await refreshTokens();
       }
-      const response = await fetch(`${serverBaseURL}/trips/${id}/rides`, {
+      const response = await fetch(`${serverBaseURL}/trips/${id}/rides/`, {
         method: "POST",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -381,7 +381,7 @@ export default function EditTripPage() {
       const formData = getData();
 
       try {
-        const response = await fetch(`${serverBaseURL}/rides/${rideId}`, {
+        const response = await fetch(`${serverBaseURL}/rides/${rideId}/`, {
           method: "PUT",
           headers: {
             authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -411,7 +411,7 @@ export default function EditTripPage() {
     }
     const formData = tripDataGetter.current();
     try {
-      const response = await fetch(`${serverBaseURL}/trips/${tripID}`, {
+      const response = await fetch(`${serverBaseURL}/trips/${tripID}/`, {
         method: "PUT",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -445,7 +445,7 @@ export default function EditTripPage() {
       if (isTokenExpiring()) {
         await refreshTokens();
       }
-      const response = await fetch(`${serverBaseURL}/trips/${tripData!.id}`, {
+      const response = await fetch(`${serverBaseURL}/trips/${tripData!.id}/`, {
         method: "DELETE",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,

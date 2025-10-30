@@ -50,17 +50,17 @@ async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> LoginRe
             "expires_in" : config.auth.jwt_expiry
             }
 
-@user_router.get('/me', status_code= 200) 
+@user_router.get('/me/', status_code= 200) 
 async def handler_get_current_user(
     authed_user: Annotated[User, Depends(get_auth_user)])-> UserResponse:
     return authed_user
    
-@user_router.get('/{id}', status_code= 200)
+@user_router.get('/{id}/', status_code= 200)
 async def handler_get_user_id(id:str) -> UserResponse:
        user = get_user_by_id(id)
        return user
 
-@user_router.get('/{user_id}/trips', status_code= 200)
+@user_router.get('/{user_id}/trips/', status_code= 200)
 async def handler_get_trips(user_id: str) -> list[TripsResponse]:
     
     trips: list[TripsResponse] = get_user_trips(user_id)

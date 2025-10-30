@@ -18,7 +18,7 @@ interface tripsData {
 
 async function fetchUserTrips(userID: string): Promise<tripsData[]> {
   try {
-    const response = await fetch(`${serverBaseURL}/users/${userID}/trips`, {
+    const response = await fetch(`${serverBaseURL}/users/${userID}/trips/`, {
       method: "GET",
       headers: {
         authorization: `Bearer ${localStorage.getItem("access_token")}`,

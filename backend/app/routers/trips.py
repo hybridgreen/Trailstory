@@ -127,7 +127,7 @@ def validate_gpx_upload(file: UploadFile):
 
     return True
 
-@trip_router.get('/{trip_id}', status_code= 200)
+@trip_router.get('/{trip_id}/', status_code= 200)
 async def handler_get_trip(trip_id: str) -> TripDetailResponse:
     trip = get_trip(trip_id)
     
@@ -143,7 +143,7 @@ async def handler_get_trip(trip_id: str) -> TripDetailResponse:
         
     return {'trip': trip, 'rides': rides}
 
-@trip_router.get("/{trip_id}/rides", status_code= 200)
+@trip_router.get("/{trip_id}/rides/", status_code= 200)
 async def handler_get_rides(trip_id:str) -> RideResponse | list[RideResponse]:
     
     rides = get_trip_rides_asc(trip_id)
@@ -170,7 +170,7 @@ async def handler_draft_trip(
     
     return create_trip(new_trip)
 
-@trip_router.post('/{trip_id}/rides', status_code= 201)
+@trip_router.post('/{trip_id}/rides/', status_code= 201)
 async def handler_add_rides(
     trip_id: str, 
     files: list[UploadFile],
@@ -199,7 +199,7 @@ async def handler_add_rides(
         
     return rides
 
-@trip_router.put('/{trip_id}')
+@trip_router.put('/{trip_id}/')
 async def handler_save_trip(
     trip_id:str,
     form_data: Annotated[TripModel, Form()],
@@ -229,7 +229,7 @@ async def handler_save_trip(
     trip.route = to_geojson(to_shape(trip.route))
     return trip
 
-@trip_router.delete('/{trip_id}', status_code= 204)
+@trip_router.delete('/{trip_id}/', status_code= 204)
 async def handler_delete_trip(
     trip_id:str,
     auth_user: Annotated[User, Depends(get_auth_user)]):
@@ -245,7 +245,7 @@ prefix="/rides",
 tags=["Rides"]
 )
 
-@rides_router.put('/{ride_id}', status_code= 200)
+@rides_router.put('/{ride_id}/', status_code= 200)
 async def handler_update_ride(
     ride_id: str, 
     form_data: Annotated[RideModel, Form()],
@@ -260,7 +260,7 @@ async def handler_update_ride(
     return ride
     
 
-@rides_router.delete('/{ride_id}', status_code= 204)
+@rides_router.delete('/{ride_id}/', status_code= 204)
 async def handler_delete_ride(  
     ride_id:str,
     auth_user: Annotated[User, Depends(get_auth_user)]):
