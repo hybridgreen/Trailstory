@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getActiveUser } from "./utils";
+import { getActiveUser, isAuthenticated } from "./utils";
 
 import { clientBaseURL, serverBaseURL } from "./App";
 import { useNavigate } from "react-router";
@@ -86,6 +86,9 @@ export default function Trips() {
     loadTrips();
   }, []);
 
+  if (!isAuthenticated()) {
+    return <div className="trips">Please login to see your trips.</div>;
+  }
   if (loading) {
     return <div>Loading trips...</div>;
   }
