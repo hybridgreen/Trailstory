@@ -3,9 +3,18 @@ from fastapi import HTTPException
 from app.routers import users, auth, trips, admin
 from .errors import *
 from fastapi.middleware.cors import CORSMiddleware
+from db.schema import engine, Base
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Creating database tables...")
+    Base.metadata.create_all(bind=engine)
+    print("Tables created successfully!")
+    yield
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
