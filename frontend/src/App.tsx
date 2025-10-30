@@ -9,7 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
 import { removeTokens, isAuthenticated } from "./utils.tsx";
 
-export const serverBaseURL = "http://127.0.0.1:8000";
+export const serverBaseURL = "https://trailstory-production.up.railway.app";
 export const clientBaseURL = "http://localhost:5173";
 
 export default function App() {
@@ -48,7 +48,9 @@ function NavBar() {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-logo">
-          <a href="/">Trailstory </a>
+          <a href="/" style={{ textDecoration: "none", color: "inherit" }}>
+            Trailstory{" "}
+          </a>
         </div>
 
         <div className="navbar-links">

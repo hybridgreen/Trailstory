@@ -44,7 +44,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
     registrationData.append("username", username);
 
     try {
-      const response = await fetch(serverBaseURL + "/users/", {
+      const response = await fetch(`${serverBaseURL}/users/`, {
         method: "POST",
         body: registrationData,
       });
@@ -103,7 +103,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   async function login(formData: FormData) {
     try {
-      const response = await fetch(serverBaseURL + "/auth/login", {
+      const response = await fetch(`${serverBaseURL}/auth/login/`, {
         method: "POST",
         body: formData,
       });
