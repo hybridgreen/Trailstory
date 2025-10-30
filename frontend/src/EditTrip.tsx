@@ -2,7 +2,7 @@ import { serverBaseURL } from "./App";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import "./EditTrip.css";
-import { isTokenExpiring, refreshTokens } from "./Auth";
+import { isTokenExpiring, refreshTokens } from "./utils";
 
 interface tripData {
   id: string;
@@ -92,7 +92,7 @@ function TripInfo({
               />
             </div>
             <div>
-              <label>Start Date</label>
+              <label>Start Date **</label>
               <input
                 type="date"
                 name="start_date"
@@ -101,14 +101,19 @@ function TripInfo({
               />
             </div>
             <div>
-              <label>End Date</label>
+              <label>End Date **</label>
               <input
                 type="date"
                 name="end_date"
-                defaultValue={trip.end_date || ""}
+                defaultValue={trip.end_date || trip.start_date}
                 required
               />
             </div>
+
+            <span>
+              <label>Publish?</label>
+              <input type="checkbox" name="is_published" value={"true"} />
+            </span>
           </div>
         )}
       </form>
@@ -124,12 +129,6 @@ function UploadRidesInput(props: { onUpload: (files: FileList) => void }) {
 
     if (!files || files.length === 0) {
       return;
-    }
-
-    // REMOVE LATER
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      console.log(file.name, file.size);
     }
     props.onUpload(files);
   }
@@ -185,7 +184,7 @@ function RideCard({
       if (isTokenExpiring()) {
         await refreshTokens();
       }
-      const response = await fetch(`${serverBaseURL}trips/rides/${ride.id}`, {
+      const response = await fetch(`${serverBaseURL}/rides/${ride.id}`, {
         method: "DELETE",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -308,7 +307,7 @@ export default function EditTripPage() {
         await refreshTokens();
       }
       try {
-        const response = await fetch(`${serverBaseURL}trips/${id}`, {
+        const response = await fetch(`${serverBaseURL}/trips/${id}`, {
           method: "GET",
         });
 
@@ -340,7 +339,7 @@ export default function EditTripPage() {
       if (isTokenExpiring()) {
         await refreshTokens();
       }
-      const response = await fetch(`${serverBaseURL}trips/${id}/upload/multi`, {
+      const response = await fetch(`${serverBaseURL}/trips/${id}/rides`, {
         method: "POST",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -382,7 +381,7 @@ export default function EditTripPage() {
       const formData = getData();
 
       try {
-        const response = await fetch(`${serverBaseURL}trips/rides/${rideId}`, {
+        const response = await fetch(`${serverBaseURL}/rides/${rideId}`, {
           method: "PUT",
           headers: {
             authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -412,7 +411,7 @@ export default function EditTripPage() {
     }
     const formData = tripDataGetter.current();
     try {
-      const response = await fetch(`${serverBaseURL}trips/${tripID}/submit`, {
+      const response = await fetch(`${serverBaseURL}/trips/${tripID}`, {
         method: "PUT",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -421,10 +420,17 @@ export default function EditTripPage() {
       });
 
       if (!response.ok) {
-        console.error(`Failed to save ride ${tripID}`);
+        if (!response.ok) {
+          console.error(`Failed to save trip ${tripID}`);
+          console.log("Sent Data:");
+          for (const [key, value] of formData.entries()) {
+            console.log(key, value);
+          }
+        }
+        console.error(`Failed to save trip ${tripID}`);
       }
     } catch (error) {
-      console.error(`Error saving ride ${tripID}:`, error);
+      console.error(`Error saving trip ${tripID}:`, error);
     }
   }
 
@@ -437,7 +443,7 @@ export default function EditTripPage() {
       if (isTokenExpiring()) {
         await refreshTokens();
       }
-      const response = await fetch(`${serverBaseURL}trips/${tripData!.id}`, {
+      const response = await fetch(`${serverBaseURL}/trips/${tripData!.id}`, {
         method: "DELETE",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,
