@@ -1,4 +1,3 @@
-//import { useState } from "react";
 import Auth from "./Auth.tsx";
 
 import Trips from "./TripsPage.tsx";
@@ -6,7 +5,7 @@ import DraftTrip from "./CreateTrip.tsx";
 import EditTripPage from "./EditTrip.tsx";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
-import { removeTokens } from "./utils.tsx";
+import { removeTokens, isAuthenticated } from "./utils.tsx";
 
 export const serverBaseURL = "http://127.0.0.1:8000";
 export const clientBaseURL = "http://localhost:5173";
@@ -30,11 +29,16 @@ export default function App() {
 function NavBar() {
   const navigate = useNavigate();
 
-  function logoutHandler() {
-    removeTokens();
-    localStorage.removeItem("user");
-    alert("You have been logged out");
-    navigate("/");
+  function loginButtonHandler() {
+    if (isAuthenticated()) {
+      removeTokens();
+      localStorage.removeItem("user");
+      alert("You have been logged out");
+      navigate("/");
+      return;
+    } else {
+      navigate("/");
+    }
   }
   return (
     <nav className="navbar">
@@ -47,7 +51,10 @@ function NavBar() {
           <a href="/dashboard">Dashboard</a>
           <a href="/trips">Trips</a>
           <a href="/profile">My Profile</a>
-          <button onClick={logoutHandler}> Logout</button>
+          <button onClick={loginButtonHandler}>
+            {" "}
+            {isAuthenticated() ? "Logout" : "Login"}
+          </button>
         </div>
       </div>
     </nav>
