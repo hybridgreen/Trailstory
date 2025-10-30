@@ -1,8 +1,7 @@
 import "./auth.css";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { serverBaseURL } from "./App";
-import { storeTokens } from "./utils";
+import { storeTokens, serverBaseURL } from "./utils";
 
 export interface authResponse {
   access_token: string;

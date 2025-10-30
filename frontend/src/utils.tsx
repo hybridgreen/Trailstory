@@ -1,5 +1,7 @@
-import { serverBaseURL } from "./App";
 import type { authResponse, userResponse } from "./Auth";
+
+export const serverBaseURL = import.meta.env.VITE_SERVER_URL;
+export const clientBaseURL = import.meta.env.VITE_CLIENT_URL;
 
 export function isTokenExpiring() {
   const expiry = localStorage.getItem("token_expiry");

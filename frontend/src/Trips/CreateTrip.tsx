@@ -1,6 +1,6 @@
-import { serverBaseURL } from "../App";
+import {} from "../App";
 import { useNavigate } from "react-router";
-import { isTokenExpiring, refreshTokens } from "../utils";
+import { isTokenExpiring, refreshTokens, serverBaseURL } from "../utils";
 
 export default function DraftTripForm() {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export default function DraftTripForm() {
       if (isTokenExpiring()) {
         await refreshTokens();
       }
-      const response = await fetch(`${serverBaseURL}/trips`, {
+      const response = await fetch(`${serverBaseURL}/trips/`, {
         method: "POST",
         headers: {
           authorization: `Bearer ${localStorage.getItem("access_token")}`,

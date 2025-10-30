@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import mapboxgl from "mapbox-gl";
-import { serverBaseURL } from "../App";
+import { serverBaseURL } from "../utils";
 import "./ViewTripPage.css";
 import type { tripData, rideData } from "./EditTrip";
 

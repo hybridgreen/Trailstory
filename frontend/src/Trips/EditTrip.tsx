@@ -1,8 +1,7 @@
-import { serverBaseURL } from "../App";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import "./EditTrip.css";
-import { isTokenExpiring, refreshTokens } from "../utils";
+import { isTokenExpiring, refreshTokens, serverBaseURL } from "../utils";
 
 export interface tripData {
   id: string;

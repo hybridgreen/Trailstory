@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { serverBaseURL } from "./App";
-import { isTokenExpiring, refreshTokens } from "./utils";
+import { isTokenExpiring, refreshTokens, serverBaseURL } from "./utils";
 import "./Profile.css";
 
 interface UserProfile {
