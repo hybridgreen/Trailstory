@@ -11,8 +11,7 @@ from .config import config
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Creating database tables...")
-    print(config.db.url)
-    #Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
     print("Tables created successfully!")
     yield
 
