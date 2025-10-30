@@ -1,11 +1,11 @@
 import re
 from typing import Annotated
 from fastapi import APIRouter, Depends, Form
-from db.queries.users import User, delete_user, create_user, update_user, get_user_by_username, get_user_by_id
+from db.queries.users import User, delete_user, create_user, update_user, get_user_by_id
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
 from app.security import make_JWT, hash_password, create_refresh_Token
-from app.models import AuthResponse, UserModel, UserResponse, UserUpdate, TripsResponse
+from app.models import LoginResponse, UserModel, UserResponse, UserUpdate, TripsResponse
 from app.errors import *
 from app.config import config 
 from app.dependencies import get_auth_user
@@ -30,8 +30,8 @@ def validate_password(password):
     if not re.match(password_pattern, password):
         raise ValueError('Weak Password')
 
-@user_router.post('/')
-async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> AuthResponse:
+@user_router.post('/', status_code= 201)
+async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> LoginResponse:
 
         validate_email(user_data.email)
         validate_password(user_data.password)
@@ -50,41 +50,34 @@ async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> AuthRes
             "expires_in" : config.auth.jwt_expiry
             }
 
-@user_router.get('/me') 
-async def handler_get_current_user(authed_user: Annotated[User, Depends(get_auth_user)]) -> UserResponse:
+@user_router.get('/me', status_code= 200) 
+async def handler_get_current_user(
+    authed_user: Annotated[User, Depends(get_auth_user)])-> UserResponse:
     return authed_user
-
-@user_router.get('/username/{username}')
-async def handler_get_user_name(username:str) -> UserResponse:
-       user = get_user_by_username(username)
-       return user
    
-@user_router.get('/{id}')
+@user_router.get('/{id}', status_code= 200)
 async def handler_get_user_id(id:str) -> UserResponse:
        user = get_user_by_id(id)
        return user
 
-@user_router.get('/{user_id}/trips')
+@user_router.get('/{user_id}/trips', status_code= 200)
 async def handler_get_trips(user_id: str) -> list[TripsResponse]:
     
     trips: list[TripsResponse] = get_user_trips(user_id)
-    
     return trips
 
-@user_router.put('/')
+@user_router.put('/', status_code= 200)
 async def handler_update_user(
     user_data: Annotated[UserUpdate, Form()],
-    authed_user: Annotated[User, Depends(get_auth_user)]) -> UserResponse:
+    authed_user: Annotated[User, Depends(get_auth_user)])-> UserResponse:
     
     if user_data.email:
         validate_email(user_data.email)
     
     updated_user = user_data.model_dump(exclude_unset=True)
     user = update_user(authed_user.id,updated_user)
-    
     return user
 
 @user_router.delete('/', status_code= 204)
 async def handler_delete_user( authed_user: Annotated[User, Depends(get_auth_user)]):
     delete_user(authed_user.id)
-    return

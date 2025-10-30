@@ -34,10 +34,16 @@ class loginForm(BaseModel):
     email: str
     password: str
     
-class AuthResponse(BaseModel):
+class LoginResponse(BaseModel):
     access_token: str
     refresh_token: str
     user: UserResponse
+    token_type: str | None
+    expires_in: int | None
+
+class RefreshResponse(BaseModel):
+    access_token: str
+    refresh_token: str
     token_type: str | None
     expires_in: int | None
 
