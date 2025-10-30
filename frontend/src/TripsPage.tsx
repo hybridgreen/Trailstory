@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getActiveUser } from "./Auth";
+import { getActiveUser } from "./utils";
 
 import { clientBaseURL, serverBaseURL } from "./App";
 import { useNavigate } from "react-router";
@@ -18,7 +18,7 @@ interface tripsData {
 
 async function fetchUserTrips(userID: string): Promise<tripsData[]> {
   try {
-    const response = await fetch(`${serverBaseURL}users/${userID}/trips`, {
+    const response = await fetch(`${serverBaseURL}/users/${userID}/trips`, {
       method: "GET",
       headers: {
         authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -55,7 +55,7 @@ function NewTripButton() {
 function TripCard({ trip }: { trip: tripsData }) {
   return (
     <div className="trip-card">
-      <a href={`${serverBaseURL}${trip.user_id}/${trip.slug}`}>
+      <a href={`${serverBaseURL}/${trip.user_id}/${trip.slug}`}>
         <div>
           <img
             src="https://placehold.co/300x200/3d4f2f/faf8f3?text=Bikepacking+Trip"
@@ -63,7 +63,7 @@ function TripCard({ trip }: { trip: tripsData }) {
           />
         </div>
       </a>
-      <a href={`${clientBaseURL}trips/${trip.id}/edit`}>
+      <a href={`${clientBaseURL}/trips/${trip.id}/edit`}>
         <div>
           <h3>{trip.title}</h3>
         </div>

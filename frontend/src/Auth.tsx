@@ -2,8 +2,9 @@ import "./auth.css";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { serverBaseURL } from "./App";
+import { storeTokens } from "./utils";
 
-interface authResponse {
+export interface authResponse {
   access_token: string;
   refresh_token: string;
   user: userResponse;
@@ -21,84 +22,8 @@ export interface userResponse {
   created_at: number;
 }
 
-function storeTokens(data: authResponse) {
-  localStorage.setItem("access_token", data.access_token);
-  localStorage.setItem("refresh_token", data.refresh_token);
-
-  const expiryTime = Date.now() + data.expires_in * 1000;
-  localStorage.setItem("token_expiry", expiryTime.toString());
-}
-
 function setActiveUser(user_data: userResponse) {
   localStorage.setItem("user", JSON.stringify(user_data));
-}
-
-export function isTokenExpiring() {
-  const expiry = localStorage.getItem("token_expiry");
-  if (!expiry) return true;
-
-  const expiryTime = parseInt(expiry);
-  const now = Date.now();
-  const fiveMinutes = 5 * 60 * 1000;
-
-  // Refresh if less than 5 minutes left
-  return expiryTime - now < fiveMinutes;
-}
-
-export function removeTokens() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-}
-
-export async function refreshTokens() {
-  const response = await fetch(serverBaseURL + "auth/refresh", {
-    method: "GET",
-    headers: {
-      authorization: `Bearer ${localStorage.getItem("refresh_token")}`,
-    },
-  });
-
-  if (response.ok) {
-    const data = await response.json();
-    storeTokens(data);
-  } else {
-    const error = await response.json();
-    console.error("Token refresh failed:", error);
-  }
-}
-
-export const isAuthenticated = () => {
-  return localStorage.getItem("access_token") !== null;
-};
-
-export function getActiveUser() {
-  return JSON.parse(localStorage.getItem("user") as string) as userResponse;
-}
-
-export async function fetchUser(userID: string): Promise<userResponse | null> {
-  try {
-    const response = await fetch(`${serverBaseURL}users/${userID}`, {
-      method: "GET",
-    });
-    if (response.ok) {
-      const user = await response.json();
-      console.log("Fetched user", user);
-      return user;
-    } else {
-      const error = await response.json();
-      console.error("Error:", error);
-      return null;
-    }
-  } catch (error) {
-    console.error("Unknown error:", error);
-    return null;
-  }
-}
-
-function logoutHandler() {
-  removeTokens();
-  localStorage.removeItem("user");
-  alert("You have been logged out");
 }
 
 function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
@@ -119,7 +44,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
     registrationData.append("username", username);
 
     try {
-      const response = await fetch(serverBaseURL + "users/", {
+      const response = await fetch(serverBaseURL + "/users/", {
         method: "POST",
         body: registrationData,
       });
@@ -178,7 +103,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   async function login(formData: FormData) {
     try {
-      const response = await fetch(serverBaseURL + "auth/login", {
+      const response = await fetch(serverBaseURL + "/auth/login", {
         method: "POST",
         body: formData,
       });

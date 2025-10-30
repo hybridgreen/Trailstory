@@ -1,13 +1,15 @@
 //import { useState } from "react";
-import Auth, { removeTokens } from "./Auth.tsx";
+import Auth from "./Auth.tsx";
+
 import Trips from "./TripsPage.tsx";
 import DraftTrip from "./CreateTrip.tsx";
 import EditTripPage from "./EditTrip.tsx";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
+import { removeTokens } from "./utils.tsx";
 
-export const serverBaseURL = "http://127.0.0.1:8000/";
-export const clientBaseURL = "http://localhost:5173/";
+export const serverBaseURL = "http://127.0.0.1:8000";
+export const clientBaseURL = "http://localhost:5173";
 
 export default function App() {
   return (
