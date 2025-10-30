@@ -18,7 +18,9 @@ app.add_middleware(
 app.include_router(auth.auth_router)
 app.include_router(users.user_router)
 app.include_router(trips.trip_router)
+app.include_router(trips.rides_router)
 app.include_router(admin.admin_router)
+
 
 @app.exception_handler(NotFoundError)
 async def user_not_found_handler(req: Request, exc: NotFoundError):

@@ -223,7 +223,7 @@ async def handler_save_trip(
     values_dict['total_elevation'] = total_elevation
     values_dict['high_point'] = high_point
     values_dict['bounding_box'] = generate_bounding_box(route)
-    
+    values_dict['is_published'] = form_data.is_published == "true"
     trip = update_trip(trip.id, values_dict)
     trip.bounding_box = to_geojson(to_shape(trip.bounding_box))
     trip.route = to_geojson(to_shape(trip.route))
