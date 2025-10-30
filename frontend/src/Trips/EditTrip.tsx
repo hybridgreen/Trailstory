@@ -1,10 +1,10 @@
-import { serverBaseURL } from "./App";
+import { serverBaseURL } from "../App";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import "./EditTrip.css";
-import { isTokenExpiring, refreshTokens } from "./utils";
+import { isTokenExpiring, refreshTokens } from "../utils";
 
-interface tripData {
+export interface tripData {
   id: string;
   user_id: string;
   title: string;
@@ -20,7 +20,7 @@ interface tripData {
   is_published: boolean;
 }
 
-interface rideData {
+export interface rideData {
   id: string;
   trip_id: string;
   title: string | null;
@@ -420,15 +420,17 @@ export default function EditTripPage() {
       });
 
       if (!response.ok) {
-        if (!response.ok) {
-          console.error(`Failed to save trip ${tripID}`);
-          console.log("Sent Data:");
-          for (const [key, value] of formData.entries()) {
-            console.log(key, value);
-          }
-        }
         console.error(`Failed to save trip ${tripID}`);
+        console.log("Sent Data:");
+        for (const [key, value] of formData.entries()) {
+          console.log(key, value);
+        }
       }
+      const trip: tripData = await response.json();
+      console.log("Saved trip:", trip.title);
+      console.log(trip);
+      console.log(trip.route);
+      console.log(trip.bounding_box);
     } catch (error) {
       console.error(`Error saving trip ${tripID}:`, error);
     }
@@ -453,7 +455,7 @@ export default function EditTripPage() {
       if (response.ok) {
         navigate("/trips");
       } else {
-        alert("Failed to delete ride");
+        alert("Failed to delete trip");
       }
     }
   }

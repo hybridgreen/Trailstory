@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getActiveUser, isAuthenticated } from "./utils";
+import { getActiveUser, isAuthenticated } from "../utils";
 
-import { clientBaseURL, serverBaseURL } from "./App";
+import { clientBaseURL, serverBaseURL } from "../App";
 import { useNavigate } from "react-router";
 
 import "./tripspage.css";
@@ -55,7 +55,7 @@ function NewTripButton() {
 function TripCard({ trip }: { trip: tripsData }) {
   return (
     <div className="trip-card">
-      <a href={`${serverBaseURL}/${trip.user_id}/${trip.slug}`}>
+      <a href={`${clientBaseURL}/trips/${trip.id}`}>
         <div>
           <img
             src="https://placehold.co/300x200/3d4f2f/faf8f3?text=Bikepacking+Trip"

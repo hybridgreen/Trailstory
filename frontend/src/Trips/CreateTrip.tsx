@@ -1,6 +1,6 @@
-import { serverBaseURL } from "./App";
+import { serverBaseURL } from "../App";
 import { useNavigate } from "react-router";
-import { isTokenExpiring, refreshTokens } from "./utils";
+import { isTokenExpiring, refreshTokens } from "../utils";
 
 export default function DraftTripForm() {
   const navigate = useNavigate();
