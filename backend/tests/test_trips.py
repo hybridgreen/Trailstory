@@ -75,7 +75,7 @@ def test_draft_trip(user):
         )
 
     trip_data = trip.json()
-    assert trip.status_code == 200
+    assert trip.status_code == 201
     assert trip_data['title'] == fake_trip['title']
     assert trip_data['start_date'] == fake_trip['start_date']
 
@@ -148,7 +148,7 @@ def test_submit_trip_no_rides(user, trip):
             }
     
     response = client.put(
-        f'/trips/{trip_id}/submit',
+        f'/trips/{trip_id}',
         data = final_trip,
         headers={"Authorization": f"Bearer {at}"}
         )
@@ -199,13 +199,14 @@ def test_submit_invalid_trip(user, trip):
             }
     
     response = client.put(
-        f'/trips/{trip_id}/submit',
+        f'/trips/{trip_id}',
         data = final_trip,
         headers={"Authorization": f"Bearer {at}"}
         )
     
     assert response.status_code == 400
-    assert response.json()['detail'] == 'End date cannot be before start date'
+    assert response.json()['detail'] == 'Error: End date cannot be before start date'
+
 #Upload ride to non-existent trip
 
 #Upload rides with dates outside trip date range

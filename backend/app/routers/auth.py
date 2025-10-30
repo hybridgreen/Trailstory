@@ -7,7 +7,7 @@ from app.security import make_JWT, validate_password, create_refresh_Token
 from app.models import loginForm, LoginResponse, RefreshResponse
 from app.dependencies import get_bearer_token
 from app.config import config 
-from app.errors import NotFoundError, UnauthorizedError, AuthenticationError
+from app.errors import NotFoundError, AuthenticationError
 
 """
 Future Auth endpoints
@@ -23,12 +23,12 @@ auth_router = APIRouter(
 )
 
 @auth_router.post('/login', status_code= 200)
-def index(form_data: Annotated[loginForm, Form()]) -> LoginResponse:
+def loginHandler(form_data: Annotated[loginForm, Form()]) -> LoginResponse:
     try:
         user: User = get_user_by_email(form_data.email)
         
     except NotFoundError:
-        raise UnauthorizedError("Wrong email or password")
+        raise AuthenticationError("Wrong email or password")
     
     if(validate_password(form_data.password, user.hashed_password)):
         access_token = make_JWT(user.id)
@@ -41,7 +41,7 @@ def index(form_data: Annotated[loginForm, Form()]) -> LoginResponse:
             "expires_in" : config.auth.jwt_expiry
             }
     else:
-        raise UnauthorizedError("Wrong email or password")
+        raise AuthenticationError("Wrong email or password")
     
 @auth_router.get('/refresh', status_code= 200)
 def refresh_handler(token : Annotated[str, Depends(get_bearer_token)]) -> RefreshResponse:

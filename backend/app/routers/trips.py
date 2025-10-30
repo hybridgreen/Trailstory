@@ -199,11 +199,11 @@ async def handler_add_rides(
         
     return rides
 
-@trip_router.put('/{trip_id}/')
+@trip_router.put('/{trip_id}')
 async def handler_save_trip(
     trip_id:str,
     form_data: Annotated[TripModel, Form()],
-    auth_user: Annotated[User, Depends(get_auth_user)]):
+    auth_user: Annotated[User, Depends(get_auth_user)])-> TripResponse:
     
     trip = get_trip(trip_id)
     
@@ -211,7 +211,7 @@ async def handler_save_trip(
         raise UnauthorizedError("Error: Trip does not belong to user")
 
     if form_data.end_date < form_data.start_date:
-        raise InputError('End date cannot be before start date')
+        raise InputError('Error: End date cannot be before start date')
     
     values_dict = form_data.model_dump()
     
@@ -236,7 +236,7 @@ async def handler_delete_trip(
     
     trip = get_trip(trip_id)
     if trip.user_id != auth_user.id:
-        raise UnauthorizedError('Trip does not belong to user')
+        raise UnauthorizedError('Error:Trip does not belong to user')
     
     delete_trip(trip_id)
  
@@ -267,5 +267,5 @@ async def handler_delete_ride(
     ride = get_ride(ride_id)
     trip = get_trip(ride.trip_id)
     if trip.user_id != auth_user.id:
-        raise UnauthorizedError('Trip does not belong to user')
+        raise UnauthorizedError('Error:Trip does not belong to user')
     delete_ride(ride_id)
