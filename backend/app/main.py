@@ -6,11 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from db.schema import engine, Base
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from .config import config
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Creating database tables...")
-    Base.metadata.create_all(bind=engine)
+    print(config.db.url)
+    #Base.metadata.create_all(bind=engine)
     print("Tables created successfully!")
     yield
 

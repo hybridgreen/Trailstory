@@ -5,8 +5,6 @@ from datetime import datetime, timedelta, timezone
 from .config import config
 from .errors import AuthenticationError
 
-
-
 class JWTPayload():
     iss: str
     sub: str
