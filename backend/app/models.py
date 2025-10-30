@@ -59,7 +59,7 @@ class TripModel(BaseModel):
     description: str
     start_date: date
     end_date: date
-    is_published: bool
+    is_published: str | None = None
     
 class TripResponse(BaseModel):
     id: str
