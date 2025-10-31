@@ -9,9 +9,13 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
 import { removeTokens, isAuthenticated } from "./utils.tsx";
 
+import { Button } from "@/components/ui/button";
+import { toast, Toaster } from "sonner";
+
 export default function App() {
   return (
     <div className="app-container">
+      <Toaster />
       <BrowserRouter>
         <NavBar />
         <Routes>
@@ -34,8 +38,8 @@ function NavBar() {
     if (isAuthenticated()) {
       removeTokens();
       localStorage.removeItem("user");
-      alert("You have been logged out");
       navigate("/");
+      toast.success("You have been logged out");
       return;
     } else {
       navigate("/");
@@ -51,12 +55,16 @@ function NavBar() {
         </div>
 
         <div className="navbar-links">
+          <a href="/trips">Dashboard</a>
           <a href="/trips">Trips</a>
           <a href="/profile/me">My Profile</a>
-          <button onClick={loginButtonHandler}>
+        </div>
+        <div className="navbar-actions">
+          {" "}
+          <Button onClick={loginButtonHandler}>
             {" "}
             {isAuthenticated() ? "Logout" : "Login"}
-          </button>
+          </Button>
         </div>
       </div>
     </nav>
