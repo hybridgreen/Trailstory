@@ -6,8 +6,18 @@ import {
   serverBaseURL,
 } from "../utils";
 import { useNavigate } from "react-router";
-
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, MapPin, TrendingUp } from "lucide-react";
 import "./tripspage.css";
+import { Button } from "@/components/ui/button";
 
 interface tripsData {
   id: string;
@@ -50,28 +60,49 @@ function NewTripButton() {
   }
   return (
     <div className="add-trip-button">
-      <button onClick={newTripHandler}>New Trip</button>
+      <Button onClick={newTripHandler}>New Trip</Button>
     </div>
   );
 }
 
 function TripCard({ trip }: { trip: tripsData }) {
   return (
-    <div className="trip-card">
-      <a href={`${clientBaseURL}/trips/${trip.id}/`}>
-        <div>
-          <img
-            src="https://placehold.co/300x200/3d4f2f/faf8f3?text=Bikepacking+Trip"
-            alt="Trip thumbnail"
-          />
-        </div>
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+      <a href={`/trips/${trip.id}`} className="block">
+        <img
+          src="https://placehold.co/400x250/3d4f2f/faf8f3?text=Bikepacking+Trip"
+          alt={trip.title}
+          className="w-full h-48 object-cover"
+        />
       </a>
-      <a href={`${clientBaseURL}/trips/${trip.id}/edit`}>
-        <div>
-          <h3>{trip.title}</h3>
+
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-xl">{trip.title}</CardTitle>
+          {trip.is_published ? (
+            <Badge variant="default">Published</Badge>
+          ) : (
+            <Badge variant="secondary">Draft</Badge>
+          )}
         </div>
-      </a>
-    </div>
+      </CardHeader>
+
+      <CardContent className="space-y-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4" />
+          <span>{trip.start_date}</span>
+        </div>
+      </CardContent>
+
+      <CardFooter className="gap-2">
+        <Button variant="outline" className="flex-1" asChild>
+          <a href={`/trips/${trip.id}`}>View</a>
+        </Button>
+        <Button variant="default" className="flex-1" asChild>
+          <a href={`/trips/${trip.id}/edit`}>Edit</a>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
 
