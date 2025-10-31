@@ -2,6 +2,17 @@ import "./auth.css";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { storeTokens, serverBaseURL } from "./utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 export interface authResponse {
   access_token: string;
@@ -65,37 +76,50 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   }
 
   return (
-    <div>
-      <form action={register}>
-        <div>
-          <label>Email</label>
-        </div>
-        <div>
-          <input name="email" />
-        </div>
-        <div>
-          <label>Choose a username</label>
-        </div>
-        <div>
-          <input name="username" />
-        </div>
-        <div>
-          <label>Password</label>
-        </div>
-        <div>
-          <input type="password" name="password" />
-        </div>
-        <div>
-          <label>Confirm password</label>
-        </div>
-        <div>
-          <input type="password" name="c_password" />
-        </div>
-        <div>
-          <button type="submit"> Sign Up</button>
-        </div>
-      </form>
-    </div>
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Create an account</CardTitle>
+        <CardDescription>Enter your details to sign up</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form action={register} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              name="username"
+              placeholder="Choose a username"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" name="password" type="password" required />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="c_password">Confirm Password</Label>
+            <Input id="c_password" name="c_password" type="password" required />
+          </div>
+
+          <Button type="submit" className="w-full">
+            Sign Up
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -124,25 +148,35 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   }
 
   return (
-    <div>
-      <form action={login}>
-        <div>
-          <label>Email</label>
-        </div>
-        <div>
-          <input type="email" name="email" />
-        </div>
-        <div>
-          <label>Password</label>
-        </div>
-        <div>
-          <input type="password" name="password" />
-        </div>
-        <div>
-          <button type="submit"> Log In</button>
-        </div>
-      </form>
-    </div>
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Welcome back</CardTitle>
+        <CardDescription>Sign in to your account</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form action={login} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" name="password" type="password" required />
+          </div>
+
+          <Button type="submit" className="w-full">
+            Log In
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -153,9 +187,10 @@ export default function AuthCard() {
   const DisplayForm = newUser ? RegisterForm : LoginForm;
   return (
     <div className="auth-card">
-      <button onClick={() => setUserStatus(!newUser)}>
+      <Button onClick={() => setUserStatus(!newUser)}>
         {newUser ? "Already have an account? Login" : "New user? Register"}
-      </button>
+      </Button>
+      <Separator />
       <DisplayForm
         onSuccess={() => {
           navigate("/dashboard");
