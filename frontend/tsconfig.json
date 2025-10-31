@@ -3,6 +3,8 @@
     "lib": ["DOM"],
     "jsx": "preserve",
     "target": "ES2023",
+    "paths": { "@/*": ["./src/*"]},
+     "baseUrl": "."
     
   },
   "files": [],
