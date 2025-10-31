@@ -1,4 +1,3 @@
-import "./auth.css";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { storeTokens, serverBaseURL } from "./utils";

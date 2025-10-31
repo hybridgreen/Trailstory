@@ -11,10 +11,12 @@ import { removeTokens, isAuthenticated } from "./utils.tsx";
 
 import { Button } from "@/components/ui/button";
 import { toast, Toaster } from "sonner";
+import { ThemeProvider } from "./components/theme-provider.tsx";
+import { ModeToggle } from "./components/toggle-mode.tsx";
 
 export default function App() {
   return (
-    <div className="app-container">
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Toaster />
       <BrowserRouter>
         <NavBar />
@@ -27,7 +29,7 @@ export default function App() {
           <Route path="/profile/me" element={<ProfilePage />} />
         </Routes>
       </BrowserRouter>
-    </div>
+    </ThemeProvider>
   );
 }
 
@@ -65,6 +67,7 @@ function NavBar() {
             {" "}
             {isAuthenticated() ? "Logout" : "Login"}
           </Button>
+          <ModeToggle />
         </div>
       </div>
     </nav>
