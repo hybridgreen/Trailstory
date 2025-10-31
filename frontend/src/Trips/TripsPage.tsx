@@ -1,21 +1,15 @@
 import { useEffect, useState } from "react";
-import {
-  getActiveUser,
-  isAuthenticated,
-  clientBaseURL,
-  serverBaseURL,
-} from "../utils";
+import { getActiveUser, isAuthenticated, serverBaseURL } from "../utils";
 import { useNavigate } from "react-router";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, TrendingUp } from "lucide-react";
+import { Calendar } from "lucide-react";
 import "./tripspage.css";
 import { Button } from "@/components/ui/button";
 
