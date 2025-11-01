@@ -16,7 +16,7 @@ import { ModeToggle } from "./components/toggle-mode.tsx";
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Toaster />
       <BrowserRouter>
         <NavBar />

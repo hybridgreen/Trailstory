@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
-import "./tripspage.css";
 import { Button } from "@/components/ui/button";
 
 interface tripsData {
@@ -53,7 +52,7 @@ function NewTripButton() {
     navigate("/trips/new");
   }
   return (
-    <div className="add-trip-button">
+    <div className="mb-8">
       <Button onClick={newTripHandler}>New Trip</Button>
     </div>
   );
@@ -122,9 +121,9 @@ export default function Trips() {
   }
 
   return (
-    <div className="trips">
+    <div className="max-w-screen-xl mx-auto p-8">
       <NewTripButton />
-      <div className="trip-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {trips.length === 0 ? (
           <p>No trips yet. Create your first trip!</p>
         ) : (

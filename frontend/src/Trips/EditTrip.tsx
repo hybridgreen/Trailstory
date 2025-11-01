@@ -29,8 +29,6 @@ import { ChevronDown, ChevronRight, Trash2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 
-import "./EditTrip.css";
-
 import { isTokenExpiring, refreshTokens, serverBaseURL } from "../utils";
 
 export interface tripData {

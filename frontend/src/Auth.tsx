@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@radix-ui/react-dropdown-menu";
 
 export interface authResponse {
   access_token: string;
@@ -185,11 +184,10 @@ export default function AuthCard() {
   const [newUser, setUserStatus] = useState(false);
   const DisplayForm = newUser ? RegisterForm : LoginForm;
   return (
-    <div className="auth-card">
+    <div className="auth-card flex flex-col items-center gap-4 max-w-md mx-auto p-6">
       <Button onClick={() => setUserStatus(!newUser)}>
         {newUser ? "Already have an account? Login" : "New user? Register"}
       </Button>
-      <Separator />
       <DisplayForm
         onSuccess={() => {
           navigate("/dashboard");
