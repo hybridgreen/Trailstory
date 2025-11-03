@@ -25,15 +25,18 @@ class APILimits:
         self.max_upload_size = 15*(1<<20)
 
 class APIConfig():
-    def __init__(self, db: DBConfig, auth: AuthConfig, api_limits: APILimits, env: str):
+    def __init__(self,client: str, db: DBConfig, auth: AuthConfig, api_limits: APILimits, env: str, resend: str):
+        self.client = client
         self.db = db
         self.auth = auth
         self.limits = api_limits
         self.environment = env
+        self.resend = resend
        
             
 if EnvOrThrow('ENVIRONMENT') == 'DEV':
     db_url = EnvOrThrow('TEST_DB_URL')
+
     echo_flag = True
 if EnvOrThrow('ENVIRONMENT') == 'TEST':
     db_url = EnvOrThrow('TEST_DB_URL')
@@ -41,11 +44,14 @@ if EnvOrThrow('ENVIRONMENT') == 'TEST':
 elif EnvOrThrow('ENVIRONMENT') == 'PROD':
     db_url = EnvOrThrow('DB_URL')
     echo_flag = False
+    client_url = EnvOrThrow("CLIENT_BASE_URL")
     
     
 config = APIConfig(
+    client = client_url,
     db = DBConfig(url = db_url, echo_flag= echo_flag),
     auth = AuthConfig(secret=EnvOrThrow('SERVER_SECRET'), admin_token= EnvOrThrow('ADMIN_TOKEN')),
     api_limits = APILimits(),
-    env = EnvOrThrow('ENVIRONMENT')
+    env = EnvOrThrow('ENVIRONMENT'),
+    resend= EnvOrThrow('RESEND_API_KEY')
 )

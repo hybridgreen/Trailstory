@@ -1,10 +1,9 @@
-import re
 from typing import Annotated
 from fastapi import APIRouter, Depends, Form
 from db.queries.users import User, delete_user, create_user, update_user, get_user_by_id
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
-from app.security import make_JWT, hash_password, create_refresh_Token
+from app.security import make_JWT, hash_password, create_refresh_Token, validate_email, validate_password
 from app.models import LoginResponse, UserModel, UserResponse, UserUpdate, TripsResponse
 from app.errors import *
 from app.config import config 
@@ -19,16 +18,6 @@ user_router = APIRouter(
     tags=["Users"]
 )
 
-def validate_email(email):
-    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    if not re.match(email_pattern, email):
-        raise ValueError('Invalid email')
-
-
-def validate_password(password):
-    password_pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$'
-    if not re.match(password_pattern, password):
-        raise ValueError('Weak Password')
 
 @user_router.post('/', status_code= 201)
 async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> LoginResponse:

@@ -85,6 +85,16 @@ class refresh_tokens(Base):
     created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())
     expires_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now() + timedelta(days= 30))
     revoked : Mapped[bool] = mapped_column(default= False)
+    
+class one_time_tokens(Base):
+    __tablename__ = "onetime_tokens"
+    id: Mapped[str] = mapped_column(primary_key= True, default= lambda : str(uuid4()))
+    token: Mapped[str] = mapped_column(unique=True)
+    type: Mapped[str] = mapped_column()
+    user_id : Mapped[str] = mapped_column(ForeignKey('users.id', ondelete="CASCADE"))
+    created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())
+    expires_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now() + timedelta(hours=1))
+    revoked : Mapped[bool] = mapped_column(default= False)
 
 
 engine = create_engine(config.db.url, echo= config.db.echo_flag, plugins= ['geoalchemy2'])
