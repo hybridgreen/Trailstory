@@ -1,4 +1,4 @@
-import Auth from "./Auth.tsx";
+import Auth, { ResetPassword, NewPassword } from "./Auth.tsx";
 import Trips from "./Trips/TripsPage.tsx";
 import DraftTrip from "./Trips/CreateTrip.tsx";
 import EditTripPage from "./Trips/EditTrip.tsx";
@@ -27,6 +27,8 @@ export default function App() {
           <Route path="/trips/:id/edit" element={<EditTripPage />} />
           <Route path="/trips/:id" element={<ViewTripPage />} />
           <Route path="/profile/me" element={<ProfilePage />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-password/new/" element={<NewPassword />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

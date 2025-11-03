@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { storeTokens, serverBaseURL } from "./utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export interface authResponse {
   access_token: string;
@@ -168,13 +169,149 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             <Label htmlFor="password">Password</Label>
             <Input id="password" name="password" type="password" required />
           </div>
-
+          <div className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+            <a href="/reset-password"> Forgot your password?</a>
+          </div>
           <Button type="submit" className="w-full">
             Log In
           </Button>
         </form>
       </CardContent>
     </Card>
+  );
+}
+
+export function ResetPassword() {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    await resetPasswordAction(formData);
+  }
+
+  async function resetPasswordAction(formData: FormData) {
+    try {
+      const response = await fetch(`${serverBaseURL}/auth/password/reset/`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(data["message"]);
+      } else {
+        const error = await response.json();
+        console.error("Login failed:", error);
+        alert("Login failed: " + error.detail);
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <Card className="w-full max-w-sm mx-auto ">
+        <CardHeader>
+          <CardTitle> Reset your password</CardTitle>
+          <CardDescription>
+            Enter your email below to reset your password
+          </CardDescription>
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <div className="flex flex-col gap-6">
+                <div className="grid gap-2 mt-4">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="me@example.com"
+                    required
+                  />
+                </div>
+              </div>
+              <Button type="submit" className="w-full mt-8">
+                Reset Password
+              </Button>
+            </form>
+          </CardContent>
+        </CardHeader>
+      </Card>
+    </div>
+  );
+}
+
+export function NewPassword() {
+  const [token] = useSearchParams();
+  const navigate = useNavigate();
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    await sendPassword(formData);
+  }
+  async function sendPassword(formData: FormData) {
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("c_password") as string;
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    const passwordData = new FormData();
+    passwordData.append("password", password);
+
+    try {
+      const response = await fetch(
+        `${serverBaseURL}/auth/password/confirm/?token=${token}`,
+        {
+          method: "POST",
+          body: passwordData,
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        navigate("/login");
+      } else {
+        const error = await response.json();
+        alert("Registration failed: " + (error.detail || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <Card className="w-full max-w-md ">
+        <CardHeader>
+          <CardTitle>Choose a new password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" name="password" type="password" required />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="c_password">Confirm Password</Label>
+              <Input
+                id="c_password"
+                name="c_password"
+                type="password"
+                required
+              />
+            </div>
+
+            <Button type="submit" className="w-full">
+              Confirm
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
