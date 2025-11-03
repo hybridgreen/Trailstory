@@ -41,7 +41,7 @@ def get_user_by_email(email:str):
             user = session.scalars(query).one()
             return user
     except db_err.NoResultFound as e:
-        raise NotFoundError(f"User with name {email} not found.") from e
+        raise NotFoundError(f"User with email {email} not found.") from e
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
