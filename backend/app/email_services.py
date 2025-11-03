@@ -1,24 +1,25 @@
 import resend
 import os
-from config import config
+from app.config import config
 from pathlib import Path
 from datetime import datetime
 
 BASE_DIR = Path(__file__).resolve().parent
-TEMPLATES_DIR = BASE_DIR+"/templates"
+TEMPLATES_DIR = Path.joinpath(BASE_DIR,"templates")
     
     
 resend.api_key = config.resend
 
-def render_email(title: str, content: str) -> str:
-    with open(TEMPLATES_DIR+"/base.html", "r") as file:
+def render_email(title: str, content: str):
+      with open(Path.joinpath(TEMPLATES_DIR,"base.html"), "r") as file:
         template = file.read()
-    
-    return template.replace('{{title}}', title).replace('{{content}}', content)
+      return template.replace('{{title}}', title).replace('{{content}}', content)
+      
 
 def send_password_reset_email(email: str, reset_token: str):
+  
     reset_url = f"{config.client}/reset-password?token={reset_token}"
-    
+
     content = """
     <tr>
             <td style="padding: 40px;">
@@ -59,14 +60,21 @@ def send_password_reset_email(email: str, reset_token: str):
               """
 
     content = content.replace('{{reset_url}}', reset_url)  
-    html_content = render_email("Reset Your Password", content)
+
     
-    email = resend.Emails.send({
-        "from": "TrailStory <noreply@trailstory.com>",
+    html_content = render_email("Passwork reset link", content)
+
+    
+    params: resend.Emails.SendParams = {
+        "from": "onboarding@resend.dev",
         "to": email,
-        "subject": "Reset Your TrailStory Password",
-        "html": html_content
-    })
+        "subject": "Reset Password",
+        "html": html_content,
+    }
+    
+    email = resend.Emails.send(params)
+    print(email)
+    return email
 
 def send_password_changed_email(email: str, username: str):
     
@@ -148,8 +156,8 @@ def send_password_changed_email(email: str, username: str):
     html_content = render_email("Password Changed Successfully", content)
     
     resend.Emails.send({
-        "from": "TrailStory <noreply@trailstory.com>",
+        "from": "TrailStory <onboarding@resend.dev>",
         "to": email,
-        "subject": "Your TrailStory Password Was Changed",
+        "subject": "Your TrailStory password was changed",
         "html": html_content
     })

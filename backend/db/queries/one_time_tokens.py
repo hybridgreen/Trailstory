@@ -2,13 +2,13 @@ from db.schema import one_time_tokens, User,  engine
 from sqlalchemy.orm import Session
 from sqlalchemy import exc as db_err
 from sqlalchemy import select, update
-from app.errors import UnauthorizedError, DatabaseError
+from app.errors import AuthenticationError, DatabaseError
 from datetime import date, datetime, timedelta
 
-def register_reset_token(u_id: str, rt: str ):
+def register_reset_token(u_id: str, tkn: str ):
     try:
         with Session(engine) as session:
-            new_token = one_time_tokens(token = rt, user_id = u_id, type="reset", expires_at=datetime.now() + timedelta(hours=1))
+            new_token = one_time_tokens(token = tkn, user_id = u_id, type="reset", expires_at=datetime.now() + timedelta(hours=1))
             session.add(new_token)
             session.commit()
             session.refresh(new_token)
@@ -16,7 +16,7 @@ def register_reset_token(u_id: str, rt: str ):
     except db_err.IntegrityError as exc:
         raise ValueError("Value already exists") from exc
     except Exception as e:
-        raise DatabaseError("Internal database Error") from e
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
 def get_one_time_token(token:str):
     try:
@@ -25,7 +25,7 @@ def get_one_time_token(token:str):
             token_obj = session.scalars(query).one()
             return token_obj
     except db_err.NoResultFound as exc:
-        raise UnauthorizedError("Invalid token") from exc
+        raise AuthenticationError("Invalid or expired token") from exc
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 

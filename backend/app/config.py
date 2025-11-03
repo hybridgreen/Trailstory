@@ -36,11 +36,14 @@ class APIConfig():
             
 if EnvOrThrow('ENVIRONMENT') == 'DEV':
     db_url = EnvOrThrow('TEST_DB_URL')
-
     echo_flag = True
+    client_url = ''
+    
 if EnvOrThrow('ENVIRONMENT') == 'TEST':
     db_url = EnvOrThrow('TEST_DB_URL')
     echo_flag = False
+    client_url = ''
+    
 elif EnvOrThrow('ENVIRONMENT') == 'PROD':
     db_url = EnvOrThrow('DB_URL')
     echo_flag = False

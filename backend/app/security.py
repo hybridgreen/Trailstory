@@ -1,10 +1,12 @@
 import bcrypt
+import hashlib
 import jwt
 import secrets
 from datetime import datetime, timedelta, timezone
 from .config import config
 from .errors import AuthenticationError
 import re
+from db.queries.one_time_tokens import revoke_one_time_token, get_one_time_token
 
 class JWTPayload():
     iss: str
@@ -23,7 +25,6 @@ def validate_email(email):
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not re.match(email_pattern, email):
         raise ValueError('Invalid email')
-
 
 def validate_password(password):
     password_pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$'
@@ -57,3 +58,15 @@ def create_refresh_Token():
 
 def create_one_time_token():
     return secrets.token_urlsafe(32)
+
+def hash_token(token:str):
+    return hashlib.sha256(token.encode()).hexdigest()
+    
+def verify_onetime_token(token:str):
+    hashed_input = hash_token(token)
+    stored_token = get_one_time_token(hashed_input)
+    print(stored_token.revoked)
+    if stored_token.revoked or stored_token.expires_at < datetime.now() :
+        raise AuthenticationError("Invalid or expired token")
+    revoke_one_time_token(stored_token.id)
+    return stored_token.user_id

@@ -2,7 +2,7 @@ from db.schema import refresh_tokens, User,  engine
 from sqlalchemy.orm import Session
 from sqlalchemy import exc as db_err
 from sqlalchemy import select, update
-from app.errors import UnauthorizedError, DatabaseError
+from app.errors import AuthenticationError, DatabaseError
 
 def register_refresh_token(u_id: str, rt: str ):
     try:
@@ -15,7 +15,7 @@ def register_refresh_token(u_id: str, rt: str ):
     except db_err.IntegrityError as exc:
         raise ValueError("User already exists") from exc
     except Exception as e:
-        raise DatabaseError("Internal database Error") from e
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
 def get_token(token:str):
     try:
@@ -24,7 +24,7 @@ def get_token(token:str):
             token_obj = session.scalars(query).one()
             return token_obj
     except db_err.NoResultFound as exc:
-        raise UnauthorizedError("Invalid token") from exc
+        raise AuthenticationError("Invalid token") from exc
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
