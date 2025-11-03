@@ -271,7 +271,6 @@ export function NewPassword() {
       );
 
       if (response.ok) {
-        const data = await response.json();
         navigate("/login");
       } else {
         const error = await response.json();
