@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, Query
 from db.queries.users import get_user_by_email, User, update_user, get_user_by_id
 from db.queries.refresh_tokens import revoke_tokens_for_user,revoke_refresh_token, register_refresh_token, get_token,refresh_tokens
-from db.queries.one_time_tokens import register_reset_token, revoke_one_time_token, get_one_time_token
+from db.queries.one_time_tokens import register_reset_token
 from app.security import verify_onetime_token, make_JWT, verify_password, create_refresh_Token, create_one_time_token, hash_password, validate_password, hash_token
 from app.models import loginForm, LoginResponse, RefreshResponse
 from app.dependencies import get_bearer_token

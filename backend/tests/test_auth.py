@@ -8,7 +8,7 @@ from app.config import config
 client = TestClient(app)
 
 fakeUser = {
-    "email": "samle@pineapple.com",
+    "email": "delivered+user1@resend.dev",
     "username": "spongebob",
     "password": "YourNameIs123!"
 }
@@ -20,7 +20,7 @@ fakeUser2 = {
 }
 
 fakeUser3 = {
-    "email": "fakeuser3@pineapple.com",
+    "email": "delivered+user3@resend.dev",
     "username": "fakeuser3",
     "password": "password123"
 }
@@ -107,3 +107,71 @@ def test_login_token_is_valid_jwt():
 
 
     assert len(token.split('.')) == 3
+
+def test_update_password():
+    
+    client.post(
+        '/admin/reset',
+        headers= {"Authorization": f"Bearer {config.auth.admin_token}"})
+    
+    res = client.post('/users', data = fakeUser)
+    assert res.status_code == 201
+    
+    at = res.json()['access_token']
+    
+    passwords={
+        "old_password": fakeUser["password"],
+        "new_password": "ThisIsTheNewPassword123!"
+    }
+    
+    response = client.put('/users/password',
+                data= passwords,
+                headers= {"Authorization": f"Bearer {at}"} )
+    
+    assert response.status_code == 204
+    
+def test_same_passwords():
+    
+    client.post(
+        '/admin/reset',
+        headers= {"Authorization": f"Bearer {config.auth.admin_token}"})
+    
+    res = client.post('/users', data = fakeUser)
+    assert res.status_code == 201
+    
+    at = res.json()['access_token']
+    
+    passwords={
+        "old_password": fakeUser["password"],
+        "new_password": fakeUser["password"]
+    }
+    
+    response = client.put('/users/password',
+                data= passwords,
+                headers= {"Authorization": f"Bearer {at}"} )
+    
+    assert response.status_code == 401
+    assert "Please choose a new password" in response.json()['detail']
+        
+def test_wrong_password():
+    
+    client.post(
+        '/admin/reset',
+        headers= {"Authorization": f"Bearer {config.auth.admin_token}"})
+    
+    res = client.post('/users', data = fakeUser)
+    assert res.status_code == 201
+    
+    at = res.json()['access_token']
+    
+    passwords={
+        "old_password": "ThisisWrong12345!",
+        "new_password": "ThisisWrong12345!"
+    }
+    
+    response = client.put('/users/password',
+                data= passwords,
+                headers= {"Authorization": f"Bearer {at}"} )
+    
+    assert response.status_code == 401
+    assert "Incorrect password" in response.json()['detail']
