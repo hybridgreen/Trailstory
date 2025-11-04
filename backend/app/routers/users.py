@@ -3,11 +3,12 @@ from fastapi import APIRouter, Depends, Form
 from db.queries.users import User, delete_user, create_user, update_user, get_user_by_id
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
-from app.security import make_JWT, hash_password, create_refresh_Token, validate_email, validate_password
+from app.security import make_JWT, hash_password, create_refresh_Token, validate_email, validate_password, verify_password
 from app.models import LoginResponse, UserModel, UserResponse, UserUpdate, TripsResponse
 from app.errors import *
 from app.config import config 
 from app.dependencies import get_auth_user
+from app.email_services import send_password_changed_email
 
 # todo endpoints:
 # Update password
@@ -66,6 +67,23 @@ async def handler_update_user(
     updated_user = user_data.model_dump(exclude_unset=True)
     user = update_user(authed_user.id,updated_user)
     return user
+
+@user_router.put('/password', status_code= 204)
+async def handler_change_password(
+    old_password: Annotated[str, Form()],
+    new_password: Annotated[str, Form()],
+    authed_user: Annotated[User, Depends(get_auth_user)]):
+    
+    if not verify_password(old_password, authed_user.hashed_password):
+        raise AuthenticationError("Incorrect password")
+    
+    if verify_password(new_password, authed_user.hashed_password):
+        raise AuthenticationError("Please choose a new password")
+    
+    validate_password(new_password)
+    password_dict = {"hashed_password" : hash_password(new_password)}
+    update_user(authed_user.id,password_dict)
+    send_password_changed_email(authed_user.email, authed_user.username)
 
 @user_router.delete('/', status_code= 204)
 async def handler_delete_user( authed_user: Annotated[User, Depends(get_auth_user)]):
