@@ -68,7 +68,7 @@ async def handler_update_user(
     user = update_user(authed_user.id,updated_user)
     return user
 
-@user_router.put('/password', status_code= 204)
+@user_router.put('/password/', status_code= 204)
 async def handler_change_password(
     old_password: Annotated[str, Form()],
     new_password: Annotated[str, Form()],
