@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
 import { isTokenExpiring, refreshTokens, serverBaseURL } from "./utils";
-
 import {
   Card,
   CardContent,
@@ -17,6 +15,17 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Mail, User, CheckCircle, XCircle } from "lucide-react";
 import { Progress } from "./components/ui/progress";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface UserProfile {
   id: string;
@@ -28,11 +37,96 @@ interface UserProfile {
   created_at: string;
 }
 
+function PasswordDialog() {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    if (formData.get("new_password") !== formData.get("c_password")) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    formData.delete("c_password");
+
+    try {
+      const response = await fetch(`${serverBaseURL}/users/password/`, {
+        method: "PUT",
+        body: formData,
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success("Password Changed");
+      } else {
+        const error = await response.json();
+        toast.error(error.detail || "Failed to change password");
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    }
+  }
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Change password</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Change password</DialogTitle>
+          <DialogDescription>
+            Update your password here. Click save when you&apos;re done.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4">
+            <div className="grid gap-3">
+              <Label htmlFor="password-1">Current Password</Label>
+              <Input
+                id="password-1"
+                name="old_password"
+                placeholder="Enter password"
+                type="password"
+              />
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="password-2">New Password</Label>
+              <Input
+                id="password-2"
+                name="new_password"
+                placeholder="Choose a new password"
+                type="password"
+              />
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="password-3">Confirm Password</Label>
+              <Input
+                id="password-3"
+                name="c_password"
+                placeholder="Confirm new password"
+                type="password"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -108,7 +202,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-
   if (!profile) {
     return <div className="profile-page">Profile not found</div>;
   }
@@ -294,9 +387,7 @@ export default function ProfilePage() {
               <Separator />
 
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => navigate("/trips")}>
-                  My Trips
-                </Button>
+                <PasswordDialog />
                 <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
               </div>
             </div>
