@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { storeTokens, serverBaseURL } from "./utils";
+import { storeTokens, serverBaseURL, isAuthenticated } from "./utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -327,9 +327,15 @@ export function ResetPasswordCard() {
 
 export default function AuthCard() {
   const navigate = useNavigate();
-
   const [newUser, setUserStatus] = useState(false);
   const DisplayForm = newUser ? RegisterForm : LoginForm;
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   return (
     <div className="auth-card flex flex-col items-center gap-4 max-w-md mx-auto p-6">
       <Button onClick={() => setUserStatus(!newUser)}>
@@ -339,7 +345,7 @@ export default function AuthCard() {
         onSuccess={() => {
           navigate("/dashboard");
         }}
-      />
+      ></DisplayForm>
     </div>
   );
 }
