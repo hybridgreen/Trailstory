@@ -181,7 +181,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-export function ResetPassword() {
+function ResetPassword() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -241,9 +241,9 @@ export function ResetPassword() {
   );
 }
 
-export function NewPassword() {
-  const [token] = useSearchParams();
+function NewPassword({ token }: { token: string }) {
   const navigate = useNavigate();
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -312,6 +312,17 @@ export function NewPassword() {
       </Card>
     </div>
   );
+}
+
+export function ResetPasswordCard() {
+  const [searchParams] = useSearchParams();
+  const urlToken = searchParams.get("token");
+
+  if (urlToken) {
+    return <NewPassword token={urlToken} />;
+  } else {
+    return <ResetPassword />;
+  }
 }
 
 export default function AuthCard() {
