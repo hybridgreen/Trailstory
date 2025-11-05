@@ -4,6 +4,15 @@ from sqlalchemy import exc as db_err
 from sqlalchemy import select, update, delete
 from app.errors import DatabaseError, NotFoundError
 
+def get_trip_photos(trip_id:str):
+    try:
+        with Session(engine) as session:
+            query = select(Photo).where(Photo.trip_id == trip_id)
+            photos = session.scalars(query).all()
+            return photos
+    except Exception as e:
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
+
 def add_photo(photo: Photo):
     try: 
         with Session(engine) as session:

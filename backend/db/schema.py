@@ -68,7 +68,8 @@ class Photo(Base, TimestampMixin):
     __tablename__ = "photos"
     id: Mapped[str] = mapped_column(primary_key=True, default= lambda : str(uuid4()))
     url: Mapped[str]
-    trip_id : Mapped[str] = mapped_column(ForeignKey('trips.id', ondelete='CASCADE'))
+    trip_id : Mapped[str| None] = mapped_column(ForeignKey('trips.id', ondelete='CASCADE'))
+    user_id : Mapped[str| None] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     thumbnail_url: Mapped[str | None]
     mime_type: Mapped[str]
     file_size: Mapped[int]

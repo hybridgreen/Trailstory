@@ -6,8 +6,8 @@ from typing import Annotated
 from datetime import date
 from fastapi import APIRouter, Depends, UploadFile, Form
 from db.schema import Photo, User, Trip
-from db.queries.photos import add_photo, delete_photo, update_photo
-from db.queries.trips import create_trip, get_trip, delete_trip, update_trip
+from db.queries.photos import add_photo, get_trip_photos
+from db.queries.trips import get_trip
 from app.config import config 
 from app.dependencies import get_auth_user
 from app.errors import UnauthorizedError, InputError
@@ -31,6 +31,14 @@ def validate_photo(file: UploadFile):
         raise InputError("Maximum file size exceeded. 15MB")
     if file.content_type not in ["image/jpeg", "image/png", "image/webp", "image/heic"]:
         raise InputError(f"Invalid content type header. Received: {file.content_type}")
+
+@trip_router.get("/{trip_id}/photos", status_code=200)
+def getPhotosHandler(trip_id: str):
+    
+    trip = get_trip(trip_id)
+    photos = get_trip_photos(trip.id)
+    
+    return photos
     
 @trip_router.post("/{trip_id}/photos", status_code= 201)
 async def uploadPhotosHandler(
@@ -55,7 +63,6 @@ async def uploadPhotosHandler(
         # Path : tripid-rand(32)
         extension = os.path.splitext(file.filename)[1]
         savePath = tempdir + f"{secrets.token_urlsafe(32)}{extension}"
-        print("Debug - Path:", savePath)
         content = await file.read()
         image = Image.open(io.BytesIO(content))
         width, height = image.size
@@ -76,3 +83,34 @@ async def uploadPhotosHandler(
         photos_li.append(db_photo)
         
     return photos_li
+
+@photo_router.post("/profile", status_code= 201)
+async def uploadProfilePhotoHandler(
+    file: UploadFile,
+    auth_user: Annotated[User, Depends(get_auth_user)]
+    ):
+    
+    validate_photo(file)
+    
+    extension = os.path.splitext(file.filename)[1]
+    savePath = tempdir + f"{secrets.token_urlsafe(32)}{extension}"
+    content = await file.read()
+    image = Image.open(io.BytesIO(content))
+    width, height = image.size
+    with open(savePath, "wb") as f:
+        f.write(content)
+    
+    photo_data = {
+        "url": savePath,
+        "user_id" : auth_user.id,
+        "thumbnail_url" : None,
+        "mime_type": file.content_type,
+        "file_size": file.size,
+        'h_dimm' : height,
+        'w_dimm' : width,
+        's3_key': None
+    }
+    
+    db_photo = add_photo(Photo(**photo_data))
+        
+    return db_photo
