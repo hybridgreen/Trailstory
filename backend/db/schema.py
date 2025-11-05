@@ -23,6 +23,7 @@ class User(Base, TimestampMixin):
     firstname : Mapped[str | None]
     lastname : Mapped[str | None]
     trips: Mapped[list['Trip']] = relationship(back_populates = "user")
+    photo_url: Mapped[str|None]
     email_verified : Mapped[bool] = mapped_column (default= False)
 
     def __repr__(self) -> str:
@@ -44,6 +45,8 @@ class Trip(Base, TimestampMixin):
     route: Mapped[str | None] = mapped_column(Geometry('LINESTRING'),default= None)
     bounding_box: Mapped[str | None] = mapped_column(Geometry('POLYGON'), default= None)
     is_published: Mapped[bool] = mapped_column(default= False)
+    cover_url: Mapped[str | None]
+    thumbnail_url: Mapped[str | None]
     user: Mapped[User] = relationship(back_populates='trips')
     rides : Mapped [list['Ride']] = relationship( back_populates='trip')
 

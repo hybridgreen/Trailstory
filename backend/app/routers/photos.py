@@ -64,12 +64,10 @@ async def uploadPhotosHandler(
     
     photos_li = []
     for file in files:
-        # Path : tripid-rand(32)
         extension = os.path.splitext(file.filename)[1]
         content = await file.read()
         image = Image.open(io.BytesIO(content))
         width, height = image.size
-            
         id = str(uuid4())
         key = f"trips/{trip_id}/photos/{id}{extension}"
         url = f"https://{config.s3.bucket}.{config.s3.region}.amazonaws.com/{key}"
@@ -96,7 +94,7 @@ async def uploadPhotosHandler(
         }
         db_photo = add_photo(Photo(**photo_data))
         photos_li.append(db_photo)
-        
+    
     return photos_li
 
 @photo_router.post("/profile", status_code= 201)
@@ -112,9 +110,6 @@ async def uploadProfilePhotoHandler(
     content = await file.read()
     image = Image.open(io.BytesIO(content))
     width, height = image.size
-    with open(savePath, "wb") as f:
-        f.write(content)
-    
     
     photo_data = {
         "url": savePath,
