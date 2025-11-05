@@ -41,11 +41,12 @@ class APILimits:
         self.max_upload_size = 15*(1<<20)
         
 class S3Config:
-    def __init__(self, region:str, access_key: str, secret_key: str, token:str):
+    def __init__(self, region:str, access_key: str, secret_key: str, token:str, bucket:str):
         self.region = region
-        self.key = access_key,
-        self.secret_key = secret_key,
+        self.key = access_key
+        self.secret_key = secret_key
         self.token = token
+        self.bucket = bucket
 
 class APIConfig():
     def __init__(self,
@@ -70,9 +71,11 @@ config = APIConfig(
                   echo_flag= echo_flag),
     auth = AuthConfig(secret=EnvOrThrow('SERVER_SECRET'),
                       admin_token= EnvOrThrow('ADMIN_TOKEN')),
+    
     s3_config= S3Config(region=EnvOrThrow("AWS_REGION"),
                         access_key=EnvOrThrow("AWS_ACCESS_KEY_ID"),
                         secret_key=EnvOrThrow("AWS_SECRET_ACCESS_KEY_ID"),
+                        bucket= EnvOrThrow("AWS_BUCKET"),
                         token=EnvOrThrow("AWS_TOKEN")),
     api_limits = APILimits(),
     client = client_url,

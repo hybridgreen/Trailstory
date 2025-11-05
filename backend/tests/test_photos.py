@@ -95,6 +95,10 @@ def test_add_photos(setup):
     )
     
     photos = response.json()
+    
+    if response.status_code != 201:
+        print(photos)
+        
     assert response.status_code == 201
     assert len(photos) == len(file_paths)
     

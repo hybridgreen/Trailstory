@@ -8,7 +8,7 @@ from app.models import LoginResponse, UserModel, UserResponse, UserUpdate, Trips
 from app.errors import *
 from app.config import config 
 from app.dependencies import get_auth_user
-from app.email_services import send_password_changed_email
+from app.services.email_services import send_password_changed_email
 
 # todo endpoints:
 # Update password

@@ -1,18 +1,22 @@
 import secrets
 import tempfile
-from PIL import Image
+import asyncio
 import io
+from uuid import uuid4
+from PIL import Image
 from typing import Annotated
 from datetime import date
 from fastapi import APIRouter, Depends, UploadFile, Form
-from db.schema import Photo, User, Trip
-from db.queries.photos import add_photo, get_trip_photos
+from fastapi.concurrency import run_in_threadpool
+from db.schema import Photo, User
+from db.queries.photos import add_photo, get_trip_photos, update_photo
 from db.queries.trips import get_trip
 from app.config import config 
 from app.dependencies import get_auth_user
-from app.errors import UnauthorizedError, InputError
+from app.errors import UnauthorizedError, InputError, ServerError
 from app.routers.trips import trip_router
-import os
+from app.services.file_services import s3
+import os 
 
 
 photo_router = APIRouter(
@@ -66,10 +70,25 @@ async def uploadPhotosHandler(
         content = await file.read()
         image = Image.open(io.BytesIO(content))
         width, height = image.size
+ 
         with open(savePath, "wb") as f:
             f.write(content)
+            
+        id = str(uuid4())
+        key = f"trips/{trip_id}/photos/{id}{extension}"
+        
+        try:
+            await asyncio.to_thread(
+                lambda:s3.Bucket(config.s3.bucket).put_object(
+                    Key=key,
+                    Body=content,
+                    ContentType=file.content_type)
+            )
+        except Exception as e:
+            raise ServerError(str(e))
         
         photo_data = {
+            "id": id,
             "url": savePath,
             "trip_id" : trip_id,
             "thumbnail_url" : None,
@@ -77,7 +96,7 @@ async def uploadPhotosHandler(
             "file_size": file.size,
             'h_dimm' : height,
             'w_dimm' : width,
-            's3_key': None
+            's3_key': key
         }
         db_photo = add_photo(Photo(**photo_data))
         photos_li.append(db_photo)
@@ -99,6 +118,7 @@ async def uploadProfilePhotoHandler(
     width, height = image.size
     with open(savePath, "wb") as f:
         f.write(content)
+    
     
     photo_data = {
         "url": savePath,
