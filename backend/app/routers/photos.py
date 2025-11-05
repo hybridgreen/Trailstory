@@ -66,17 +66,13 @@ async def uploadPhotosHandler(
     for file in files:
         # Path : tripid-rand(32)
         extension = os.path.splitext(file.filename)[1]
-        savePath = tempdir + f"{secrets.token_urlsafe(32)}{extension}"
         content = await file.read()
         image = Image.open(io.BytesIO(content))
         width, height = image.size
- 
-        with open(savePath, "wb") as f:
-            f.write(content)
             
         id = str(uuid4())
         key = f"trips/{trip_id}/photos/{id}{extension}"
-        
+        url = f"https://{config.s3.bucket}.{config.s3.region}.amazonaws.com/{key}"
         try:
             await asyncio.to_thread(
                 lambda:s3.Bucket(config.s3.bucket).put_object(
@@ -89,7 +85,7 @@ async def uploadPhotosHandler(
         
         photo_data = {
             "id": id,
-            "url": savePath,
+            "url": url,
             "trip_id" : trip_id,
             "thumbnail_url" : None,
             "mime_type": file.content_type,
