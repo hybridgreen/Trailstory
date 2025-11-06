@@ -1,5 +1,3 @@
-import secrets
-import tempfile
 import asyncio
 import io
 from uuid import uuid4
@@ -25,7 +23,6 @@ photo_router = APIRouter(
     tags=["Photos"]
 )
 
-tempdir = tempfile.gettempdir()
 
 def validate_photo(file: UploadFile):
     if file.size == 0 :
@@ -62,7 +59,11 @@ def getPhotosHandler(trip_id: str):
     
     links = []
     for photo in photos:
-        links.append(photo)
+        url = s3.meta.client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': config.s3.bucket, 'Key': photo.s3_key},
+            ExpiresIn=3600)
+        links.append(url)
         
     return links
     
@@ -140,8 +141,8 @@ async def uploadProfilePhotoHandler(
         "user_id" : auth_user.id,
         "mime_type": file.content_type,
         "file_size": file.size,
-        'h_dimm' : 20,
-        'w_dimm' : 20,
+        'h_dimm' : 120,
+        'w_dimm' : 120,
         's3_key': key
     }
         
