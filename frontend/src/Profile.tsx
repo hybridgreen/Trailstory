@@ -34,10 +34,13 @@ interface UserProfile {
   firstname: string | null;
   lastname: string | null;
   email_verified: boolean;
+  avatar_id: string | null;
   created_at: string;
 }
 
 function PasswordDialog() {
+  const [open, setOpen] = useState(false);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -59,6 +62,7 @@ function PasswordDialog() {
       });
 
       if (response.ok) {
+        setOpen(false);
         toast.success("Password Changed");
       } else {
         const error = await response.json();
@@ -69,7 +73,7 @@ function PasswordDialog() {
     }
   }
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Change password</Button>
       </DialogTrigger>
@@ -100,7 +104,7 @@ function PasswordDialog() {
                 type="password"
               />
             </div>
-            <div className="grid gap-3">
+            <div className="grid gap-3 mb-4">
               <Label htmlFor="password-3">Confirm Password</Label>
               <Input
                 id="password-3"
@@ -120,6 +124,74 @@ function PasswordDialog() {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function FileUploadDialog() {
+  const [file, setFile] = useState<File | null>(null);
+  const [open, setOpen] = useState(false);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      console.log("Received file:", file);
+      setFile(file);
+    }
+  };
+
+  async function uploadAvatar() {
+    if (!file) {
+      toast.error("Please select a file");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch(`${serverBaseURL}/users/avatar/`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success("Avatar updated");
+        setOpen(false);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    }
+  }
+  return (
+    <div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline">Edit avatar</Button>
+        </DialogTrigger>
+        <DialogDescription></DialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Choose a new avatar</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              type="file"
+              accept="image/*"
+              name="avatar"
+              onChange={handleFileChange}
+            />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button onClick={uploadAvatar}>Upload</Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
@@ -148,11 +220,11 @@ export default function ProfilePage() {
         } else {
           const error = await response.json();
           console.error("Error:", error);
-          alert("Failed to load profile");
+          toast.error("Failed to load profile");
         }
       } catch (error) {
         console.error("Error:", error);
-        alert("Network error");
+        toast.error("Network error");
       } finally {
         setLoading(false);
       }
@@ -182,18 +254,17 @@ export default function ProfilePage() {
         const updatedProfile = await response.json();
         setProfile(updatedProfile);
         setIsEditing(false);
-        alert("Profile updated!");
+        toast.success("Profile updated!");
       } else {
         const error = await response.json();
         console.error("Error:", error);
-        alert("Failed to update profile");
+        toast.error("Failed to update profile");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Network error");
+      toast.error("Network error");
     }
   }
-
   if (loading) {
     return (
       <div className="profile-page">
@@ -205,7 +276,6 @@ export default function ProfilePage() {
   if (!profile) {
     return <div className="profile-page">Profile not found</div>;
   }
-
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -214,19 +284,21 @@ export default function ProfilePage() {
       day: "numeric",
     });
   }
-
   return (
     <div className="max-w-2xl mx-auto p-6">
       <Card>
         <CardHeader>
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarImage
+                src={profile.avatar_id || "https://github.com/shadcn.png"}
+              />
               <AvatarFallback>
                 {profile.firstname?.[0]}
                 {profile.lastname?.[0]}
               </AvatarFallback>
             </Avatar>
+            <FileUploadDialog />
             <div>
               <CardTitle className="text-2xl">
                 {profile.firstname || profile.lastname
