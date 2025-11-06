@@ -14,7 +14,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Mail, User, CheckCircle, XCircle } from "lucide-react";
-import { Progress } from "./components/ui/progress";
 import {
   Dialog,
   DialogClose,
@@ -26,6 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Spinner } from "./components/ui/spinner";
 
 interface UserProfile {
   id: string;
@@ -275,9 +275,8 @@ export default function ProfilePage() {
   }
   if (loading) {
     return (
-      <div className="profile-page">
-        <Progress value={67} />
-        Loading profile...
+      <div className="flex flex-auto justify-center items-center">
+        <Spinner className="h-20 w-20" />
       </div>
     );
   }
