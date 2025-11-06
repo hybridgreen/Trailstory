@@ -257,8 +257,7 @@ async def handler_update_ride(
         raise UnauthorizedError("Error: Ride does not belong to user")
     ride = update_ride(ride_id, form_data.model_dump(exclude_unset=True))
     ride.route = to_geojson(to_shape(ride.route))
-    return ride
-    
+    return ride   
 
 @rides_router.delete('/{ride_id}/', status_code= 204)
 async def handler_delete_ride(  

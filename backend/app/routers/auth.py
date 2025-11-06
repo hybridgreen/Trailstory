@@ -8,8 +8,7 @@ from app.models import loginForm, LoginResponse, RefreshResponse
 from app.dependencies import get_bearer_token
 from app.config import config 
 from app.errors import NotFoundError, AuthenticationError, ServerError
-from app.email_services import send_password_reset_email, send_password_changed_email
-from datetime import date, datetime, timedelta
+from app.services.email_services import send_password_reset_email, send_password_changed_email
 
 """
 Future Auth endpoints

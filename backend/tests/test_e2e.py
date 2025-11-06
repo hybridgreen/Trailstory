@@ -56,7 +56,7 @@ def setup():
     f3 = open(ride3_path, 'rb')
 
     response = client.post(
-        f'/trips/{trip_id}/upload/multi',
+        f'/trips/{trip_id}/rides/',
         files=[
             ('files', ('ride1.gpx', f1, "application/gpx+xml")),
             ('files', ('ride2.gpx', f2, "application/gpx+xml")),

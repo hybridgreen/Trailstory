@@ -23,6 +23,7 @@ class User(Base, TimestampMixin):
     firstname : Mapped[str | None]
     lastname : Mapped[str | None]
     trips: Mapped[list['Trip']] = relationship(back_populates = "user")
+    avatar_id: Mapped[str|None]
     email_verified : Mapped[bool] = mapped_column (default= False)
 
     def __repr__(self) -> str:
@@ -44,6 +45,8 @@ class Trip(Base, TimestampMixin):
     route: Mapped[str | None] = mapped_column(Geometry('LINESTRING'),default= None)
     bounding_box: Mapped[str | None] = mapped_column(Geometry('POLYGON'), default= None)
     is_published: Mapped[bool] = mapped_column(default= False)
+    cover_id: Mapped[str | None]
+    thumbnail_id: Mapped[str | None]
     user: Mapped[User] = relationship(back_populates='trips')
     rides : Mapped [list['Ride']] = relationship( back_populates='trip')
 
@@ -64,18 +67,17 @@ class Ride(Base, TimestampMixin):
     route: Mapped[str] = mapped_column(Geometry('LINESTRING'))
     trip: Mapped[list['Trip']] = relationship(back_populates='rides')
 
-#class Photos(Base, TimestampMixin):
-    #__tablename__ = "photos"
-    #id: Mapped[str] = mapped_column(primary_key=True)
-    #signed_url: Mapped[str]
-    # * trip_id (foreign key)
-    # * ride_id (foreign key, nullable - might not be tied to specific ride)
-    # * user_id (foreign key)
-    # * image_url (link)
-    # * thumbnail_url (S3 link to resized version)
-    # * caption (text)
-    # * location (PostGIS POINT) - lat/lng from EXIF or manual pin
-    # * taken_at (timestamp from EXIF)
+class Photo(Base, TimestampMixin):
+    __tablename__ = "photos"
+    id: Mapped[str] = mapped_column(primary_key=True, default= lambda : str(uuid4()))
+    trip_id : Mapped[str| None] = mapped_column(ForeignKey('trips.id', ondelete='CASCADE'))
+    user_id : Mapped[str| None] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+    mime_type: Mapped[str]
+    file_size: Mapped[int]
+    h_dimm : Mapped[int|None]
+    w_dimm : Mapped[int|None]
+    s3_key: Mapped[str | None]
+    taken_at: Mapped[str | None]
 
 class refresh_tokens(Base):
     __tablename__ = "refresh_tokens"
