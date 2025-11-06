@@ -82,25 +82,32 @@ def test_add_photos(setup):
     file_paths = [f for f in Path(photos_dir).iterdir() if f.is_file()]
     
     files=[]
+    file_handles = []
     
     for file in file_paths:
-        with open(file, 'rb') as f:
-            content = f.read()
-            files.append(('files', (file.name, content, "image/jpeg")))
+        f = open(file, 'rb')
+        content = f.read()
+        file_handles.append(f)
+        files.append(('files', (file.name, content, "image/jpeg")))
     
-    response = client.post(
-        f'/trips/{trip_id}/photos',
-        files=files,
-        headers={"Authorization": f"Bearer {at}"}
-    )
-    
-    photos = response.json()
-    
-    if response.status_code != 201:
-        print(photos)
+    try:
+            
+        response = client.post(
+            f'/trips/{trip_id}/photos',
+            files=files,
+            headers={"Authorization": f"Bearer {at}"}
+        )
         
-    assert response.status_code == 201
-    assert len(photos) == len(file_paths)
+        links = response.json()["links"]
+        
+        if response.status_code != 201:
+            print(links)
+            
+        assert response.status_code == 201
+        assert len(links) == len(file_paths)
+    finally:
+        for f in file_handles:
+            f.close()
     
 def test_add_wrong_mime(setup):
     
@@ -124,3 +131,37 @@ def test_add_wrong_mime(setup):
     )
     
     assert response.status_code == 400
+
+
+def test_add_avatar(setup):
+    
+    user_response, trip_data = setup
+    at = user_response['access_token']
+    trip_id = trip_data['id']
+    
+    file_path = photos_dir / 'avatar.jpg'
+    
+    files=[]
+    file_handles = []
+
+    f = open(file_path, 'rb')
+    content = f.read()
+    file_handles.append(f)
+    files.append(('file', (f.name, content, "image/jpeg")))
+    
+    try:
+            
+        response = client.post(
+            f'/users/avatar/',
+            files=files,
+            headers={"Authorization": f"Bearer {at}"}
+        )
+        
+        photos = response.json()
+        
+        if response.status_code != 201:
+            print(photos)
+        assert response.status_code == 201
+
+    finally:
+            f.close()

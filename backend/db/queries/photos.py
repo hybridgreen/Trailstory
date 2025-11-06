@@ -12,7 +12,14 @@ def get_trip_photos(trip_id:str):
             return photos
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-
+    
+def get_photo(id:str):
+    try:
+        with Session(engine) as session:
+            return session.get(Photo, id)
+    except Exception as e:
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
+    
 def add_photo(photo: Photo):
     try: 
         with Session(engine) as session:

@@ -7,14 +7,15 @@ from PIL import Image
 from typing import Annotated
 from datetime import date
 from fastapi import APIRouter, Depends, UploadFile, Form
-from fastapi.concurrency import run_in_threadpool
 from db.schema import Photo, User
-from db.queries.photos import add_photo, get_trip_photos, update_photo
+from db.queries.photos import add_photo, get_trip_photos, update_photo, get_photo
 from db.queries.trips import get_trip
+from db.queries.users import get_user_by_id, update_user
 from app.config import config 
 from app.dependencies import get_auth_user
 from app.errors import UnauthorizedError, InputError, ServerError
 from app.routers.trips import trip_router
+from app.routers.users import user_router
 from app.services.file_services import s3
 import os 
 
@@ -36,15 +37,36 @@ def validate_photo(file: UploadFile):
     if file.content_type not in ["image/jpeg", "image/png", "image/webp", "image/heic"]:
         raise InputError(f"Invalid content type header. Received: {file.content_type}")
 
-@trip_router.get("/{trip_id}/photos", status_code=200)
+async def upload_to_s3(file:UploadFile, content:bytes, owner_id: str, id: str):
+    extension = os.path.splitext(file.filename)[1]
+    key = f"{owner_id}/{id}{extension}"
+    try:
+        await asyncio.to_thread(
+            lambda:s3.Bucket(config.s3.bucket).put_object(
+                Key=key,
+                Body=content,
+                ContentType=file.content_type)
+        )
+        
+    except Exception as e:
+        raise ServerError(str(e))
+    
+    return key
+
+
+@trip_router.get("/{trip_id}/photos/", status_code=200)
 def getPhotosHandler(trip_id: str):
     
     trip = get_trip(trip_id)
     photos = get_trip_photos(trip.id)
     
-    return photos
+    links = []
+    for photo in photos:
+        links.append(photo)
+        
+    return links
     
-@trip_router.post("/{trip_id}/photos", status_code= 201)
+@trip_router.post("/{trip_id}/photos/", status_code= 201)
 async def uploadPhotosHandler(
     trip_id: str, 
     files: list[UploadFile],
@@ -52,9 +74,10 @@ async def uploadPhotosHandler(
     ):
     
     trip = get_trip(trip_id)
+    print(f"Received {len(files)} files")
     
-    if len(files) > 30:
-        raise InputError("Max number of images: 30")
+    if len(files) > 20:
+        raise InputError("Max number of images: 20")
     
     if trip.user_id != auth_user.id:
         raise UnauthorizedError("Trip does not belong to this user")
@@ -62,66 +85,85 @@ async def uploadPhotosHandler(
     for file in files:
         validate_photo(file)
     
-    photos_li = []
+    photos_links = []
+    
     for file in files:
-        extension = os.path.splitext(file.filename)[1]
         content = await file.read()
-        image = Image.open(io.BytesIO(content))
-        width, height = image.size
-        id = str(uuid4())
-        key = f"trips/{trip_id}/photos/{id}{extension}"
-        url = f"https://{config.s3.bucket}.{config.s3.region}.amazonaws.com/{key}"
-        try:
-            await asyncio.to_thread(
-                lambda:s3.Bucket(config.s3.bucket).put_object(
-                    Key=key,
-                    Body=content,
-                    ContentType=file.content_type)
-            )
-        except Exception as e:
-            raise ServerError(str(e))
+        item_id = str(uuid4())
         
+        key = await upload_to_s3(file, content, trip_id, item_id)
+        
+        with Image.open(io.BytesIO(content)) as im:
+            width, height = im.size
+        
+
         photo_data = {
-            "id": id,
-            "url": url,
+            "id": item_id,
             "trip_id" : trip_id,
-            "thumbnail_url" : None,
             "mime_type": file.content_type,
             "file_size": file.size,
             'h_dimm' : height,
             'w_dimm' : width,
             's3_key': key
         }
+        
         db_photo = add_photo(Photo(**photo_data))
-        photos_li.append(db_photo)
+        url = s3.meta.client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': config.s3.bucket, 'Key': db_photo.s3_key},
+            ExpiresIn=3600)
+        photos_links.append(url)
     
-    return photos_li
+    return {"links": photos_links, "expiry": 3600}
 
-@photo_router.post("/profile", status_code= 201)
+@user_router.post("/avatar/", status_code= 201)
 async def uploadProfilePhotoHandler(
     file: UploadFile,
     auth_user: Annotated[User, Depends(get_auth_user)]
     ):
     
     validate_photo(file)
-    
-    extension = os.path.splitext(file.filename)[1]
-    savePath = tempdir + f"{secrets.token_urlsafe(32)}{extension}"
     content = await file.read()
-    image = Image.open(io.BytesIO(content))
-    width, height = image.size
+    item_id = str(uuid4()) 
+    size = 120, 120
     
-    photo_data = {
-        "url": savePath,
+    
+    with Image.open(io.BytesIO(content)) as im:
+        im.thumbnail(size)
+        buffer = io.BytesIO()
+        im.save(buffer, format='JPEG')  # or 'PNG', etc.
+        image_bytes = buffer.getvalue()
+        key = await upload_to_s3(file, image_bytes, auth_user.id, item_id)
+    
+    photo = {
+        "id": item_id,
         "user_id" : auth_user.id,
-        "thumbnail_url" : None,
         "mime_type": file.content_type,
         "file_size": file.size,
-        'h_dimm' : height,
-        'w_dimm' : width,
-        's3_key': None
+        'h_dimm' : 20,
+        'w_dimm' : 20,
+        's3_key': key
     }
-    
-    db_photo = add_photo(Photo(**photo_data))
         
-    return db_photo
+    db_photo = add_photo(Photo(**photo))
+    update_user(auth_user.id, {"avatar_id": item_id})
+    url = s3.meta.client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': config.s3.bucket, 'Key': db_photo.s3_key},
+            ExpiresIn=3600)
+    
+    return url
+    
+@user_router.get("{user_id}/avatar/", status_code= 200)
+def getAvatarHandler(user_id: str):
+    user = get_user_by_id(user_id)
+    photo = get_photo(user.avatar_id)
+    
+    url = s3.meta.client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': config.s3.bucket, 'Key': photo.s3_key},
+            ExpiresIn=3600)
+    
+    return url
+    
+    

@@ -23,7 +23,7 @@ class User(Base, TimestampMixin):
     firstname : Mapped[str | None]
     lastname : Mapped[str | None]
     trips: Mapped[list['Trip']] = relationship(back_populates = "user")
-    photo_url: Mapped[str|None]
+    avatar_id: Mapped[str|None]
     email_verified : Mapped[bool] = mapped_column (default= False)
 
     def __repr__(self) -> str:
@@ -45,8 +45,8 @@ class Trip(Base, TimestampMixin):
     route: Mapped[str | None] = mapped_column(Geometry('LINESTRING'),default= None)
     bounding_box: Mapped[str | None] = mapped_column(Geometry('POLYGON'), default= None)
     is_published: Mapped[bool] = mapped_column(default= False)
-    cover_url: Mapped[str | None]
-    thumbnail_url: Mapped[str | None]
+    cover_id: Mapped[str | None]
+    thumbnail_id: Mapped[str | None]
     user: Mapped[User] = relationship(back_populates='trips')
     rides : Mapped [list['Ride']] = relationship( back_populates='trip')
 
@@ -70,10 +70,8 @@ class Ride(Base, TimestampMixin):
 class Photo(Base, TimestampMixin):
     __tablename__ = "photos"
     id: Mapped[str] = mapped_column(primary_key=True, default= lambda : str(uuid4()))
-    url: Mapped[str]
     trip_id : Mapped[str| None] = mapped_column(ForeignKey('trips.id', ondelete='CASCADE'))
     user_id : Mapped[str| None] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
-    thumbnail_url: Mapped[str | None]
     mime_type: Mapped[str]
     file_size: Mapped[int]
     h_dimm : Mapped[int|None]

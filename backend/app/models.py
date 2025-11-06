@@ -26,6 +26,7 @@ class UserResponse(BaseModel):
     lastname: str | None
     email_verified: bool
     created_at: datetime
+    avatar_id: str | None
     
     model_config = ConfigDict (from_attributes = True )# Allows conversion from SQLAlchemy model    
 

@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Form
 from db.queries.users import User, delete_user, create_user, update_user, get_user_by_id
+from db.queries.photos import get_photo
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
 from app.security import make_JWT, hash_password, create_refresh_Token, validate_email, validate_password, verify_password
@@ -9,6 +10,7 @@ from app.errors import *
 from app.config import config 
 from app.dependencies import get_auth_user
 from app.services.email_services import send_password_changed_email
+from app.services.file_services import s3
 
 # todo endpoints:
 # Update password
@@ -43,11 +45,30 @@ async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> LoginRe
 @user_router.get('/me/', status_code= 200) 
 async def handler_get_current_user(
     authed_user: Annotated[User, Depends(get_auth_user)])-> UserResponse:
+    
+    if authed_user.avatar_id:
+        avatar = get_photo(authed_user.avatar_id)
+        url = s3.meta.client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': config.s3.bucket, 'Key': avatar.s3_key},
+            ExpiresIn=3600)
+        authed_user.avatar_id = url
+        
+    
     return authed_user
    
 @user_router.get('/{id}/', status_code= 200)
 async def handler_get_user_id(id:str) -> UserResponse:
        user = get_user_by_id(id)
+       if user.avatar_id:
+            avatar = get_photo(user.avatar_id)
+            url = s3.meta.client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': config.s3.bucket, 'Key': avatar.s3_key},
+                ExpiresIn=3600)
+            user.avatar_id = url
+        
+    
        return user
 
 @user_router.get('/{user_id}/trips/', status_code= 200)
