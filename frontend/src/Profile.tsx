@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { isTokenExpiring, refreshTokens, serverBaseURL } from "./utils";
 import {
   Card,
@@ -119,7 +119,9 @@ function PasswordDialog() {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit">
+              Save changes
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -198,39 +200,42 @@ function FileUploadDialog() {
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    async function fetchProfile() {
-      if (isTokenExpiring()) {
-        await refreshTokens();
-      }
-
-      try {
-        const response = await fetch(`${serverBaseURL}/users/me/`, {
-          method: "GET",
-          headers: {
-            authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setProfile(data);
-        } else {
-          const error = await response.json();
-          console.error("Error:", error);
-          toast.error("Failed to load profile");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        toast.error("Network error");
-      } finally {
-        setLoading(false);
-      }
+  const fetchProfile = useCallback(async () => {
+    if (isTokenExpiring()) {
+      await refreshTokens();
     }
-    fetchProfile();
+
+    try {
+      setLoading(true);
+      const response = await fetch(`${serverBaseURL}/users/me/`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProfile(data);
+      } else {
+        const error = await response.json();
+        console.error("Error:", error);
+        toast.error("Failed to load profile");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Network error");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   async function handleSaveProfile(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -242,6 +247,7 @@ export default function ProfilePage() {
     const formData = new FormData(event.currentTarget);
 
     try {
+      setSaving(true);
       const response = await fetch(`${serverBaseURL}/users/`, {
         method: "PUT",
         headers: {
@@ -263,6 +269,8 @@ export default function ProfilePage() {
     } catch (error) {
       console.error("Error:", error);
       toast.error("Network error");
+    } finally {
+      setSaving(false);
     }
   }
   if (loading) {
@@ -387,7 +395,9 @@ export default function ProfilePage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Save Changes</Button>
+                <Button loading={saving} type="submit">
+                  Save Changes
+                </Button>
               </div>
             </form>
           ) : (
