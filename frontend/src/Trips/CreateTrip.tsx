@@ -1,6 +1,10 @@
-import {} from "../App";
 import { useNavigate } from "react-router";
 import { isTokenExpiring, refreshTokens, serverBaseURL } from "../utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function DraftTripForm() {
   const navigate = useNavigate();
@@ -39,33 +43,39 @@ export default function DraftTripForm() {
   }
 
   return (
-    <div className="trip-page">
-      <form onSubmit={draftTrip}>
-        <div className="trip-info-section">
-          <h3>Create New Trip</h3>
-          <div className="trip-info-form">
-            <div>
-              <label>Title</label>
-              <input type="text" name="title" required />
+    <div className="container max-w-2xl mx-auto py-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Trip</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={draftTrip} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input type="text" id="title" name="title" required />
             </div>
-            <div>
-              <label>Description</label>
-              <textarea name="description" rows={4} />
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea id="description" name="description" rows={4} />
             </div>
-            <div>
-              <label>Start Date</label>
-              <input type="date" name="start_date" required />
+
+            <div className="space-y-2">
+              <Label htmlFor="start_date">Start Date</Label>
+              <Input type="date" id="start_date" name="start_date" required />
             </div>
-            <div>
-              <label>End Date (optional)</label>
-              <input type="date" name="end_date" />
+
+            <div className="space-y-2">
+              <Label htmlFor="end_date">End Date (optional)</Label>
+              <Input type="date" id="end_date" name="end_date" />
             </div>
-          </div>
-        </div>
-        <div>
-          <button type="submit">Create Draft</button>
-        </div>
-      </form>
+
+            <Button type="submit" className="w-full">
+              Create Draft
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
