@@ -292,7 +292,7 @@ export default function ProfilePage() {
     });
   }
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl w-full mx-auto p-6">
       <Card>
         <CardHeader>
           <div className="flex items-center gap-4">
