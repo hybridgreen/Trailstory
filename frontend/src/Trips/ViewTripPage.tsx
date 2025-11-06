@@ -4,12 +4,47 @@ import mapboxgl from "mapbox-gl";
 import { serverBaseURL } from "../utils";
 import "./ViewTripPage.css";
 import type { tripData, rideData } from "./EditTrip";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+
+function PhotosCarousel({ links }: { links: string[] }) {
+  return (
+    <Carousel className="w-full max-w-4xl mx-auto">
+      <CarouselContent>
+        {links.map((link, index) => (
+          <CarouselItem key={index}>
+            <div className="p-1">
+              <Card className="border-0 shadow-none">
+                <CardContent className="p-0">
+                  <img
+                    src={link}
+                    alt={`Photo ${index + 1}`}
+                    className="w-full h-[500px] object-cover rounded-lg"
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="left-4" />
+      <CarouselNext className="right-4" />
+    </Carousel>
+  );
+}
 
 export default function ViewTripPage() {
   const [trip, setTrip] = useState<tripData | null>(null);
   const [rides, setRides] = useState<rideData[]>([]);
+  const [photos, setPhotos] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -18,7 +53,6 @@ export default function ViewTripPage() {
   useEffect(() => {
     async function fetchTripData() {
       try {
-        // Fetch trip
         const tripResponse = await fetch(`${serverBaseURL}/trips/${id}/`);
         const tripData = await tripResponse.json();
 
@@ -33,6 +67,24 @@ export default function ViewTripPage() {
     }
 
     fetchTripData();
+  }, [id]);
+
+  useEffect(() => {
+    async function fetchTripPhotos() {
+      setLoading(true);
+      try {
+        const response = await fetch(`${serverBaseURL}/trips/${id}/photos/`);
+        const url_array = await response.json();
+        console.log("Received:", url_array);
+        setPhotos(url_array);
+      } catch (error) {
+        console.error("Error fetching trip:", error);
+        alert("Failed to load trip");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTripPhotos();
   }, [id]);
 
   useEffect(() => {
@@ -103,10 +155,8 @@ export default function ViewTripPage() {
   if (!trip) {
     return <div className="trip-view-page">Trip not found</div>;
   }
-
   return (
     <div className="trip-view-page">
-      {/* Hero Section */}
       <div className="trip-hero">
         <h1>{trip.title}</h1>
 
@@ -140,8 +190,12 @@ export default function ViewTripPage() {
         <p className="trip-description">{trip.description}</p>
 
         {/* Placeholder for photos */}
-        <div className="photo-placeholder">
-          <p>📷 Photo slideshow coming soon</p>
+        <div>
+          {photos.length > 0 ? (
+            <PhotosCarousel links={photos} />
+          ) : (
+            <p>📷You have not added any pictures to your trip. Add some now!</p>
+          )}
         </div>
       </div>
 

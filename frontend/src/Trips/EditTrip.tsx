@@ -24,6 +24,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { ChevronDown, ChevronRight, Trash2, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -82,10 +92,10 @@ function TripInfo({
 
   useEffect(() => {
     onSave(getFormData);
-  }, []);
+  }, [onSave]);
 
   return (
-    <Card className="mb-6">
+    <Card>
       <CardHeader
         className="cursor-pointer hover:bg-gray-50"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -174,7 +184,7 @@ function UploadRidesInput(props: { onUpload: (files: FileList) => void }) {
     toast.success(`Uploading ${files.length} file(s)...`);
   }
   return (
-    <Card className="mb-6">
+    <Card>
       <CardHeader
         className="cursor-pointer hover:bg-gray-50"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -260,7 +270,7 @@ function RideCard({
 
   useEffect(() => {
     onSave(ride.id, getFormData);
-  }, []);
+  }, [onSave, ride.id]);
 
   function formatTime(seconds: number): string {
     const hours = Math.floor(seconds / 3600);
@@ -269,7 +279,7 @@ function RideCard({
   }
 
   return (
-    <Card className="mb-4">
+    <Card>
       <CardHeader
         className="cursor-pointer hover:bg-gray-50"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -377,6 +387,89 @@ function RideCard({
         </CardContent>
       </form>
     </Card>
+  );
+}
+
+function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
+  const [uploadFiles, setFiles] = useState<File[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      console.log("Received files:", files);
+      setFiles([...uploadFiles, ...files]);
+    }
+  };
+
+  async function uploadPhotos() {
+    if (!uploadFiles) {
+      toast.error("Please select a file");
+      return;
+    }
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      for (const file of uploadFiles) {
+        formData.append("files", file);
+      }
+
+      const response = await fetch(
+        `${serverBaseURL}/trips/${trip_id}/photos/`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success(`Success! ${uploadFiles.length} photos uploaded.`);
+        setOpen(false);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    }
+  }
+
+  return (
+    <div>
+      <Card className="px-4">
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline">Upload Photos</Button>
+          </DialogTrigger>
+          <DialogDescription> Add some photos from your trip</DialogDescription>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Select photos</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                type="file"
+                accept="image/*"
+                multiple={true}
+                name="avatar"
+                onChange={handleFileChange}
+              />
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button disabled={loading} onClick={uploadPhotos}>
+                  {loading ? <Spinner /> : "Upload"}
+                </Button>
+              </DialogFooter>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </Card>
+    </div>
   );
 }
 
@@ -532,9 +625,11 @@ export default function EditTripPage() {
       }
       const trip: tripData = await response.json();
       toast.success("Trip saved successfully!");
+      navigate(`/trips/${tripID}`);
       return trip;
     } catch (error) {
       toast.error("Network error");
+      console.error(error);
     }
   }
 
@@ -596,18 +691,20 @@ export default function EditTripPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-6">
+    <div className=" flex flex-col gap-4 max-w-4xl mx-auto p-6">
+      <div>
         <h1 className="text-3xl font-bold">Edit Trip</h1>
         <p className="text-muted-foreground">
           Manage your trip details and rides
         </p>
       </div>
       <TripInfo trip={tripData} onSave={registerTripData} />
+      <Separator />
+      <ImagesUploadDialog trip_id={tripData.id} />
       <UploadRidesInput onUpload={uploadRides} />
 
       {rides && rides.length > 0 && (
-        <div className="mb-6">
+        <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-semibold mb-4">
             Rides ({rides.length})
           </h2>
@@ -648,9 +745,15 @@ export default function EditTripPage() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <Button onClick={handleSubmitTrip} size="lg">
-          <Save className="h-4 w-4 mr-2" />
-          Save Trip
+        <Button disabled={loading} onClick={handleSubmitTrip} size="lg">
+          {loading ? (
+            <Spinner />
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              <span>Save Trip</span>
+            </>
+          )}
         </Button>
       </div>
     </div>
