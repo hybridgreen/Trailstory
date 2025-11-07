@@ -424,16 +424,21 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
           headers: {
             authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
-        },
+        }
       );
 
       if (response.ok) {
         toast.success(`Success! ${uploadFiles.length} photos uploaded.`);
         setOpen(false);
         setUploadingPhotos(false);
+      } else {
+        const error = await response.json();
+        console.error("Error:", error);
       }
     } catch (error) {
       console.error("Unknown error:", error);
+    } finally {
+      setUploadingPhotos(false);
     }
   }
 
@@ -537,7 +542,7 @@ export default function EditTripPage() {
         const error = await response.json();
         console.error("Error:", error);
         toast.error(
-          "Failed to upload rides: " + (error.detail || "Unknown error"),
+          "Failed to upload rides: " + (error.detail || "Unknown error")
         );
       }
     } catch (error) {
