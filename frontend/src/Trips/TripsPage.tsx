@@ -90,10 +90,10 @@ function TripCard({ trip }: { trip: tripsData }) {
       </CardContent>
 
       <CardFooter className="gap-2">
-        <Button variant="outline" className="flex-1" asChild>
+        <Button variant="outline" className="flex-1">
           <a href={`/trips/${trip.id}`}>View</a>
         </Button>
-        <Button variant="default" className="flex-1" asChild>
+        <Button variant="default" className="flex-1">
           <a href={`/trips/${trip.id}/edit`}>Edit</a>
         </Button>
       </CardFooter>
