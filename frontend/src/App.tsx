@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast, Toaster } from "sonner";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import { ModeToggle } from "./components/toggle-mode.tsx";
+import Dashboard from "./Dashboard.tsx";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/trips/new" element={<DraftTrip />} />
           <Route path="/trips/:id/edit" element={<EditTripPage />} />
@@ -58,7 +60,7 @@ function NavBar() {
         </div>
 
         <div className="navbar-links">
-          <a href="/trips">Dashboard</a>
+          <a href="/dashboard">Dashboard</a>
           <a href="/trips">Trips</a>
           <a href="/profile/me">My Profile</a>
         </div>
