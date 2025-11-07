@@ -32,7 +32,6 @@ import {
 
 import { toast } from "sonner";
 import { Spinner } from "./components/ui/spinner";
-import { useNavigate } from "react-router";
 import { LoginRedirect } from "./Auth";
 
 interface UserProfile {
