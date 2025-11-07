@@ -27,7 +27,7 @@ photo_router = APIRouter(
 def validate_photo(file: UploadFile):
     if file.size == 0 :
             raise InputError(f"File : {file.filename} is empty")
-    if not file.filename.endswith(('.jpg','.png','.heic','.jpg')):
+    if not file.filename.endswith(('.jpg','.png','.heic','.jpeg')):
             raise InputError(f'File : {file.filename} has Invalid file type. Supported types: .jpeg, .png .heic')
     if file.size > config.limits.max_upload_size:
         raise InputError("Maximum file size exceeded. 15MB")
