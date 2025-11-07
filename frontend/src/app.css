@@ -1,4 +1,4 @@
-@import 'mapbox-gl/dist/mapbox-gl.css';
+@import "mapbox-gl/dist/mapbox-gl.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -120,10 +120,14 @@
   }
 }
 
+#root {
+  @apply min-h-screen flex flex-col;
+}
+
 /* Navbar.css */
 
 .navbar {
-  background-color: #3d4f2f;
+  @apply bg-card;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 1rem 2rem;
 }
@@ -201,3 +205,4 @@
   margin-left: auto;
   margin-right: auto;
 }
+
