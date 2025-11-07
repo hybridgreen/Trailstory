@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { isTokenExpiring, refreshTokens, serverBaseURL } from "./utils";
+import {
+  isAuthenticated,
+  isTokenExpiring,
+  refreshTokens,
+  serverBaseURL,
+} from "./utils";
 import {
   Card,
   CardContent,
@@ -24,8 +29,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { toast } from "sonner";
 import { Spinner } from "./components/ui/spinner";
+import { useNavigate } from "react-router";
 
 interface UserProfile {
   id: string;
@@ -207,6 +214,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
   const fetchProfile = useCallback(async () => {
     if (isTokenExpiring()) {
@@ -278,6 +286,26 @@ export default function ProfilePage() {
       setSaving(false);
     }
   }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-auto justify-center items-center">
+        <Card>
+          <CardContent>Please log in to see your profile</CardContent>
+          <Button
+            onClick={() => {
+              navigate("/");
+            }}
+            className="m-auto w-fit"
+          >
+            {" "}
+            Log In Now
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex flex-auto justify-center items-center">
@@ -286,8 +314,15 @@ export default function ProfilePage() {
     );
   }
   if (!profile) {
-    return <div className="profile-page">Profile not found</div>;
+    return (
+      <div className="flex flex-auto justify-center items-center">
+        <Card>
+          <CardContent>Profile not found</CardContent>
+        </Card>
+      </div>
+    );
   }
+
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
