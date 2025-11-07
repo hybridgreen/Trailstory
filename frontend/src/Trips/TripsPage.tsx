@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoginRedirect } from "@/Auth";
+import { Spinner } from "@/components/ui/spinner";
 
 interface tripsData {
   id: string;
@@ -118,7 +119,11 @@ export default function Trips() {
     return <LoginRedirect />;
   }
   if (loading) {
-    return <div>Loading trips...</div>;
+    return (
+      <div className="flex flex-auto justify-center items-center">
+        <Spinner className="h-20 w-20" />
+      </div>
+    );
   }
 
   return (
