@@ -40,6 +40,7 @@ interface UserProfile {
 
 function PasswordDialog() {
   const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,6 +54,8 @@ function PasswordDialog() {
     formData.delete("c_password");
 
     try {
+      setSaving(true);
+
       const response = await fetch(`${serverBaseURL}/users/password/`, {
         method: "PUT",
         body: formData,
@@ -70,6 +73,8 @@ function PasswordDialog() {
       }
     } catch (error) {
       console.error("Unknown error:", error);
+    } finally {
+      setSaving(false);
     }
   }
   return (
@@ -119,7 +124,7 @@ function PasswordDialog() {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">
+            <Button type="submit" loading={saving}>
               Save changes
             </Button>
           </DialogFooter>
