@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoginRedirect } from "@/Auth";
 
 interface tripsData {
   id: string;
@@ -114,7 +115,7 @@ export default function Trips() {
   }, []);
 
   if (!isAuthenticated()) {
-    return <div className="trips">Please login to see your trips.</div>;
+    return <LoginRedirect />;
   }
   if (loading) {
     return <div>Loading trips...</div>;

@@ -33,6 +33,7 @@ import {
 import { toast } from "sonner";
 import { Spinner } from "./components/ui/spinner";
 import { useNavigate } from "react-router";
+import { LoginRedirect } from "./Auth";
 
 interface UserProfile {
   id: string;
@@ -214,7 +215,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate();
 
   const fetchProfile = useCallback(async () => {
     if (isTokenExpiring()) {
@@ -287,23 +287,8 @@ export default function ProfilePage() {
     }
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="flex flex-auto justify-center items-center">
-        <Card>
-          <CardContent>Please log in to see your profile</CardContent>
-          <Button
-            onClick={() => {
-              navigate("/");
-            }}
-            className="m-auto w-fit"
-          >
-            {" "}
-            Log In Now
-          </Button>
-        </Card>
-      </div>
-    );
+  if (!isAuthenticated()) {
+    return <LoginRedirect />;
   }
 
   if (loading) {

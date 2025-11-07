@@ -289,7 +289,7 @@ function NewPassword({ token }: { token: string }) {
         {
           method: "POST",
           body: passwordData,
-        },
+        }
       );
 
       if (response.ok) {
@@ -370,6 +370,26 @@ export default function AuthCard() {
           navigate("/dashboard");
         }}
       ></DisplayForm>
+    </div>
+  );
+}
+
+export function LoginRedirect() {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-auto justify-center items-center">
+      <Card>
+        <CardContent>Please log in to see your profile</CardContent>
+        <Button
+          onClick={() => {
+            navigate("/");
+          }}
+          className="m-auto w-fit"
+        >
+          {" "}
+          Log In Now
+        </Button>
+      </Card>
     </div>
   );
 }
