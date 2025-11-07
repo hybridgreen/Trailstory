@@ -65,7 +65,7 @@ function TripCard({ trip }: { trip: tripsData }) {
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <a href={`/trips/${trip.id}`} className="block">
         <img
-          src="https://placehold.co/400x250/3d4f2f/faf8f3?text=Bikepacking+Trip"
+          src={`https://placehold.co/400x250/3d4f2f/faf8f3?text=${trip.title}`}
           alt={trip.title}
           className="w-full h-48 object-cover"
         />

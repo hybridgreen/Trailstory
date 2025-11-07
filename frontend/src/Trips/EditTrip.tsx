@@ -258,7 +258,6 @@ function RideCard({
         onDelete(ride.id);
         toast.success("Ride deleted");
       } else {
-        alert("Failed to delete ride");
         toast.error("Failed to delete ride");
       }
     }
