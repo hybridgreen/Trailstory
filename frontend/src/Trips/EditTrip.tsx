@@ -393,7 +393,7 @@ function RideCard({
 function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
   const [uploadFiles, setFiles] = useState<File[]>([]);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -408,7 +408,7 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
       toast.error("Please select a file");
       return;
     }
-    setLoading(true);
+    setUploadingPhotos(true);
 
     try {
       const formData = new FormData();
@@ -424,13 +424,13 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
           headers: {
             authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
         toast.success(`Success! ${uploadFiles.length} photos uploaded.`);
         setOpen(false);
-        setLoading(false);
+        setUploadingPhotos(false);
       }
     } catch (error) {
       console.error("Unknown error:", error);
@@ -461,8 +461,8 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
                 <DialogClose asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>
-                <Button disabled={loading} onClick={uploadPhotos}>
-                  {loading ? <Spinner /> : "Upload"}
+                <Button loading={uploadingPhotos} onClick={uploadPhotos}>
+                  Upload
                 </Button>
               </DialogFooter>
             </div>
@@ -478,7 +478,7 @@ export default function EditTripPage() {
 
   const [tripData, setTripData] = useState<tripData | null>(null);
   const [rides, setRides] = useState<rideData[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [submittingTrip, setSubmittingTrip] = useState(true);
   const { id } = useParams();
   const navigate = useNavigate();
   const rideDataGetters = useRef<Map<string, () => FormData>>(new Map());
@@ -507,7 +507,7 @@ export default function EditTripPage() {
         console.error("Unknown error:", error);
         toast.error("Network error");
       } finally {
-        setLoading(false);
+        setSubmittingTrip(false);
       }
     }
     fetchTrip();
@@ -537,7 +537,7 @@ export default function EditTripPage() {
         const error = await response.json();
         console.error("Error:", error);
         toast.error(
-          "Failed to upload rides: " + (error.detail || "Unknown error")
+          "Failed to upload rides: " + (error.detail || "Unknown error"),
         );
       }
     } catch (error) {
@@ -663,7 +663,7 @@ export default function EditTripPage() {
     handleSaveTrip(tripData!.id);
   }
 
-  if (loading) {
+  if (submittingTrip) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Item variant="muted">
@@ -745,15 +745,9 @@ export default function EditTripPage() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <Button disabled={loading} onClick={handleSubmitTrip} size="lg">
-          {loading ? (
-            <Spinner />
-          ) : (
-            <>
-              <Save className="h-4 w-4 mr-2" />
-              <span>Save Trip</span>
-            </>
-          )}
+        <Button loading={submittingTrip} onClick={handleSubmitTrip} size="lg">
+          <Save className="h-4 w-4 mr-2" />
+          <span>Save Trip</span>
         </Button>
       </div>
     </div>

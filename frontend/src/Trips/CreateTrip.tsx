@@ -5,9 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 
 export default function DraftTripForm() {
   const navigate = useNavigate();
+
+  const [creatingDraft, setCreatingDraft] = useState(false);
 
   async function draftTrip(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -16,10 +19,13 @@ export default function DraftTripForm() {
     if (formData.get("end_date") === "") {
       formData.delete("end_date");
     }
+
     try {
       if (isTokenExpiring()) {
         await refreshTokens();
       }
+      setCreatingDraft(true);
+
       const response = await fetch(`${serverBaseURL}/trips/`, {
         method: "POST",
         headers: {
@@ -39,6 +45,8 @@ export default function DraftTripForm() {
       }
     } catch (error) {
       console.error("Unknown error:", error);
+    } finally {
+      setCreatingDraft(false);
     }
   }
 
@@ -70,7 +78,7 @@ export default function DraftTripForm() {
               <Input type="date" id="end_date" name="end_date" />
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" loading={creatingDraft} className="w-full">
               Create Draft
             </Button>
           </form>

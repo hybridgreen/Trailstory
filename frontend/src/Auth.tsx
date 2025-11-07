@@ -36,7 +36,12 @@ function setActiveUser(user_data: userResponse) {
 }
 
 function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
-  async function register(formData: FormData) {
+  const [registering, setRegistering] = useState(false);
+
+  async function register(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const username = formData.get("username") as string;
@@ -53,6 +58,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
     registrationData.append("username", username);
 
     try {
+      setRegistering(true);
       const response = await fetch(`${serverBaseURL}/users/`, {
         method: "POST",
         body: registrationData,
@@ -71,6 +77,8 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
       }
     } catch (error) {
       console.error("Unknown error:", error);
+    } finally {
+      setRegistering(false);
     }
   }
 
@@ -81,7 +89,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         <CardDescription>Enter your details to sign up</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={register} className="space-y-4">
+        <form onSubmit={register} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -113,7 +121,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
             <Input id="c_password" name="c_password" type="password" required />
           </div>
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" loading={registering} className="w-full">
             Sign Up
           </Button>
         </form>
@@ -123,8 +131,16 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 }
 
 function LoginForm({ onSuccess }: { onSuccess: () => void }) {
-  async function login(formData: FormData) {
+  const [logingIn, setLogingIn] = useState(false);
+
+  async function login(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+
     try {
+      setLogingIn(true);
+
       const response = await fetch(`${serverBaseURL}/auth/login/`, {
         method: "POST",
         body: formData,
@@ -143,6 +159,8 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
       }
     } catch (error) {
       console.error("Unknown error:", error);
+    } finally {
+      setLogingIn(false);
     }
   }
 
@@ -153,7 +171,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
         <CardDescription>Sign in to your account</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={login} className="space-y-4">
+        <form onSubmit={login} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -170,9 +188,9 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             <Input id="password" name="password" type="password" required />
           </div>
           <div className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-            <a href="/reset-password"> Forgot your password?</a>
+            <a href="/reset-password">Forgot your password?</a>
           </div>
-          <Button type="submit" className="w-full">
+          <Button type="submit" loading={logingIn} className="w-full">
             Log In
           </Button>
         </form>
@@ -182,14 +200,15 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 }
 
 function ResetPassword() {
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const [resetting, setResetting] = useState(false);
+
+  async function reset(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    await resetPasswordAction(formData);
-  }
 
-  async function resetPasswordAction(formData: FormData) {
     try {
+      setResetting(true);
+
       const response = await fetch(`${serverBaseURL}/auth/password/reset/`, {
         method: "POST",
         body: formData,
@@ -205,6 +224,8 @@ function ResetPassword() {
       }
     } catch (error) {
       console.error("Unknown error:", error);
+    } finally {
+      setResetting(false);
     }
   }
 
@@ -217,7 +238,7 @@ function ResetPassword() {
             Enter your email below to reset your password
           </CardDescription>
           <CardContent>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={reset}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2 mt-4">
                   <Label htmlFor="email">Email</Label>
@@ -230,7 +251,7 @@ function ResetPassword() {
                   />
                 </div>
               </div>
-              <Button type="submit" className="w-full mt-8">
+              <Button type="submit" loading={resetting} className="w-full mt-8">
                 Reset Password
               </Button>
             </form>
@@ -243,13 +264,12 @@ function ResetPassword() {
 
 function NewPassword({ token }: { token: string }) {
   const navigate = useNavigate();
+  const [sending, setSending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    await sendPassword(formData);
-  }
-  async function sendPassword(formData: FormData) {
+
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("c_password") as string;
 
@@ -262,12 +282,14 @@ function NewPassword({ token }: { token: string }) {
     passwordData.append("password", password);
 
     try {
+      setSending(true);
+
       const response = await fetch(
         `${serverBaseURL}/auth/password/confirm/?token=${token}`,
         {
           method: "POST",
           body: passwordData,
-        }
+        },
       );
 
       if (response.ok) {
@@ -278,6 +300,8 @@ function NewPassword({ token }: { token: string }) {
       }
     } catch (error) {
       console.error("Unknown error:", error);
+    } finally {
+      setSending(false);
     }
   }
 
@@ -304,7 +328,7 @@ function NewPassword({ token }: { token: string }) {
               />
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" loading={sending} className="w-full">
               Confirm
             </Button>
           </form>
