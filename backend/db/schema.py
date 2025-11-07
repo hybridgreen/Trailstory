@@ -53,7 +53,7 @@ class Trip(Base, TimestampMixin):
 
 class Ride(Base, TimestampMixin):
     __tablename__ = "rides"
-    __table_args__ = (UniqueConstraint("trip_id","date"),)
+    #__table_args__ = (UniqueConstraint("trip_id","date"),)
     id: Mapped[str] = mapped_column(primary_key= True, default= lambda : str(uuid4()))
     trip_id : Mapped[str] = mapped_column(ForeignKey('trips.id', ondelete='CASCADE'))
     title: Mapped[str | None]
