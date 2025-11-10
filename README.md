@@ -18,7 +18,7 @@ Custom authentication system (JWT tokens, rotating tokens, one-time tokens)
 Relational schema for domain entities: Users, Trips, Rides, Photos
 
 ## Architecture
-<img src="https://github.com/hybridgreen/Trailstory/blob/39e8f11285c89f3c2aee7a70e491656c3b441a0f/static/archV0" alt="Architecture" width="100%"/>
+<img src="https://github.com/hybridgreen/Trailstory/blob/39e8f11285c89f3c2aee7a70e491656c3b441a0f/static/archV0.svg" alt="Architecture" width="100%"/>
 Frontend: React
 Backend: FastAPI 
 Auth: Custom JWT + bcrypt
