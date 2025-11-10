@@ -83,7 +83,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="flex flex-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
         <CardDescription>Enter your details to sign up</CardDescription>
@@ -165,7 +165,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="flex flex-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Welcome back</CardTitle>
         <CardDescription>Sign in to your account</CardDescription>
@@ -361,7 +361,7 @@ export default function AuthCard() {
   }, [navigate]);
 
   return (
-    <div className="auth-card flex flex-col items-center gap-4 max-w-md mx-auto p-6">
+    <div className="flex flex-col items-center gap-4 max-w-md mx-auto p-6">
       <Button onClick={() => setUserStatus(!newUser)}>
         {newUser ? "Already have an account? Login" : "New user? Register"}
       </Button>
