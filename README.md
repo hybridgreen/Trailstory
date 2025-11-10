@@ -2,7 +2,10 @@
 
 **Create beautiful pages for your adventures**
 
-<img src="/static/TripPage" alt="Trailstory Trip page" width="60%"/>
+
+<div align="center">
+  <img src="/static/TripPage" alt="Trailstory Trip page" width="60%"/>
+</div>
 
 Combine your multi-day aventure into a shareable page. Revisit your personal notes, photos, gear loadout and routes in one place. Get a day by day breakdown of your trip at the end. 
 
