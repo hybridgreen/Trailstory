@@ -21,7 +21,7 @@ Custom authentication system (JWT tokens, rotating tokens, one-time tokens)
 Relational schema for domain entities: Users, Trips, Rides, Photos
 
 ## Architecture
-<img src="static/archV0.svg" alt="Architecture" width="100%"/>
+<img src="static/archV0.svg" alt="Architecture" width="70%"/>
 Frontend: React
 Backend: FastAPI 
 Auth: Custom JWT + bcrypt
