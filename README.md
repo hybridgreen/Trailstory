@@ -1,37 +1,39 @@
 # Trailstory
 
-**Track the adventure, not just the stats**
+**Create beautiful pages for your adventures**
 
-Trailstory is a hybrid cycling and travel logging app that bridges the gap between performance tracking and storytelling. Designed for bikepackers and ultra-riders, it combines route data, gear loadouts, notes, and photos into one cohesive journey log.
+<img src="https://github.com/hybridgreen/Trailstory/blob/082ce18d3cfe8f25e7522e100e6a5c707f37b2b3/static/TripPage" alt="Trailstory Trip page" width="60%"/>
 
-## Demo
+Combine your multi-day aventure into a shareable page. Revisit your personal notes, photos, gear loadout and routes in one place. Get a day by day breakdown of your trip at the end. 
 
-![Trailstory trip page](https://github.com/hybridgreen/Trailstory/blob/082ce18d3cfe8f25e7522e100e6a5c707f37b2b3/static/TripPage)
+Try it for yourself: 	[Trailstory]([https://www.example.com](https://trailstory.vercel.app/dashboard))
 
-## Quick Start
+Built with FastAPI, React, Postgres+PostGIS 
 
-## Usage
+## Technical Implementation
 
-## Tech Stack
+PostGIS geometry types for route data & spatial queries
+Custom route aggregation logic for multi-day trip processing
+Custom authentication system (JWT tokens, rotating tokens, one-time tokens)
+Relational schema for domain entities: Users, Trips, Rides, Photos
 
-![System Overview](https://github.com/hybridgreen/Trailstory/blob/main/static/tech_stack_v1.0.0.svg)
-
-Frontend: Next.js → Vercel   
-Backend: Python + FastAPI (Dockerized) → Railway   
-Auth: Custom JWT + bcrypt   
+## Architecture
+<img src="https://github.com/hybridgreen/Trailstory/blob/39e8f11285c89f3c2aee7a70e491656c3b441a0f/static/archV0" alt="Architecture" width="100%"/>
+Frontend: React
+Backend: FastAPI 
+Auth: Custom JWT + bcrypt
 Database: PostgreSQL + PostGIS → ORM: SQLAlchemy 2.0 + GeoAlchemy2   
 File Storage: S3   
-Async Processing: Redis + ARQ   
 Image Processing: Pillow   
 GPX Processing: gpxpy 1.6.2   
-Third-Party API: [Garmin Connect](https://github.com/cyberjunky/python-garminconnect) [Garth](https://github.com/matin/garth) 
 
-## Installation
+Why PostGIS over storing JSON?
+How trip aggregation works
+Database schema design
+Why certain trade-offs
 
-## Roadmap
-
-## Contributing
-
-## License 
-MIT License © 2025 Yasser Yaya-Oye
+Key Features
+Architecture
+Quick Start/Installation
+Roadmap (optional)
 
