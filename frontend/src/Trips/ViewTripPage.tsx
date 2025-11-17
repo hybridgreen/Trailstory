@@ -12,6 +12,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Spinner } from "@/components/ui/spinner";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -149,20 +150,23 @@ export default function ViewTripPage() {
   }, [trip]);
 
   if (loading) {
-    return <div className="trip-view-page">Loading trip...</div>;
+    return (
+      <div className="flex flex-auto justify-center items-center">
+        <Spinner className="h-20 w-20" />
+      </div>
+    );
   }
 
   if (!trip) {
     return <div className="trip-view-page">Trip not found</div>;
   }
   return (
-    <div className="trip-view-page">
-      <div className="trip-hero">
-        <h1>{trip.title}</h1>
-
-        <div className="trip-stats">
-          <div className="stat">
-            <span className="stat-value">
+    <div className="flex flex-auto m-auto p-8">
+      <div className="mb-12">
+        <h1 className="size-12 mb-6">{trip.title}</h1>
+        <div className=" trip-stats grid gap-8 m-8 p-8 bg-amber-50 border-r-card">
+          <div className="flex flex-col items-center">
+            <span className="stat-value text-4xl">
               {trip.total_distance
                 ? (trip.total_distance / 1000).toFixed(1)
                 : "0"}
@@ -186,11 +190,8 @@ export default function ViewTripPage() {
             <span className="stat-label">days</span>
           </div>
         </div>
-
-        <p className="trip-description">{trip.description}</p>
-
-        {/* Placeholder for photos */}
-        <div>
+        <p className="trip-description m-8 size-5 h-6">{trip.description}</p>
+        <div className=" bg-gray-100 bg-radial">
           {photos.length > 0 ? (
             <PhotosCarousel links={photos} />
           ) : (
@@ -198,10 +199,8 @@ export default function ViewTripPage() {
           )}
         </div>
       </div>
-
-      {/* Map */}
-      <div className="map-section">
-        <h2>Route</h2>
+      <div className="m-12">
+        <h2 className="mb-4 text-green-950"> Routes</h2>
         <div ref={mapContainer} className="map-container" />
       </div>
     </div>
