@@ -107,6 +107,7 @@ export default function Trips() {
 
   useEffect(() => {
     async function loadTrips() {
+      setLoading(true);
       const user = getActiveUser();
       const userTrips = await fetchUserTrips(user.id);
       setTrips(userTrips);
