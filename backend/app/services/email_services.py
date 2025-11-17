@@ -161,3 +161,72 @@ def send_password_changed_email(email: str, username: str):
         "subject": "Your TrailStory password was changed",
         "html": html_content
     })
+    
+def send_welcome_email(email:str, username:str, token:str = None):
+  
+  verification_url = f"{config.client}/verify?token={token}"
+  
+  content= """
+    <!-- Icon -->
+<tr>
+  <td style="padding: 40px 40px 20px 40px; text-align: center;">
+    <div style="display: inline-block; width: 80px; height: 80px; background-color: #e07a3f; border-radius: 50%; position: relative;">
+      <svg width="50" height="50" viewBox="0 0 24 24" fill="none" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#ffffff" stroke-width="2"/>
+        <polyline points="9 22 9 12 15 12 15 22" stroke="#ffffff" stroke-width="2"/>
+      </svg>
+    </div>
+  </td>
+</tr>
+
+<!-- Content -->
+<tr>
+  <td style="padding: 0 40px 40px 40px;">
+    <h2 style="margin: 0 0 20px 0; color: #3d4f2f; font-size: 24px; font-weight: 600; text-align: center;">
+      Welcome to Trailstory!
+    </h2>
+    
+    <p style="margin: 0 0 20px 0; color: #333; font-size: 16px; line-height: 1.5;">
+      Hi {{username}},
+    </p>
+    
+    <p style="margin: 0 0 20px 0; color: #333; font-size: 16px; line-height: 1.5;">
+      You're one step away from documenting your bikepacking adventures. Verify your email to start creating beautiful trip logs.
+    </p>
+
+    <!-- Button -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+      <tr>
+        <td align="center">
+          <a href="{{verification_url}}" style="display: inline-block; padding: 16px 32px; background-color: #e07a3f; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">
+            Verify Email Address
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin: 0 0 20px 0; color: #666; font-size: 14px; line-height: 1.5; text-align: center;">
+      This link expires in 24 hours.
+    </p>
+
+    <!-- Divider -->
+
+    <p style="margin: 20px 0 0 0; color: #999; font-size: 12px; line-height: 1.5;">
+      Need help? Contact us at support@trailstory.com
+    </p>
+  </td>
+</tr>
+          """
+  
+  content.replace("{{username}}", username)
+  content.replace("{{verification_url}}", verification_url)
+  
+  html_content = render_email("Welcome to Trailstory", content)
+    
+  resend.Emails.send({
+        "from": "TrailStory <onboarding@resend.dev>",
+        "to": email,
+        "subject": "Welcome to Trailstory",
+        "html": html_content
+    })
+  pass

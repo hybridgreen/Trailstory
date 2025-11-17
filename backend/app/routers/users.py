@@ -4,16 +4,15 @@ from db.queries.users import User, delete_user, create_user, update_user, get_us
 from db.queries.photos import get_photo
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
-from app.security import make_JWT, hash_password, create_refresh_Token, validate_email, validate_password, verify_password
+from app.security import make_JWT, hash_password, create_refresh_Token, validate_email, validate_password, verify_password, create_one_time_token
 from app.models import LoginResponse, UserModel, UserResponse, UserUpdate, TripsResponse
 from app.errors import *
 from app.config import config 
 from app.dependencies import get_auth_user
-from app.services.email_services import send_password_changed_email
+from app.services.email_services import send_password_changed_email, send_welcome_email
 from app.services.file_services import s3
 
 # todo endpoints:
-# Update password
 # Verify email
 
 user_router = APIRouter(
@@ -34,6 +33,7 @@ async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> LoginRe
         db_User : UserResponse = create_user(User(**new_user))
         access_token = make_JWT(user_id= db_User.id)
         refresh_token = register_refresh_token(db_User.id, create_refresh_Token())
+        send_welcome_email(db_User.email, db_User.username, create_one_time_token())
         return {
             'access_token' : access_token,
             'refresh_token': refresh_token.token,
@@ -53,7 +53,6 @@ async def handler_get_current_user(
             Params={'Bucket': config.s3.bucket, 'Key': avatar.s3_key},
             ExpiresIn=3600)
         authed_user.avatar_id = url
-        
     
     return authed_user
    
@@ -67,8 +66,6 @@ async def handler_get_user_id(id:str) -> UserResponse:
                 Params={'Bucket': config.s3.bucket, 'Key': avatar.s3_key},
                 ExpiresIn=3600)
             user.avatar_id = url
-        
-    
        return user
 
 @user_router.get('/{user_id}/trips/', status_code= 200)
