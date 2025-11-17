@@ -1,4 +1,4 @@
-# Trailstory - Strava tracks your stats. Trailstory tells your story
+# Trailstory - Write your own story
 
 
 <div align="center">
