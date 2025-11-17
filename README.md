@@ -51,12 +51,12 @@ Aggregation process:
 - Extract coordinates from each ride's LINESTRING geometry
 - Concatenate routes end-to-start into a single continuous LineString
 - Calculate aggregate statistics (total distance, elevation gain, highest point)
-- Generate bounding box (POLYGON) encompassing all ride coordinates
+- Generate bounding box encompassing all rides
 
 Why this approach:
 
 - Preserves individual ride data for day-by-day breakdown
-- Enables both detailed (per-ride) and overview (full trip) views
+- Enables both per-ride and full trip views
 - Aggregation computed on-demand, not stored redundantly
 
 **Authentication Strategy**
