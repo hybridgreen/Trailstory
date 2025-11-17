@@ -37,7 +37,25 @@ function setActiveUser(user_data: userResponse) {
 
 function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   const [registering, setRegistering] = useState(false);
+  const [match, setMatch] = useState(true);
+  const [valid, setValid] = useState(true);
 
+  function checkMatch(password: string, confirm: string) {
+    if (password === confirm) {
+      setMatch(true);
+    } else {
+      setMatch(false);
+    }
+  }
+
+  function validatePassword(password: string) {
+    const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/;
+    if (passwordRegex.test(password)) {
+      setValid(true);
+    } else {
+      setValid(false);
+    }
+  }
   async function register(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -45,10 +63,9 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const username = formData.get("username") as string;
-    const confirmPassword = formData.get("c_password") as string;
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
+    if (!match) {
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -73,7 +90,9 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
       } else {
         const error = await response.json();
         console.error("Registration failed:", error);
-        alert("Registration failed: " + (error.detail || "Unknown error"));
+        toast.error(
+          "Registration failed: " + (error.detail || "Unknown error")
+        );
       }
     } catch (error) {
       console.error("Unknown error:", error);
@@ -100,7 +119,6 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
               required
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
             <Input
@@ -110,17 +128,56 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
               required
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" required />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              onChange={(e) => {
+                const pwd = e.target.value;
+                const confirm =
+                  (document.getElementById("c_password") as HTMLInputElement)
+                    ?.value || "";
+                checkMatch(pwd, confirm);
+                validatePassword(pwd);
+              }}
+              required
+            />
           </div>
-
+          {valid ? (
+            <></>
+          ) : (
+            <Label>
+              <p className="text-sm text-red-500">
+                Min 8 characters with uppercase, lowercase, and number
+              </p>
+            </Label>
+          )}
           <div className="space-y-2">
             <Label htmlFor="c_password">Confirm Password</Label>
-            <Input id="c_password" name="c_password" type="password" required />
+            <Input
+              id="c_password"
+              name="c_password"
+              type="password"
+              onChange={(e) => {
+                const confirm = e.target.value;
+                const pwd =
+                  (document.getElementById("password") as HTMLInputElement)
+                    ?.value || "";
+                checkMatch(pwd, confirm);
+              }}
+              required
+            />
           </div>
-
+          {match ? (
+            <></>
+          ) : (
+            <Label>
+              {" "}
+              <p className="text-sm text-red-500">Passwords do not match</p>
+            </Label>
+          )}
           <Button type="submit" loading={registering} className="w-full">
             Sign Up
           </Button>
@@ -155,7 +212,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
       } else {
         const error = await response.json();
         console.error("Login failed:", error);
-        alert("Login failed: " + (error.detail || "Unknown error"));
+        toast.error("Login failed: " + (error.detail || "Unknown error"));
       }
     } catch (error) {
       console.error("Unknown error:", error);
@@ -220,7 +277,7 @@ function ResetPassword() {
       } else {
         const error = await response.json();
         console.error("Login failed:", error);
-        alert("Login failed: " + error.detail);
+        toast.error("Login failed: " + error.detail);
       }
     } catch (error) {
       console.error("Unknown error:", error);
@@ -296,7 +353,9 @@ function NewPassword({ token }: { token: string }) {
         navigate("/login");
       } else {
         const error = await response.json();
-        alert("Registration failed: " + (error.detail || "Unknown error"));
+        toast.error(
+          "Registration failed: " + (error.detail || "Unknown error")
+        );
       }
     } catch (error) {
       console.error("Unknown error:", error);
