@@ -79,7 +79,7 @@ def test_add_photos(setup):
     at = user_response['access_token']
     trip_id = trip_data['id']
     
-    file_paths = [f for f in Path(photos_dir).iterdir() if f.is_file()]
+    file_paths = [f for f in Path(photos_dir).iterdir() if f.is_file() ]
     
     files=[]
     file_handles = []
@@ -98,13 +98,15 @@ def test_add_photos(setup):
             headers={"Authorization": f"Bearer {at}"}
         )
         
-        links = response.json()["links"]
-        
         if response.status_code != 201:
-            print(links)
-            
+           print(response.json())
+        
+        links = response.json()["links"]
+        print(links)
+        
         assert response.status_code == 201
         assert len(links) == len(file_paths)
+        
     finally:
         for f in file_handles:
             f.close()
