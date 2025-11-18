@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LoginRedirect } from "@/Auth";
+import { LoginRedirect } from "@/Pages/Auth";
 import { Spinner } from "@/components/ui/spinner";
 
 interface tripsData {

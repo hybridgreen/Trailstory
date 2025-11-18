@@ -4,7 +4,7 @@ import {
   isTokenExpiring,
   refreshTokens,
   serverBaseURL,
-} from "./utils";
+} from "../utils";
 import {
   Card,
   CardContent,
@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { toast } from "sonner";
-import { Spinner } from "./components/ui/spinner";
+import { Spinner } from "../components/ui/spinner";
 import { LoginRedirect } from "./Auth";
 
 interface UserProfile {
