@@ -263,7 +263,7 @@ export default function AuthCard() {
 
   useEffect(() => {
     if (isAuthenticated()) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [navigate]);
 
@@ -274,7 +274,7 @@ export default function AuthCard() {
       </Button>
       <DisplayForm
         onSuccess={() => {
-          navigate("/dashboard");
+          navigate("/");
         }}
       ></DisplayForm>
     </div>

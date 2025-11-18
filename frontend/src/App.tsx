@@ -63,8 +63,7 @@ function NavBar() {
         </div>
 
         <div className="navbar-links">
-          <a href="/dashboard">Dashboard</a>
-          <a href="/trips">Trips</a>
+          <a href="/trips">My Trips</a>
           <a href="/profile/me">My Profile</a>
         </div>
         <div className="navbar-actions">
