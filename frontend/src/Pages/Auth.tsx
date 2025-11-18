@@ -274,7 +274,7 @@ export default function AuthCard() {
       </Button>
       <DisplayForm
         onSuccess={() => {
-          navigate("/");
+          navigate("/trips");
         }}
       ></DisplayForm>
     </div>
