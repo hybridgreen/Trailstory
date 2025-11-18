@@ -4,8 +4,8 @@ import pytest
 from app.errors import *
 from app.config import config
 from pathlib import Path
-from app.security import verify_onetime_token, make_JWT, verify_password, create_refresh_Token, create_one_time_token, hash_token
-from db.queries.one_time_tokens import register_reset_token, revoke_one_time_token, get_one_time_token
+from app.security import verify_onetime_token, create_one_time_token, hash_token
+from db.queries.one_time_tokens import register_reset_token, revoke_one_time_token, get_one_time_token, register_verify_token
 from freezegun import freeze_time
 from datetime import datetime, timedelta
 
@@ -117,3 +117,26 @@ def test_confirm_pwd_faketoken(setup):
     response = client.post(f'/auth/password/confirm/?token={create_one_time_token()}', data=password )
     
     assert response.status_code == 401
+    
+def test_verify_email(setup):
+    
+    token = create_one_time_token()
+    db_token =  register_verify_token(setup['user']['id'], hash_token(token))
+    print(db_token.token == hash_token(token))
+    print(db_token.user_id==setup['user']['id'])
+    
+    response = client.post(f'/auth/email/verify/confirm/?token={token}')
+    
+    assert response.status_code == 204
+    
+def test_send_verify_email(setup):
+    
+    token = create_one_time_token()
+    db_token =  register_verify_token(setup['user']['id'], hash_token(token))
+    print(db_token.token == hash_token(token))
+    print(db_token.user_id==setup['user']['id'])
+    
+    response = client.post(f'/auth/email/verify', headers= {"Authorization": f"Bearer {setup['access_token']}"})
+    
+    assert response.status_code == 204
+    

@@ -4,6 +4,7 @@ from db.queries.users import User, delete_user, create_user, update_user, get_us
 from db.queries.photos import get_photo
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
+from db.queries.one_time_tokens import register_verify_token
 from app.security import make_JWT, hash_password, create_refresh_Token, validate_email, validate_password, verify_password, create_one_time_token
 from app.models import LoginResponse, UserModel, UserResponse, UserUpdate, TripsResponse
 from app.errors import *
@@ -12,8 +13,6 @@ from app.dependencies import get_auth_user
 from app.services.email_services import send_password_changed_email, send_welcome_email
 from app.services.file_services import s3
 
-# todo endpoints:
-# Verify email
 
 user_router = APIRouter(
     prefix="/users",
@@ -33,14 +32,22 @@ async def handler_create_user(user_data:Annotated[UserModel, Form()]) -> LoginRe
         db_User : UserResponse = create_user(User(**new_user))
         access_token = make_JWT(user_id= db_User.id)
         refresh_token = register_refresh_token(db_User.id, create_refresh_Token())
-        send_welcome_email(db_User.email, db_User.username, create_one_time_token())
-        return {
-            'access_token' : access_token,
-            'refresh_token': refresh_token.token,
-            'user': db_User,
-            "token_type" : "Bearer",
-            "expires_in" : config.auth.jwt_expiry
-            }
+
+        try:
+            verification_token = create_one_time_token()
+            register_verify_token(db_User.id, verification_token)
+            send_welcome_email(db_User.email, db_User.username, verification_token)
+            
+        except Exception as e:
+            raise ServerError(str(e))
+        finally:
+            return {
+                'access_token' : access_token,
+                'refresh_token': refresh_token.token,
+                'user': db_User,
+                "token_type" : "Bearer",
+                "expires_in" : config.auth.jwt_expiry
+                }
 
 @user_router.get('/me/', status_code= 200) 
 async def handler_get_current_user(

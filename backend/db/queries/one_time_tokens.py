@@ -18,6 +18,19 @@ def register_reset_token(u_id: str, tkn: str ):
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
+def register_verify_token(u_id: str, tkn: str ):
+    try:
+        with Session(engine) as session:
+            new_token = one_time_tokens(token = tkn, user_id = u_id, type="verification", expires_at=datetime.now() + timedelta(hours=24))
+            session.add(new_token)
+            session.commit()
+            session.refresh(new_token)
+            return new_token
+    except db_err.IntegrityError as exc:
+        raise ValueError("Value already exists") from exc
+    except Exception as e:
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
+
 def get_one_time_token(token:str):
     try:
         with Session(engine) as session:
