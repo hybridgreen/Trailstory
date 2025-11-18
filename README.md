@@ -1,5 +1,8 @@
-# Trailstory - Write your own story
+# Trailstory - One app to track your stories
 
+🚀 **Live at:** [trailstory.app](https://trailstory.vercel.app) | 5+ active users
+
+Full-stack bikepacking journey logger deployed on Railway (API), Vercel (frontend), and Supabase (PostGIS database).
 
 <div align="center">
   <img src="/static/TripPage" alt="Trailstory Trip page" width="60%"/>
@@ -8,6 +11,7 @@
 Combine your multi-day adventure into a shareable page. Revisit your personal notes, photos, gear loadout and routes in one place. Get a day by day breakdown of your trip at the end. 
 
 Try it for yourself: 	[Trailstory](https://trailstory.vercel.app/dashboard)
+
 
 ## Key Features
 
