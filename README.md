@@ -1,6 +1,6 @@
 # Trailstory - One app to track your stories
 
-🚀 **Live at:** [trailstory.app](https://trailstory.vercel.app) | 5+ active users
+🚀 **Live at:** [Trailstory](https://trailstory.vercel.app) | 5+ active users
 
 Full-stack bikepacking journey logger deployed on Railway (API), Vercel (frontend), and Supabase (PostGIS database).
 
