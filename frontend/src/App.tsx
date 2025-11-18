@@ -1,8 +1,9 @@
-import Auth, { ResetPasswordCard } from "./Auth.tsx";
+import Auth from "./Pages/Auth.tsx";
+import ResetPasswordCard from "./Pages/ResetPasswordCard.tsx";
 import Trips from "./Trips/TripsPage.tsx";
 import DraftTrip from "./Trips/CreateTrip.tsx";
 import EditTripPage from "./Trips/EditTrip.tsx";
-import ProfilePage from "./Profile.tsx";
+import ProfilePage from "./Pages/Profile.tsx";
 import ViewTripPage from "./Trips/ViewTripPage.tsx";
 
 import { BrowserRouter, Routes, Route } from "react-router";
@@ -14,6 +15,7 @@ import { toast, Toaster } from "sonner";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import { ModeToggle } from "./components/toggle-mode.tsx";
 import Dashboard from "./Dashboard.tsx";
+import { VerifyPage } from "./Pages/Verify.tsx";
 
 export default function App() {
   return (
@@ -30,6 +32,7 @@ export default function App() {
           <Route path="/trips/:id" element={<ViewTripPage />} />
           <Route path="/profile/me" element={<ProfilePage />} />
           <Route path="/reset-password" element={<ResetPasswordCard />} />
+          <Route path="/verify" element={<VerifyPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

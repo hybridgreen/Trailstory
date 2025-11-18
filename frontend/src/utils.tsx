@@ -1,4 +1,4 @@
-import type { authResponse, userResponse } from "./Auth";
+import type { authResponse, userResponse } from "./Pages/Auth";
 
 export const serverBaseURL = import.meta.env.VITE_SERVER_URL;
 export const clientBaseURL = import.meta.env.VITE_CLIENT_URL;
