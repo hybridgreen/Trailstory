@@ -26,14 +26,12 @@ Try it for yourself: 	[Trailstory](https://trailstory.vercel.app/dashboard)
   <img src="static/archV0.svg" alt="Architecture" width="70%"/>
 </div>
 
-## Tech Stack
+## Production Architecture
 
-- **Frontend:** React, Shacn UI
-- **Backend:** Python, FastAPI, SQLAlchemy + GeoAlchemy2
-- **Database:** PostgreSQL + PostGIS
-- **CDN:** AWS S3
-- **Testing:** pytest
-- **Deployment:** Railway + Vercel + Supabase
+- **Frontend:** React + Shadcn UI on Vercel
+- **API:** Python/FastAPI on Railway  
+- **Database:** PostgreSQL + PostGIS (Supabase)
+- **Storage:** AWS S3 for image storage
 
 ## Design Decisions
 
