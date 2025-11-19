@@ -13,6 +13,7 @@ from app.models import TripModel , RideResponse, TripDraft, TripDetailResponse, 
 from app.config import config 
 from app.dependencies import get_auth_user
 from app.errors import UnauthorizedError, InvalidGPXError, InputError, ServerError
+from datetime import datetime
 
 trip_router = APIRouter(
     prefix="/trips",
@@ -81,7 +82,7 @@ def extract_gpx_data(trip_id:str, content: bytes):
                     coords.append((point.longitude, point.latitude))
                     
         timestamp = gpx.tracks[0].segments[0].points[0].time
-        
+        print(timestamp)
         if not timestamp:
             raise InvalidGPXError('GPX does not contain timestamps.')
             
@@ -94,12 +95,11 @@ def extract_gpx_data(trip_id:str, content: bytes):
         ascent = gpx.get_uphill_downhill().uphill 
         high_point = gpx.get_elevation_extremes().maximum
         moving_time = moving_data.moving_time
-        ride_date = timestamp.date()
         
-        new_ride = Ride (
+        new_ride = Ride(
             trip_id = trip_id,
             notes = None,
-            date = ride_date,
+            date = timestamp,
             distance = distance,
             elevation_gain = ascent,
             high_point = high_point,
@@ -107,6 +107,8 @@ def extract_gpx_data(trip_id:str, content: bytes):
             route = linestring,
             title = None,
         )
+        print(new_ride.date, new_ride.date.tzinfo)
+        
         return new_ride
         
     except InvalidGPXError as e:

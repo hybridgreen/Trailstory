@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 import secrets
 from uuid import uuid4
-from sqlalchemy import ForeignKey, String, create_engine, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint, DateTime, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from geoalchemy2 import Geometry
 from app.config import config
@@ -53,12 +53,12 @@ class Trip(Base, TimestampMixin):
 
 class Ride(Base, TimestampMixin):
     __tablename__ = "rides"
-    #__table_args__ = (UniqueConstraint("trip_id","date"),)
+    __table_args__ = (UniqueConstraint("trip_id","date"),)
     id: Mapped[str] = mapped_column(primary_key= True, default= lambda : str(uuid4()))
     trip_id : Mapped[str] = mapped_column(ForeignKey('trips.id', ondelete='CASCADE'))
     title: Mapped[str | None]
     notes: Mapped[str| None]
-    date: Mapped[date]
+    date: Mapped[datetime] =  mapped_column(DateTime(timezone=True))
     distance : Mapped[float]
     elevation_gain : Mapped[float]
     high_point : Mapped[float]

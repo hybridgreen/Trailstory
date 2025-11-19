@@ -78,6 +78,7 @@ def test_add_ride( user, trip):
     assert ride_data['distance'] == 921.0259820926173
     assert ride_data['trip_id'] == trip_id
 
+
 def test_add_ride_invalid_xml(user, trip):
     
     trip_id = trip['id']

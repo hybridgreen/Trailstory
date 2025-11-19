@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, AwareDatetime
 from datetime import datetime, date
 
 ### User Models 
@@ -91,11 +91,13 @@ class TripsResponse(BaseModel):
 
 ### Ride Models
 class RideResponse(BaseModel):
+    model_config = ConfigDict (from_attributes = True )# Allows conversion from SQLAlchemy model 
+    
     id: str
     trip_id : str
     title: str | None
     notes: str | None
-    date: date
+    date: datetime
     distance : float
     elevation_gain : float
     high_point : float
