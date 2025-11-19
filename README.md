@@ -10,8 +10,6 @@ Full-stack bikepacking journey logger deployed on Railway (API), Vercel (fronten
 
 Combine your multi-day adventure into a shareable page. Revisit your personal notes, photos, gear loadout and routes in one place. Get a day by day breakdown of your trip at the end. 
 
-Try it for yourself: 	[Trailstory](https://trailstory.vercel.app/dashboard)
-
 
 ## Key Features
 
