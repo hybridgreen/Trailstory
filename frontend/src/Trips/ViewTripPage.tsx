@@ -51,6 +51,7 @@ export default function ViewTripPage() {
   const map = useRef<mapboxgl.Map | null>(null);
 
   useEffect(() => {
+    setLoading(true);
     async function fetchTripData() {
       try {
         const tripResponse = await fetch(`${serverBaseURL}/trips/${id}/`);
