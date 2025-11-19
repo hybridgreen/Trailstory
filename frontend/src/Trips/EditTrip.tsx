@@ -237,6 +237,7 @@ function RideCard({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const timestamp = new Date(ride.date);
 
   async function handleDelete() {
     if (isTokenExpiring()) {
@@ -286,7 +287,7 @@ function RideCard({
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg">
-              {ride.title || `Ride on ${ride.date}`}
+              {ride.title || `Ride on ${timestamp.toLocaleString("en-GB")}`}
             </CardTitle>
             <CardDescription>
               {(ride.distance / 1000).toFixed(1)} km •{" "}
@@ -333,8 +334,16 @@ function RideCard({
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div>
-              <Label className="text-muted-foreground text-sm">Date</Label>
-              <p className="font-medium">{ride.date}</p>
+              <div>
+                <Label className="text-muted-foreground text-sm">Date</Label>
+                <p className="font-medium">
+                  {timestamp.toLocaleString("en-GB").split(",")[0]}
+                </p>
+                <Label className="text-muted-foreground text-sm">Time</Label>
+                <p className="font-medium">
+                  {timestamp.toLocaleString("en-GB").split(",")[1]}
+                </p>
+              </div>
             </div>
             <div>
               <Label className="text-muted-foreground text-sm">Distance</Label>
@@ -478,8 +487,6 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
 }
 
 export default function EditTripPage() {
-  //Future fix - Uploading twice, refreshes the ride cards without previous upload
-
   const [tripData, setTripData] = useState<tripData | null>(null);
   const [rides, setRides] = useState<rideData[] | null>(null);
   const [submittingTrip, setSubmittingTrip] = useState(true);
@@ -515,7 +522,7 @@ export default function EditTripPage() {
       }
     }
     fetchTrip();
-  }, [id]);
+  }, [id, rides]);
 
   async function uploadRides(files: FileList) {
     const formData = new FormData();
@@ -703,8 +710,11 @@ export default function EditTripPage() {
         </p>
       </div>
       <TripInfo trip={tripData} onSave={registerTripData} />
+
       <Separator />
       <ImagesUploadDialog trip_id={tripData.id} />
+
+      <Separator />
       <UploadRidesInput onUpload={uploadRides} />
 
       {rides && rides.length > 0 && (
