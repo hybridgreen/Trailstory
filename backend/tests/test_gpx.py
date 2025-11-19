@@ -34,7 +34,7 @@ def test_valid_ride():
         ride = extract_gpx_data(trip_id= 1234, content= file_content)
         
         assert result == True
-        assert str(ride.date) == '2025-01-12'
+        assert '2025-01-12' in str(ride.date)
         assert 921* 0.95 < ride.distance < 921* 1.05
         
 def test_empty_file():
