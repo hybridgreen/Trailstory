@@ -20,7 +20,7 @@ import { VerifyPage } from "./Pages/Verify.tsx";
 export default function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <Toaster position="top-center" />
+      <Toaster position="bottom-left" />
       <BrowserRouter>
         <NavBar />
         <Routes>
