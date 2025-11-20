@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 
 import { isTokenExpiring, refreshTokens, serverBaseURL } from "../utils";
+import { PhotoPreview } from "@/components/PhotoPreview";
 
 export interface tripData {
   id: string;
@@ -402,12 +403,19 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
   const [uploadFiles, setFiles] = useState<File[]>([]);
   const [open, setOpen] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [photoURL, setPhotoURL] = useState<string[]>([]);
+  const [thumbnailIndex, setThumbnailIndex] = useState<number | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       console.log("Received files:", files);
-      setFiles([...uploadFiles, ...files]);
+      const newFiles = [...uploadFiles, ...files];
+      setFiles(newFiles);
+      const newUrls = newFiles.map((x) => URL.createObjectURL(x));
+      setPhotoURL(newUrls);
+
+      console.log("First URL:", newUrls[0]);
     }
   };
 
@@ -450,6 +458,35 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
     }
   }
 
+  function handleCancel() {
+    for (const url in photoURL) {
+      URL.revokeObjectURL(url);
+      setFiles([]);
+    }
+  }
+
+  const handleDelete = (index: number) => {
+    const newFiles = uploadFiles.filter((_, i) => i !== index);
+    const newUrls = photoURL.filter((_, i) => i !== index);
+
+    setFiles(newFiles);
+    setPhotoURL(newUrls);
+
+    // Adjust thumbnail index if needed
+    if (thumbnailIndex === index) {
+      setThumbnailIndex(null);
+    } else if (thumbnailIndex !== null && thumbnailIndex > index) {
+      setThumbnailIndex(thumbnailIndex - 1);
+    }
+
+    // Clean up the URL
+    URL.revokeObjectURL(photoURL[index]);
+  };
+
+  const handleSetThumbnail = (index: number) => {
+    setThumbnailIndex(index);
+  };
+
   return (
     <div>
       <Card className="px-4">
@@ -460,7 +497,22 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
           <DialogDescription> Add some photos from your trip</DialogDescription>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Select photos</DialogTitle>
+              <DialogTitle>
+                {photoURL.length > 0 ? "Preview" : "Select photos"}{" "}
+              </DialogTitle>
+              {uploadFiles.length > 0 ? (
+                <div className="space-y-4">
+                  <PhotoPreview
+                    files={uploadFiles}
+                    previewUrls={photoURL}
+                    thumbnailIndex={thumbnailIndex}
+                    onDelete={handleDelete}
+                    onSetThumbnail={handleSetThumbnail}
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
             </DialogHeader>
             <div className="space-y-4">
               <Input
@@ -472,7 +524,9 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
               />
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
+                  <Button variant="outline" onClick={handleCancel}>
+                    Cancel
+                  </Button>
                 </DialogClose>
                 <Button loading={uploadingPhotos} onClick={uploadPhotos}>
                   Upload
@@ -522,7 +576,7 @@ export default function EditTripPage() {
       }
     }
     fetchTrip();
-  }, [id, rides]);
+  }, [id]);
 
   async function uploadRides(files: FileList) {
     const formData = new FormData();
