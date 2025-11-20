@@ -80,15 +80,16 @@ async def handler_get_trips(user_id: str) -> list[TripsResponse]:
     trips: list[TripsResponse] = get_user_trips(user_id)
     for trip in trips:
         if(trip.thumbnail_id):
-            db_photo = get_photo(trip.thumbnail_id)
-            
-            url = s3.meta.client.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': config.s3.bucket, 'Key': db_photo.s3_key},
-            ExpiresIn=3600)
-            trip.thumbnail_id = url
-            print(trip.thumbnail_id)
-            
+            db_photo = get_photo(trip.thumbnail_id)           
+            if db_photo:
+                url = s3.meta.client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': config.s3.bucket, 'Key': db_photo.s3_key},
+                ExpiresIn=3600)
+                trip.thumbnail_id = url
+            else:
+                trip.thumbnail_id = None
+                            
     return trips
 
 @user_router.put('/', status_code= 200)
