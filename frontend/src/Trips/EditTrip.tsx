@@ -41,6 +41,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 import { isTokenExpiring, refreshTokens, serverBaseURL } from "../utils";
 import { PhotoPreview } from "@/components/PhotoPreview";
+import { TripPhotos } from "@/components/TripPhotos";
 
 export interface tripData {
   id: string;
@@ -405,6 +406,7 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [photoURL, setPhotoURL] = useState<string[]>([]);
   const [thumbnailIndex, setThumbnailIndex] = useState<number | null>(null);
+  const [tripPhotos, setTripPhotos] = useState<Record<string, string>>({});
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -424,8 +426,8 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
       toast.error("Please select a file");
       return;
     }
+    setOpen(false);
     setUploadingPhotos(true);
-
     try {
       const formData = new FormData();
       for (const file of uploadFiles) {
@@ -445,7 +447,41 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
 
       if (response.ok) {
         toast.success(`Success! ${uploadFiles.length} photos uploaded.`);
-        setOpen(false);
+        setUploadingPhotos(false);
+      } else {
+        const error = await response.json();
+        console.error("Error:", error);
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    } finally {
+      setUploadingPhotos(false);
+    }
+    uploadThumbnail();
+  }
+
+  async function uploadThumbnail() {
+    console.log("Uploading thumbnail, Index:", thumbnailIndex);
+    if (!thumbnailIndex) {
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append("files", uploadFiles[thumbnailIndex]);
+
+      const response = await fetch(
+        `${serverBaseURL}/trips/${trip_id}/thumbnail/`,
+        {
+          method: "PUT",
+          body: formData,
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success(`Success! Thumbnail updated.`);
         setUploadingPhotos(false);
       } else {
         const error = await response.json();
@@ -472,24 +508,72 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
     setFiles(newFiles);
     setPhotoURL(newUrls);
 
-    // Adjust thumbnail index if needed
     if (thumbnailIndex === index) {
       setThumbnailIndex(null);
     } else if (thumbnailIndex !== null && thumbnailIndex > index) {
       setThumbnailIndex(thumbnailIndex - 1);
     }
 
-    // Clean up the URL
     URL.revokeObjectURL(photoURL[index]);
+  };
+
+  const handleBackendDelete = async (photoId: string) => {
+    if (isTokenExpiring()) {
+      await refreshTokens();
+    }
+
+    try {
+      const response = await fetch(`${serverBaseURL}/photos/${photoId}/`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+
+      if (response.ok) {
+        const newPhotos = { ...tripPhotos };
+        delete newPhotos[photoId];
+        setTripPhotos(newPhotos);
+        toast.success("Photo deleted");
+      } else {
+        toast.error("Failed to delete photo");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Network error");
+    }
   };
 
   const handleSetThumbnail = (index: number) => {
     setThumbnailIndex(index);
   };
 
+  useEffect(() => {
+    async function fetchTripPhotos() {
+      try {
+        const response = await fetch(
+          `${serverBaseURL}/trips/${trip_id}/photos/`
+        );
+
+        if (response.ok) {
+          const response_dict = await response.json();
+          setTripPhotos(response_dict);
+        }
+      } catch (error) {
+        console.error("Error fetching trip:", error);
+        alert("Failed to load trip");
+      }
+    }
+    fetchTripPhotos();
+  }, [trip_id]);
+
   return (
     <div>
       <Card className="px-4">
+        {Object.keys(tripPhotos).length > 0 && (
+          <TripPhotos photos={tripPhotos} onDelete={handleBackendDelete} />
+        )}
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button variant="outline">Upload Photos</Button>
@@ -543,7 +627,7 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
 export default function EditTripPage() {
   const [tripData, setTripData] = useState<tripData | null>(null);
   const [rides, setRides] = useState<rideData[] | null>(null);
-  const [submittingTrip, setSubmittingTrip] = useState(true);
+  const [submittingTrip, setSubmittingTrip] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const rideDataGetters = useRef<Map<string, () => FormData>>(new Map());
@@ -763,6 +847,7 @@ export default function EditTripPage() {
           Manage your trip details and rides
         </p>
       </div>
+
       <TripInfo trip={tripData} onSave={registerTripData} />
 
       <Separator />
@@ -812,7 +897,6 @@ export default function EditTripPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
         <Button loading={submittingTrip} onClick={handleSubmitTrip} size="lg">
           <Save className="h-4 w-4 mr-2" />
           <span>Save Trip</span>

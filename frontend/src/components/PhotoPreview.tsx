@@ -17,7 +17,6 @@ export function PhotoPreview({
   onDelete,
   onSetThumbnail,
 }: PhotoUploadPreviewProps) {
-  console.log(previewUrls);
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
       {previewUrls.map((url, index) => (
@@ -61,11 +60,6 @@ export function PhotoPreview({
               Thumbnail
             </Badge>
           )}
-
-          {/* File name */}
-          <p className="text-xs text-muted-foreground mt-1 truncate">
-            {files[index].name}
-          </p>
         </div>
       ))}
     </div>
