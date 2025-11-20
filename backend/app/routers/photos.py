@@ -51,7 +51,7 @@ async def uploadPhotosHandler(
         if auth_user.id != user.id:
             raise UnauthorizedError("Photo does not belong to user")
     
-    if await remove_from_s3(photo.s3_key):
+    if await remove_from_s3([photo.s3_key]):
         delete_photo(photo_id)
     
     

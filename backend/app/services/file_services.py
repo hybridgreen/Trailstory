@@ -31,35 +31,20 @@ async def upload_to_s3(file:UploadFile, content:bytes, owner_id: str, id: str):
     
     return key
 
-async def remove_from_s3(owner_id:str):
-    try:
-        result = await asyncio.to_thread(
-            lambda: 
-                s3.Bucket(config.s3.bucket).Object(owner_id).delete()
-)
-        if result.get('DeleteMarker') or result.get('ResponseMetadata', {}).get('HTTPStatusCode') == 204:
-            return True
-        else:
-            raise ServerError(f"Failed to delete object: {result}")
-    except Exception as e:
-        print(str(e))
-        raise ServerError(str(e)) from e
-    
-async def clear_s3_bucket(prefix: str):
-    try:
-        bucket = s3.Bucket(config.s3.bucket)
-        objects_to_delete = bucket.objects.filter(Prefix=prefix)
-        keys = [{'Key': obj.key} for obj in objects_to_delete]
-        if keys:
+async def remove_from_s3(keys):
+    for key in keys:
+        try:
             result = await asyncio.to_thread(
                 lambda: 
-                    bucket.delete_objects(Delete={'Objects': keys})
+                    s3.Bucket(config.s3.bucket).Object(key).delete()
     )
             if result.get('DeleteMarker') or result.get('ResponseMetadata', {}).get('HTTPStatusCode') == 204:
                 return True
             else:
                 raise ServerError(f"Failed to delete object: {result}")
-    except Exception as e:
-        raise ServerError(str(e)) from e
+        except Exception as e:
+            print(str(e))
+            raise ServerError(str(e)) from e
+    
     
     
