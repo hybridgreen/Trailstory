@@ -462,7 +462,7 @@ function ImagesUploadDialog({ trip_id }: { trip_id: string }) {
 
   async function uploadThumbnail() {
     console.log("Uploading thumbnail, Index:", thumbnailIndex);
-    if (!thumbnailIndex) {
+    if (thumbnailIndex == null) {
       return;
     }
     try {
