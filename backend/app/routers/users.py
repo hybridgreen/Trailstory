@@ -13,7 +13,6 @@ from app.dependencies import get_auth_user
 from app.services.email_services import send_password_changed_email, send_welcome_email
 from app.services.file_services import s3
 
-
 user_router = APIRouter(
     prefix="/users",
     tags=["Users"]
@@ -79,6 +78,17 @@ async def handler_get_user_id(id:str) -> UserResponse:
 async def handler_get_trips(user_id: str) -> list[TripsResponse]:
     
     trips: list[TripsResponse] = get_user_trips(user_id)
+    for trip in trips:
+        if(trip.thumbnail_id):
+            db_photo = get_photo(trip.thumbnail_id)
+            
+            url = s3.meta.client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': config.s3.bucket, 'Key': db_photo.s3_key},
+            ExpiresIn=3600)
+            trip.thumbnail_id = url
+            print(trip.thumbnail_id)
+            
     return trips
 
 @user_router.put('/', status_code= 200)

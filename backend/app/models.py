@@ -88,6 +88,7 @@ class TripsResponse(BaseModel):
     start_date: date| None
     slug: str | None
     is_published: bool
+    thumbnail_id: str | None
 
 ### Ride Models
 class RideResponse(BaseModel):

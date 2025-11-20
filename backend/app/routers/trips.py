@@ -14,6 +14,8 @@ from app.config import config
 from app.dependencies import get_auth_user
 from app.errors import UnauthorizedError, InvalidGPXError, InputError, ServerError
 from datetime import datetime
+from app.services.file_services import s3
+from db.queries.photos import get_photo
 
 trip_router = APIRouter(
     prefix="/trips",
@@ -136,6 +138,15 @@ async def handler_get_trip(trip_id: str) -> TripDetailResponse:
     if(trip.route):
         trip.route = to_geojson(to_shape(trip.route))
         trip.bounding_box = to_geojson(to_shape(trip.bounding_box))
+    
+    if(trip.thumbnail_id):
+        db_photo = get_photo(trip.thumbnail_id)
+        
+        url = s3.meta.client.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': config.s3.bucket, 'Key': db_photo.s3_key},
+        ExpiresIn=3600)
+        trip.thumbnail_id = url
     
     rides = get_trip_rides_asc(trip_id)
     
