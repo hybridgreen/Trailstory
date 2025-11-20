@@ -22,7 +22,7 @@ interface tripsData {
   start_date: number | null;
   slug: string | null;
   is_published: boolean;
-  thumbnail_url: string | null;
+  thumbnail_id: string | null;
 }
 
 async function fetchUserTrips(userID: string): Promise<tripsData[]> {
@@ -67,7 +67,7 @@ function TripCard({ trip }: { trip: tripsData }) {
       <a href={`/trips/${trip.id}`} className="block">
         <img
           src={
-            trip.thumbnail_url ||
+            trip.thumbnail_id ||
             `https://placehold.co/400x250/3d4f2f/faf8f3?text=${trip.title}`
           }
           alt={trip.title}
