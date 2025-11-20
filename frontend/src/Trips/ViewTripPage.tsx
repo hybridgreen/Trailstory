@@ -42,8 +42,13 @@ export default function ViewTripPage() {
       setLoading(true);
       try {
         const response = await fetch(`${serverBaseURL}/trips/${id}/photos/`);
-        const url_array = await response.json();
-        console.log("Received:", url_array);
+        const response_dict = await response.json();
+        console.log("Received:", response_dict);
+        const url_array: string[] = [];
+
+        for (const id in response_dict) {
+          url_array.push(response_dict[id]);
+        }
         setPhotos(url_array);
       } catch (error) {
         console.error("Error fetching trip:", error);
