@@ -2,6 +2,8 @@
 
 🚀 **Live at:** [Trailstory](https://trailstory.vercel.app) | 5+ active users
 
+![alt text](https://github.com/hybridgreen/Trailstory/actions/workflows/ci.yml/badge.svg)
+
 Full-stack bikepacking journey logger deployed on Railway (API), Vercel (frontend), and Supabase (PostGIS database).
 
 <div align="center">
