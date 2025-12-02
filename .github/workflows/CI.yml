@@ -24,20 +24,21 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Set working directory
-        run: cwd ./backend
-
       - name: Install UV Package manager
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Install dependencies
+        working-directory: ./backend
         run: uv pip install -r requirements.txt
 
       - name: Install Ruff Linter
+        working-directory: ./backend
         run: uv tool install ruff@latest
 
       - name: Run lint with Ruff
+        working-directory: ./backend
         run: uvx ruff check
 
       - name: Test with pytest
+        working-directory: ./backend
         run: pytest
