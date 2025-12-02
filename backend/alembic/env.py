@@ -29,12 +29,14 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+
 def include_object(object, name, type_, reflected, compare_to):
     if type_ == "table":
         # Ignore PostGIS tables
-        if name in ['spatial_ref_sys', 'geometry_columns', 'geography_columns']:
+        if name in ["spatial_ref_sys", "geometry_columns", "geography_columns"]:
             return False
     return True
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -48,14 +50,14 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    
+
     context.configure(
         url=config.db.url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        include_object= include_object,
-        compare_type= True
+        include_object=include_object,
+        compare_type=True,
     )
 
     with context.begin_transaction():
@@ -70,8 +72,8 @@ def run_migrations_online() -> None:
 
     """
     configuration = alembic_config.get_section(alembic_config.config_ini_section)
-    configuration['sqlalchemy.url'] = config.db.url
-    
+    configuration["sqlalchemy.url"] = config.db.url
+
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
@@ -83,7 +85,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             include_object=include_object,
-            compare_type=True  
+            compare_type=True,
         )
 
         with context.begin_transaction():
