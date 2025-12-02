@@ -11,7 +11,17 @@ from .errors import (
     ServerError,
 )
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from .config import config
+from db.schema import engine, Base
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Creating database tables...")
+    print(config.db.url)
+    Base.metadata.create_all(bind=engine)
+    print("Tables created successfully!")
+    yield
 
 app = FastAPI()
 
