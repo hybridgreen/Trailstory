@@ -3,83 +3,93 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def EnvOrThrow(key:str):
+
+def EnvOrThrow(key: str):
     var = os.getenv(key)
     if not var:
         raise KeyError(f"Missing environment variable {key}")
     return var
 
-if EnvOrThrow('ENVIRONMENT') == 'DEV':
-    db_url = EnvOrThrow('TEST_DB_URL')
+
+if EnvOrThrow("ENVIRONMENT") == "DEV":
+    db_url = EnvOrThrow("TEST_DB_URL")
     echo_flag = True
-    client_url = 'http://localhost:5173'
-    
-if EnvOrThrow('ENVIRONMENT') == 'TEST':
-    db_url = EnvOrThrow('TEST_DB_URL')
+    client_url = "http://localhost:5173"
+
+if EnvOrThrow("ENVIRONMENT") == "TEST":
+    db_url = EnvOrThrow("TEST_DB_URL")
     echo_flag = False
-    client_url = 'http://localhost:5173'
-    
-elif EnvOrThrow('ENVIRONMENT') == 'PROD':
-    db_url = EnvOrThrow('DB_URL')
+    client_url = "http://localhost:5173"
+
+elif EnvOrThrow("ENVIRONMENT") == "PROD":
+    db_url = EnvOrThrow("DB_URL")
     echo_flag = False
     client_url = EnvOrThrow("CLIENT_BASE_URL")
-    
+
 
 class DBConfig:
     def __init__(self, url: str, echo_flag: str):
         self.url = url
         self.echo_flag = echo_flag
 
+
 class AuthConfig:
-    def __init__(self, secret: str,admin_token: str, jwt_expiry: int = 3600):
+    def __init__(self, secret: str, admin_token: str, jwt_expiry: int = 3600):
         self.secret = secret
         self.jwt_expiry = jwt_expiry
         self.admin_token = admin_token
 
+
 class APILimits:
     def __init__(self):
-        self.max_upload_size = 15*(1<<20)
-        
+        self.max_upload_size = 15 * (1 << 20)
+
+
 class S3Config:
-    def __init__(self, region:str, access_key: str, secret_key: str, token:str, bucket:str):
+    def __init__(
+        self, region: str, access_key: str, secret_key: str, token: str, bucket: str
+    ):
         self.region = region
         self.key = access_key
         self.secret_key = secret_key
         self.token = token
         self.bucket = bucket
 
-class APIConfig():
-    def __init__(self,
-                 client: str,
-                 db: DBConfig,
-                 auth: AuthConfig,
-                 api_limits: APILimits,
-                 s3_config: S3Config,
-                 env: str,
-                 resend: str):
+
+class APIConfig:
+    def __init__(
+        self,
+        client: str,
+        db: DBConfig,
+        auth: AuthConfig,
+        api_limits: APILimits,
+        s3_config: S3Config,
+        env: str,
+        resend: str,
+    ):
         self.client = client
         self.db = db
         self.auth = auth
         self.limits = api_limits
         self.environment = env
         self.resend = resend
-        self.s3 = s3_config 
-       
-    
+        self.s3 = s3_config
+
+
 config = APIConfig(
-    db = DBConfig(url = db_url,
-                  echo_flag= echo_flag),
-    auth = AuthConfig(secret=EnvOrThrow('SERVER_SECRET'),
-                      admin_token= EnvOrThrow('ADMIN_TOKEN')),
-    
-    s3_config= S3Config(region=EnvOrThrow("AWS_REGION"),
-                        access_key=EnvOrThrow("AWS_ACCESS_KEY_ID"),
-                        secret_key=EnvOrThrow("AWS_SECRET_ACCESS_KEY_ID"),
-                        bucket= EnvOrThrow("AWS_BUCKET"),
-                        token=EnvOrThrow("AWS_TOKEN")),
-    api_limits = APILimits(),
-    client = client_url,
-    env = EnvOrThrow('ENVIRONMENT'),
-    resend= EnvOrThrow('RESEND_API_KEY'),
-    
+    db=DBConfig(url=db_url, echo_flag=echo_flag),
+    auth=AuthConfig(
+        secret=EnvOrThrow("SERVER_SECRET"), admin_token=EnvOrThrow("ADMIN_TOKEN")
+    ),
+    s3_config=S3Config(
+        region=EnvOrThrow("AWS_REGION"),
+        access_key=EnvOrThrow("AWS_ACCESS_KEY_ID"),
+        secret_key=EnvOrThrow("AWS_SECRET_ACCESS_KEY_ID"),
+        bucket=EnvOrThrow("AWS_BUCKET"),
+        token=EnvOrThrow("AWS_TOKEN"),
+    ),
+    api_limits=APILimits(),
+    client=client_url,
+    env=EnvOrThrow("ENVIRONMENT"),
+    resend=EnvOrThrow("RESEND_API_KEY"),
 )

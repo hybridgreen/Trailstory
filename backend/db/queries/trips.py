@@ -4,19 +4,20 @@ from sqlalchemy import exc as db_err
 from sqlalchemy import select, update, delete
 from app.errors import DatabaseError, NotFoundError
 
+
 def create_trip(trip: Trip):
-    try: 
+    try:
         with Session(engine) as session:
             session.add(trip)
             session.commit()
             session.refresh(trip)
             return trip
-    except db_err.IntegrityError as e:
+    except db_err.IntegrityError:
         raise ValueError("Mutiple trips cannot start on the same day.")
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
-    
+
 def get_user_trips(user_id):
     try:
         with Session(engine) as session:
@@ -29,15 +30,17 @@ def get_user_trips(user_id):
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
     pass
 
+
 def get_trip(trip_id):
     with Session(engine) as session:
         trip = session.get(Trip, trip_id)
         if not trip:
-                raise NotFoundError(f"Trip with ID: {trip}, not found.")
+            raise NotFoundError(f"Trip with ID: {trip}, not found.")
         return trip
-    
-def update_trip(trip_id: str, values:dict):
-    try: 
+
+
+def update_trip(trip_id: str, values: dict):
+    try:
         with Session(engine) as session:
             query = update(Trip).where(Trip.id == trip_id).values(**values)
             session.execute(query)
@@ -45,14 +48,13 @@ def update_trip(trip_id: str, values:dict):
             return session.get(Trip, trip_id)
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-    
-    
+
+
 def delete_trip(trip_id: str):
-    try: 
+    try:
         with Session(engine) as session:
             query = delete(Trip).where(Trip.id == trip_id)
             session.execute(query)
             session.commit()
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-    

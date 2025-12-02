@@ -1,23 +1,22 @@
 import resend
-import os
 from app.config import config
 from pathlib import Path
 from datetime import datetime
 
 BASE_DIR = Path(__file__).resolve().parent
-TEMPLATES_DIR = Path.joinpath(BASE_DIR,"templates")
-    
-    
+TEMPLATES_DIR = Path.joinpath(BASE_DIR, "templates")
+
+
 resend.api_key = config.resend
 
+
 def render_email(title: str, content: str):
-      with open(Path.joinpath(TEMPLATES_DIR,"base.html"), "r") as file:
+    with open(Path.joinpath(TEMPLATES_DIR, "base.html"), "r") as file:
         template = file.read()
-      return template.replace('{{title}}', title).replace('{{content}}', content)
-      
+    return template.replace("{{title}}", title).replace("{{content}}", content)
+
 
 def send_password_reset_email(email: str, reset_token: str):
-  
     reset_url = f"{config.client}/reset-password?token={reset_token}"
 
     content = """
@@ -59,29 +58,27 @@ def send_password_reset_email(email: str, reset_token: str):
               </p>
               """
 
-    content = content.replace('{{reset_url}}', reset_url)  
+    content = content.replace("{{reset_url}}", reset_url)
 
-    
     html_content = render_email("Passwork reset link", content)
 
-    
     params: resend.Emails.SendParams = {
         "from": "onboarding@resend.dev",
         "to": email,
         "subject": "Reset Password",
         "html": html_content,
     }
-    
+
     email = resend.Emails.send(params)
     print(email)
     return email
 
+
 def send_password_changed_email(email: str, username: str):
-    
     now = datetime.now()
     date = now.strftime("%B %d, %Y")  # "January 15, 2025"
-    time = now.strftime("%I:%M %p")   # "03:45 PM"
-    content= """
+    time = now.strftime("%I:%M %p")  # "03:45 PM"
+    content = """
     <!-- Success Icon -->
           <tr>
             <td style="padding: 40px 40px 20px 40px; text-align: center;">
@@ -147,26 +144,28 @@ def send_password_changed_email(email: str, username: str):
             </td>
           </tr>
           """
-    
+
     content = content.replace("{{username}}", username)
     content = content.replace("{{date}}", date)
     content = content.replace("{{time}}", time)
     content = content.replace("{{login_url}}", f"{config.client}/login")
-    
-    html_content = render_email("Password Changed Successfully", content)
-    
-    resend.Emails.send({
-        "from": "TrailStory <onboarding@resend.dev>",
-        "to": email,
-        "subject": "Your TrailStory password was changed",
-        "html": html_content
-    })
-    
-def send_welcome_email(email:str, username:str, token:str):
-  
-  verification_url = f"{config.client}/verify?token={token}"
 
-  content= """
+    html_content = render_email("Password Changed Successfully", content)
+
+    resend.Emails.send(
+        {
+            "from": "TrailStory <onboarding@resend.dev>",
+            "to": email,
+            "subject": "Your TrailStory password was changed",
+            "html": html_content,
+        }
+    )
+
+
+def send_welcome_email(email: str, username: str, token: str):
+    verification_url = f"{config.client}/verify?token={token}"
+
+    content = """
     <!-- Icon -->
 <tr>
   <td style="padding: 40px 40px 20px 40px; text-align: center;">
@@ -217,24 +216,26 @@ def send_welcome_email(email:str, username:str, token:str):
   </td>
 </tr>
           """
-  
-  content = content.replace("{{username}}", username)
-  content = content.replace("{{verification_url}}", verification_url)
 
-  html_content = render_email("Welcome to Trailstory", content)
-    
-  resend.Emails.send({
-        "from": "TrailStory <onboarding@resend.dev>",
-        "to": email,
-        "subject": "Welcome to Trailstory",
-        "html": html_content
-    })
+    content = content.replace("{{username}}", username)
+    content = content.replace("{{verification_url}}", verification_url)
 
-def send_verify_email(email:str, username:str, token:str = None):
-  
-  verification_url = f"{config.client}/verify?token={token}"
-  
-  content= """
+    html_content = render_email("Welcome to Trailstory", content)
+
+    resend.Emails.send(
+        {
+            "from": "TrailStory <onboarding@resend.dev>",
+            "to": email,
+            "subject": "Welcome to Trailstory",
+            "html": html_content,
+        }
+    )
+
+
+def send_verify_email(email: str, username: str, token: str = None):
+    verification_url = f"{config.client}/verify?token={token}"
+
+    content = """
     <!-- Icon -->
 <tr>
   <td style="padding: 40px 40px 20px 40px; text-align: center;">
@@ -289,15 +290,17 @@ def send_verify_email(email:str, username:str, token:str = None):
   </td>
 </tr>
           """
-  
-  content = content.replace("{{username}}", username)
-  content = content.replace("{{verification_url}}", verification_url)
-  
-  html_content = render_email("Confirm your Trailstory account", content)
-    
-  resend.Emails.send({
-        "from": "TrailStory <onboarding@resend.dev>",
-        "to": email,
-        "subject": "Welcome to Trailstory",
-        "html": html_content
-    })
+
+    content = content.replace("{{username}}", username)
+    content = content.replace("{{verification_url}}", verification_url)
+
+    html_content = render_email("Confirm your Trailstory account", content)
+
+    resend.Emails.send(
+        {
+            "from": "TrailStory <onboarding@resend.dev>",
+            "to": email,
+            "subject": "Welcome to Trailstory",
+            "html": html_content,
+        }
+    )

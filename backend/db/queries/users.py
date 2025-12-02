@@ -4,8 +4,9 @@ from sqlalchemy import exc as db_err
 from sqlalchemy import select, update, delete
 from app.errors import DatabaseError, NotFoundError
 
+
 def create_user(user_data: User):
-    try: 
+    try:
         with Session(engine) as session:
             session.add(user_data)
             session.commit()
@@ -15,15 +16,17 @@ def create_user(user_data: User):
         raise ValueError("User already exists") from e
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-        
-def get_user_by_id(user_id:str):
-        with Session(engine) as session:
-            user = session.get(User, user_id)
-            if not user:
-                raise NotFoundError(f"User with id {user_id} not found.")
-            return user
-        
-def get_user_by_username(username:str):
+
+
+def get_user_by_id(user_id: str):
+    with Session(engine) as session:
+        user = session.get(User, user_id)
+        if not user:
+            raise NotFoundError(f"User with id {user_id} not found.")
+        return user
+
+
+def get_user_by_username(username: str):
     try:
         with Session(engine) as session:
             query = select(User).where(User.username == username)
@@ -33,8 +36,9 @@ def get_user_by_username(username:str):
         raise NotFoundError(f"User with name {username} not found.") from e
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-    
-def get_user_by_email(email:str):
+
+
+def get_user_by_email(email: str):
     try:
         with Session(engine) as session:
             query = select(User).where(User.email == email)
@@ -45,6 +49,7 @@ def get_user_by_email(email:str):
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
+
 def delete_user(user_id: str):
     try:
         with Session(engine) as session:
@@ -53,7 +58,8 @@ def delete_user(user_id: str):
             session.commit()
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-    
+
+
 def update_user(user_id: str, user_data):
     try:
         with Session(engine) as session:

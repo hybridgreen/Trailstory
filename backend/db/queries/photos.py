@@ -1,10 +1,10 @@
 from db.schema import Photo, engine
 from sqlalchemy.orm import Session
-from sqlalchemy import exc as db_err
 from sqlalchemy import select, update, delete
-from app.errors import DatabaseError, NotFoundError
+from app.errors import DatabaseError
 
-def get_trip_photos(trip_id:str):
+
+def get_trip_photos(trip_id: str):
     try:
         with Session(engine) as session:
             query = select(Photo).where(Photo.trip_id == trip_id)
@@ -12,23 +12,26 @@ def get_trip_photos(trip_id:str):
             return photos
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-    
-def get_photo(id:str):
+
+
+def get_photo(id: str):
     try:
         with Session(engine) as session:
             return session.get(Photo, id)
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-    
+
+
 def add_photo(photo: Photo):
-    try: 
+    try:
         with Session(engine) as session:
             session.add(photo)
             session.commit()
             session.refresh(photo)
             return photo
     except Exception as e:
-        raise DatabaseError(f"Internal database Error:{str(e)}") from e     
+        raise DatabaseError(f"Internal database Error:{str(e)}") from e
+
 
 def delete_photo(id: str):
     try:
@@ -40,7 +43,8 @@ def delete_photo(id: str):
             return
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
-    
+
+
 def update_photo(id: str, photo_data):
     try:
         with Session(engine) as session:

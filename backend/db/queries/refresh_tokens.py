@@ -1,13 +1,14 @@
-from db.schema import refresh_tokens, User,  engine
+from db.schema import refresh_tokens, engine
 from sqlalchemy.orm import Session
 from sqlalchemy import exc as db_err
 from sqlalchemy import select, update
 from app.errors import AuthenticationError, DatabaseError
 
-def register_refresh_token(u_id: str, rt: str ):
+
+def register_refresh_token(u_id: str, rt: str):
     try:
         with Session(engine) as session:
-            new_token = refresh_tokens(token = rt, user_id = u_id)
+            new_token = refresh_tokens(token=rt, user_id=u_id)
             session.add(new_token)
             session.commit()
             session.refresh(new_token)
@@ -17,7 +18,8 @@ def register_refresh_token(u_id: str, rt: str ):
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
-def get_token(token:str):
+
+def get_token(token: str):
     try:
         with Session(engine) as session:
             query = select(refresh_tokens).where(refresh_tokens.token == token)
@@ -28,19 +30,29 @@ def get_token(token:str):
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
-def revoke_tokens_for_user(user_id:str):
+
+def revoke_tokens_for_user(user_id: str):
     try:
         with Session(engine) as session:
-            query = update(refresh_tokens).where(refresh_tokens.user_id == user_id).values(revoked = True)
+            query = (
+                update(refresh_tokens)
+                .where(refresh_tokens.user_id == user_id)
+                .values(revoked=True)
+            )
             session.execute(query)
             session.commit()
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
-def revoke_refresh_token(token_id:str):
+
+def revoke_refresh_token(token_id: str):
     try:
         with Session(engine) as session:
-            query = update(refresh_tokens). where(refresh_tokens.id == token_id).values(revoked = True )
+            query = (
+                update(refresh_tokens)
+                .where(refresh_tokens.id == token_id)
+                .values(revoked=True)
+            )
             session.execute(query)
             session.commit()
             return 0
