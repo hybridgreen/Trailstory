@@ -5,6 +5,7 @@ import pytest
 from app.errors import *
 from app.config import config
 from pathlib import Path
+from app.services.file_services import clear_s3_bucket
 import os
 
 
@@ -108,6 +109,7 @@ def test_add_photos(setup):
         assert len(links) == len(file_paths)
         
     finally:
+        clear_s3_bucket(trip_id+"/")
         for f in file_handles:
             f.close()
     
@@ -133,7 +135,6 @@ def test_add_wrong_mime(setup):
     )
     
     assert response.status_code == 400
-
 
 def test_add_avatar(setup):
     
@@ -167,3 +168,4 @@ def test_add_avatar(setup):
 
     finally:
             f.close()
+            clear_s3_bucket(trip_id+"/")
