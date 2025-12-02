@@ -7,7 +7,7 @@ from pathlib import Path
 
 client = TestClient(app)
 tests_dir = Path(__file__).parent.parent
-samples_dir = tests_dir.joinpath("../samples")
+samples_dir = tests_dir.joinpath("./samples")
 photos_dir = samples_dir / "photos"
 
 

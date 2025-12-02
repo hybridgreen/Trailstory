@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="TestData">
+  <trk>
+    <n>Short Track</n>
+    <trkseg>
+      <trkpt lat="35.6762" lon="139.6503">
+        <ele>40.0</ele>
+        <time>2025-01-12T08:00:00Z</time>
+      </trkpt>
+      <trkpt lat="35.6765" lon="139.6510">
+        <ele>42.0</ele>
+        <time>2025-01-12T08:05:00Z</time>
+      </trkpt>
+      <trkpt lat="35.6770" lon="139.6520">
+        <ele>45.0</ele>
+        <time>2025-01-12T08:10:00Z</time>
+      </trkpt>
+      <trkpt lat="35.6775" lon="139.6530">
+        <ele>48.0</ele>
+        <time>2025-01-12T08:15:00Z</time>
+      </trkpt>
+      <trkpt lat="35.6780" lon="139.6540">
+        <ele>50.0</ele>
+        <time>2025-01-12T08:20:00Z</time>
+      </trkpt>
+      <!-- Only 5 points - less than minimum 10 required -->
+    </trkseg>
+  </trk>
+</gpx>

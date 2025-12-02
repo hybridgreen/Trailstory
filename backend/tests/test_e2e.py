@@ -42,7 +42,7 @@ def setup():
     trip_id = trip_data["id"]
 
     tests_dir = Path(__file__).parent.parent
-    samples_dir = tests_dir.joinpath("../samples")
+    samples_dir = tests_dir.joinpath("./samples")
 
     ride1_path = samples_dir.joinpath("ride1.gpx")
     ride2_path = samples_dir.joinpath("ride2.gpx")

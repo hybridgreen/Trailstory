@@ -7,7 +7,7 @@ from io import BytesIO
 
 
 tests_dir = Path(__file__).parent.parent
-samples_dir = tests_dir.joinpath("../samples")
+samples_dir = tests_dir.joinpath("./samples")
 ride1_path = samples_dir.joinpath("ride1.gpx")
 no_tracks_ride = samples_dir.joinpath("no_tracks.gpx")
 no_timestamps = samples_dir.joinpath("no_timestamps.gpx")
