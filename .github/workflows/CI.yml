@@ -14,8 +14,51 @@ permissions:
   contents: read
 
 jobs:
+  container-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Downloads a copy of the code in your repository before running CI tests
+      - name: Check out repository code
+        uses: actions/checkout@v5
+
+      # Performs a clean installation of all dependencies in the `package.json` file
+      # For more information, see https://docs.npmjs.com/cli/ci.html
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Connect to PostgreSQL
+        # Runs a script that creates a PostgreSQL table, populates
+        # the table with data, and then retrieves the data.
+        run: node client.js
+        # Environment variables used by the `client.js` script to create a new PostgreSQL table.
+        env:
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: postgres
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
+
   build:
     runs-on: ubuntu-latest
+
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgis/postgis
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +67,7 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: "3.11"
-      
+
       - name: Install UV Package manager
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
@@ -36,27 +79,19 @@ jobs:
         working-directory: ./backend
         run: uv tool install ruff@latest
 
-      - name: Lint with Ruff
+      - name: Run lint with Ruff
         working-directory: ./backend
         run: uvx ruff check
 
-      - name: Setup Database
+      - name: Create Database tables
         working-directory: ./backend
         env:
           ENVIRONMENT: TEST
-          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          SERVER_SECRET: ${{ secrets.SERVER_SECRET }}
-          TEST_DB_URL: ${{secrets.TEST_DB_URL }}
-          AWS_BUCKET: ${{ vars.AWS_BUCKET}}
-          AWS_REGION: ${{ vars.AWS_REGION}}
-          AWS_TOKEN: token
+          TEST_DB_URL: "postgresql://admin:postgres@localhost:5432/test_db"
 
         run: python3 init_test_db.py
 
-      - name: Run tests
+      - name: Test with pytest
         working-directory: ./backend
         env:
           ENVIRONMENT: TEST
@@ -70,4 +105,4 @@ jobs:
           AWS_REGION: ${{ vars.AWS_REGION}}
           AWS_TOKEN: token
 
-        run: export PYTHONPATH=/home/runner/work/Trailstory/Trailstory/backend:$PYTHONPATH && pytest
+        run: pytest
