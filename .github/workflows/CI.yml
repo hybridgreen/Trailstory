@@ -24,9 +24,6 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: "3.11"
-          
-      - name: Set python path
-        run: export PYTHONPATH=/home/runner/work/Trailstory/Trailstory/backend:$PYTHONPATH && pytest
       
       - name: Install UV Package manager
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -73,4 +70,4 @@ jobs:
           AWS_REGION: ${{ vars.AWS_REGION}}
           AWS_TOKEN: token
 
-        run: pytest
+        run: export PYTHONPATH=/home/runner/work/Trailstory/Trailstory/backend:$PYTHONPATH && pytest
