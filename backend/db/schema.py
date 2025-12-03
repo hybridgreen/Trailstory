@@ -118,5 +118,5 @@ class one_time_tokens(Base):
     )
     revoked: Mapped[bool] = mapped_column(default=False)
 
-    engine = create_engine(config.db.url, echo=config.db.echo_flag, plugins=["geoalchemy2"])
+engine = create_engine(config.db.url, echo=config.db.echo_flag, plugins=["geoalchemy2"])
 
