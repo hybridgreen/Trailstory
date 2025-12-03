@@ -119,10 +119,5 @@ class one_time_tokens(Base):
     )
     revoked: Mapped[bool] = mapped_column(default=False)
 
-
-if config.environment == "TEST":
-    engine = create_engine(config.db.url, echo=config.db.echo_flag, plugins=["geoalchemy2"], poolclass= NullPool)
-
-else:
     engine = create_engine(config.db.url, echo=config.db.echo_flag, plugins=["geoalchemy2"])
 

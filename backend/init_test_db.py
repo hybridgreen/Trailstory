@@ -3,7 +3,7 @@ from app.config import config
 from sqlalchemy import text
 
 with engine.connect() as conn:
-    conn.execute(text("GRANT ALL PRIVILEGES ON DATABASE database_name TO username"))
+    conn.execute(text("GRANT ALL PRIVILEGES ON DATABASE test_db TO username"))
     conn.execute(text("GRANT ALL ON SCHEMA public TO admin"))
     conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
     
