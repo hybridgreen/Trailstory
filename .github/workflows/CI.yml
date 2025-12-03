@@ -89,4 +89,4 @@ jobs:
           AWS_REGION: ${{ vars.AWS_REGION}}
           AWS_TOKEN: token
 
-        run: pytest
+        run: export PYTHONPATH=/home/runner/work/Trailstory/Trailstory/backend:$PYTHONPATH && pytest
