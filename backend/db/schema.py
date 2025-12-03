@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 import secrets
 from uuid import uuid4
 from sqlalchemy import ForeignKey, String, UniqueConstraint, DateTime, create_engine
+from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from geoalchemy2 import Geometry
 from app.config import config
@@ -119,4 +120,9 @@ class one_time_tokens(Base):
     revoked: Mapped[bool] = mapped_column(default=False)
 
 
-engine = create_engine(config.db.url, echo=config.db.echo_flag, plugins=["geoalchemy2"])
+if config.environment == "TEST":
+    engine = create_engine(config.db.url, echo=config.db.echo_flag, plugins=["geoalchemy2"], poolclass= NullPool)
+
+else:
+    engine = create_engine(config.db.url, echo=config.db.echo_flag, plugins=["geoalchemy2"])
+
