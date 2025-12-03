@@ -70,6 +70,7 @@ jobs:
           SERVER_SECRET: ${{ secrets.SERVER_SECRET }}
           AWS_BUCKET: ${{ vars.AWS_BUCKET}}
           AWS_REGION: ${{ vars.AWS_REGION}}
+          AWS_TOKEN: token
           TEST_DB_URL: "postgresql://admin:postgres@localhost:5432/test_db"
 
         run: python3 init_test_db.py
