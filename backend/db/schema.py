@@ -2,7 +2,6 @@ from datetime import date, datetime, timedelta
 import secrets
 from uuid import uuid4
 from sqlalchemy import ForeignKey, String, UniqueConstraint, DateTime, create_engine
-from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from geoalchemy2 import Geometry
 from app.config import config
