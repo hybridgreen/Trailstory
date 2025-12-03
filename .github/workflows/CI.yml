@@ -84,7 +84,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SERVER_SECRET: ${{ secrets.SERVER_SECRET }}
-          TEST_DB_URL: ${{secrets.TEST_DB_URL }}
+          TEST_DB_URL: "postgresql://admin:postgres@localhost:5432/test_db"
           AWS_BUCKET: ${{ vars.AWS_BUCKET}}
           AWS_REGION: ${{ vars.AWS_REGION}}
           AWS_TOKEN: token
