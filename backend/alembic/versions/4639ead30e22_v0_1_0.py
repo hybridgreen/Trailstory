@@ -1,15 +1,16 @@
 """v0.1.0
 
 Revision ID: 4639ead30e22
-Revises: 
+Revises:
 Create Date: 2025-11-18 20:43:36.470507
 
 """
+
 from typing import Sequence, Union
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4639ead30e22'
+revision: str = "4639ead30e22"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

@@ -96,13 +96,14 @@ def test_add_photos(setup):
             print(response.json())
         else:
             links = response.json()["links"]
-            
+
         assert response.status_code == 201
         assert len(links) == len(file_paths)
 
     finally:
         for f in file_handles:
             f.close()
+
 
 def test_add_wrong_mime(setup):
     user_response, trip_data = setup
@@ -125,6 +126,7 @@ def test_add_wrong_mime(setup):
     )
 
     assert response.status_code == 400
+
 
 def test_add_avatar(setup):
     user_response, trip_data = setup
