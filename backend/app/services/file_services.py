@@ -46,3 +46,16 @@ async def remove_from_s3(keys):
         except Exception as e:
             print(str(e))
             raise ServerError(str(e)) from e
+
+
+async def clear_test_bucket():
+    try:
+        objects = await s3.Bucket(config.s3.bucket).objects.all()
+
+        keys = [{"key": x.key} for x in objects]
+
+        await asyncio.to_thread(
+            lambda: s3.Bucket(config.s3.bucket).delete_objects(Delete={"Objects": keys})
+        )
+    except Exception as e:
+        raise ServerError(str(e))

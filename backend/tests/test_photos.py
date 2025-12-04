@@ -3,7 +3,7 @@ from app.main import app
 import pytest
 from app.config import config
 from pathlib import Path
-
+from app.services.file_services import clear_test_bucket
 
 client = TestClient(app)
 tests_dir = Path(__file__).parent.parent
@@ -103,6 +103,7 @@ def test_add_photos(setup):
     finally:
         for f in file_handles:
             f.close()
+        clear_test_bucket()
 
 
 def test_add_wrong_mime(setup):
@@ -155,3 +156,4 @@ def test_add_avatar(setup):
 
     finally:
         f.close()
+        clear_test_bucket()
