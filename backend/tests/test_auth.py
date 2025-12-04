@@ -1,8 +1,17 @@
 from fastapi.testclient import TestClient
 from app.main import app
 from app.config import config
+from app.dependencies import get_send_welcome_email, get_password_changed_email
 
 client = TestClient(app)
+
+
+def mock_email(*args, **kwargs):
+    pass
+
+
+app.dependency_overrides[get_password_changed_email] = lambda: mock_email
+app.dependency_overrides[get_send_welcome_email] = lambda: mock_email
 
 fakeUser = {
     "email": "delivered+user1@resend.dev",

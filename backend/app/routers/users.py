@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Callable
 from fastapi import APIRouter, Depends, Form
 from db.queries.users import User, delete_user, create_user, update_user, get_user_by_id
 from db.queries.photos import get_photo
@@ -17,15 +17,21 @@ from app.security import (
 from app.models import LoginResponse, UserModel, UserResponse, UserUpdate, TripsResponse
 from app.errors import ServerError, AuthenticationError
 from app.config import config
-from app.dependencies import get_auth_user
-from app.services.email_services import send_password_changed_email, send_welcome_email
+from app.dependencies import (
+    get_auth_user,
+    get_send_welcome_email,
+    get_password_changed_email,
+)
 from app.services.file_services import s3
 
 user_router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @user_router.post("/", status_code=201)
-async def handler_create_user(user_data: Annotated[UserModel, Form()]) -> LoginResponse:
+async def handler_create_user(
+    user_data: Annotated[UserModel, Form()],
+    welcome_email: Annotated[Callable, Depends(get_send_welcome_email)],
+) -> LoginResponse:
     validate_email(user_data.email)
     validate_password(user_data.password)
 
@@ -39,7 +45,7 @@ async def handler_create_user(user_data: Annotated[UserModel, Form()]) -> LoginR
     try:
         verification_token = create_one_time_token()
         register_verify_token(db_User.id, verification_token)
-        send_welcome_email(db_User.email, db_User.username, verification_token)
+        welcome_email(db_User.email, db_User.username, verification_token)
 
     except Exception as e:
         raise ServerError(str(e))
@@ -120,6 +126,7 @@ async def handler_change_password(
     old_password: Annotated[str, Form()],
     new_password: Annotated[str, Form()],
     authed_user: Annotated[User, Depends(get_auth_user)],
+    changed_password: Annotated[Callable, Depends(get_password_changed_email)],
 ):
     if not verify_password(old_password, authed_user.hashed_password):
         raise AuthenticationError("Incorrect password")
@@ -130,7 +137,7 @@ async def handler_change_password(
     validate_password(new_password)
     password_dict = {"hashed_password": hash_password(new_password)}
     update_user(authed_user.id, password_dict)
-    send_password_changed_email(authed_user.email, authed_user.username)
+    changed_password(authed_user.email, authed_user.username)
 
 
 @user_router.delete("/", status_code=204)

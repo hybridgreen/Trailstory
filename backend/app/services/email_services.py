@@ -70,8 +70,6 @@ def send_password_reset_email(email: str, reset_token: str):
     }
 
     email = resend.Emails.send(params)
-    print(email)
-    return email
 
 
 def send_password_changed_email(email: str, username: str):

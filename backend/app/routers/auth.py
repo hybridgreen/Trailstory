@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Callable
 import resend
 from fastapi import APIRouter, Depends, Form
 from db.queries.users import get_user_by_email, User, update_user, get_user_by_id
@@ -24,13 +24,7 @@ from app.models import loginForm, LoginResponse, RefreshResponse
 from app.dependencies import get_bearer_token
 from app.config import config
 from app.errors import NotFoundError, AuthenticationError, ServerError
-from app.dependencies import get_auth_user
-from app.services.email_services import (
-    send_password_reset_email,
-    send_password_changed_email,
-    send_verify_email,
-)
-
+from app.dependencies import get_auth_user, get_password_reset_email, get_verify_email, get_password_changed_email
 
 resend.api_key = config.resend
 
@@ -79,12 +73,12 @@ def refresh_handler(
 
 
 @auth_router.post("/password/reset/", status_code=200)
-def reset_pwd_handler(email: Annotated[str, Form()]):
+def reset_pwd_handler(email: Annotated[str, Form()], pwd_reset_email: Annotated[Callable, Depends(get_password_reset_email)]):
     try:
         user = get_user_by_email(email)
         token = create_one_time_token()
         register_reset_token(user.id, hash_token(token))
-        email = send_password_reset_email(user.email, token)
+        pwd_reset_email(user.email, token)
     except NotFoundError:
         pass
     except Exception as e:
@@ -96,13 +90,13 @@ def reset_pwd_handler(email: Annotated[str, Form()]):
 
 
 @auth_router.post("/password/confirm/", status_code=204)
-def confirm_pwd_handler(token: str, password: Annotated[str, Form()]):
+def confirm_pwd_handler(token: str, password: Annotated[str, Form()], pwd_changed: Annotated[Callable, Depends(get_password_changed_email)]):
     user = get_user_by_id(verify_onetime_token(token))
     validate_password(password)
     password_dict = {"hashed_password": hash_password(password)}
     update_user(user.id, password_dict)
     revoke_tokens_for_user(user.id)
-    send_password_changed_email(user.email, user.username)
+    pwd_changed(user.email, user.username)
 
 
 @auth_router.post("/email/verify/confirm/", status_code=204)
@@ -113,7 +107,7 @@ def confirm_email_handler(token: str):
 
 
 @auth_router.post("/email/verify/", status_code=204)
-def verify_email_handler(authed_user: Annotated[User, Depends(get_auth_user)]):
+def verify_email_handler(authed_user: Annotated[User, Depends(get_auth_user)],  verify_email_sender: Annotated[Callable, Depends(get_verify_email)]):
     verification_token = create_one_time_token()
     register_verify_token(authed_user.id, verification_token)
-    send_verify_email(authed_user.email, authed_user.username, verification_token)
+    verify_email_sender(authed_user.email, authed_user.username, verification_token)
