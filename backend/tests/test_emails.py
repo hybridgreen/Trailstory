@@ -11,12 +11,19 @@ from db.queries.one_time_tokens import (
 )
 from time import sleep
 from freezegun import freeze_time
-from app.dependencies import get_password_reset_email, get_verify_email, get_password_changed_email, get_send_welcome_email
+from app.dependencies import (
+    get_password_reset_email,
+    get_verify_email,
+    get_password_changed_email,
+    get_send_welcome_email,
+)
 
 client = TestClient(app)
 
+
 def mock_email(*args, **kwargs):
     pass
+
 
 app.dependency_overrides[get_password_reset_email] = lambda: mock_email
 app.dependency_overrides[get_verify_email] = lambda: mock_email
@@ -143,7 +150,7 @@ def test_confirm_pwd_faketoken(setup):
 def test_verify_email(setup):
     token = create_one_time_token()
     db_token = register_verify_token(setup["user"]["id"], hash_token(token))
-    
+
     assert db_token.token == hash_token(token)
     assert db_token.user_id == setup["user"]["id"]
 
@@ -155,7 +162,7 @@ def test_verify_email(setup):
 def test_send_verify_email(setup):
     token = create_one_time_token()
     db_token = register_verify_token(setup["user"]["id"], hash_token(token))
-    
+
     assert db_token.token == hash_token(token)
     assert db_token.user_id == setup["user"]["id"]
 

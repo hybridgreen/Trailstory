@@ -24,7 +24,12 @@ from app.models import loginForm, LoginResponse, RefreshResponse
 from app.dependencies import get_bearer_token
 from app.config import config
 from app.errors import NotFoundError, AuthenticationError, ServerError
-from app.dependencies import get_auth_user, get_password_reset_email, get_verify_email, get_password_changed_email
+from app.dependencies import (
+    get_auth_user,
+    get_password_reset_email,
+    get_verify_email,
+    get_password_changed_email,
+)
 
 resend.api_key = config.resend
 
@@ -73,7 +78,10 @@ def refresh_handler(
 
 
 @auth_router.post("/password/reset/", status_code=200)
-def reset_pwd_handler(email: Annotated[str, Form()], pwd_reset_email: Annotated[Callable, Depends(get_password_reset_email)]):
+def reset_pwd_handler(
+    email: Annotated[str, Form()],
+    pwd_reset_email: Annotated[Callable, Depends(get_password_reset_email)],
+):
     try:
         user = get_user_by_email(email)
         token = create_one_time_token()
@@ -90,7 +98,11 @@ def reset_pwd_handler(email: Annotated[str, Form()], pwd_reset_email: Annotated[
 
 
 @auth_router.post("/password/confirm/", status_code=204)
-def confirm_pwd_handler(token: str, password: Annotated[str, Form()], pwd_changed: Annotated[Callable, Depends(get_password_changed_email)]):
+def confirm_pwd_handler(
+    token: str,
+    password: Annotated[str, Form()],
+    pwd_changed: Annotated[Callable, Depends(get_password_changed_email)],
+):
     user = get_user_by_id(verify_onetime_token(token))
     validate_password(password)
     password_dict = {"hashed_password": hash_password(password)}
@@ -107,7 +119,10 @@ def confirm_email_handler(token: str):
 
 
 @auth_router.post("/email/verify/", status_code=204)
-def verify_email_handler(authed_user: Annotated[User, Depends(get_auth_user)],  verify_email_sender: Annotated[Callable, Depends(get_verify_email)]):
+def verify_email_handler(
+    authed_user: Annotated[User, Depends(get_auth_user)],
+    verify_email_sender: Annotated[Callable, Depends(get_verify_email)],
+):
     verification_token = create_one_time_token()
     register_verify_token(authed_user.id, verification_token)
     verify_email_sender(authed_user.email, authed_user.username, verification_token)

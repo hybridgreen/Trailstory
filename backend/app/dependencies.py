@@ -7,8 +7,9 @@ from app.services.email_services import (
     send_password_reset_email,
     send_password_changed_email,
     send_verify_email,
-    send_welcome_email
+    send_welcome_email,
 )
+
 
 async def get_auth_user(authorization: Annotated[str, Header()] = None):
     if not authorization:
@@ -30,11 +31,14 @@ async def get_bearer_token(authorization: Annotated[str, Header()]):
 def get_send_welcome_email():
     return send_welcome_email
 
+
 def get_password_changed_email():
     return send_password_changed_email
 
+
 def get_password_reset_email():
     return send_password_reset_email
+
 
 def get_verify_email():
     return send_verify_email
