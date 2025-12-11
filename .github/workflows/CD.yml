@@ -30,4 +30,7 @@ jobs:
         run: "gcloud info"
 
       - name: Build & Push docker image to Google Artifacts
-        run: cd backend && gcloud builds submit --tag europe-west2-docker.pkg.dev/trailstory/trailstory-repo/trailstory:latest
+        run: cd backend && gcloud builds submit --tag europe-west2-docker.pkg.dev/trailstory/trailstory-repo/backend:latest
+
+      - name: Deploy to Cloud Run
+        run: gcloud run deploy notely --image europe-west2-docker.pkg.dev/trailstory/trailstory-repo/backend --region europe-west2 --allow-unauthenticated --project trailstory --max-instances=4
