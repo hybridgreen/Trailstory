@@ -10,5 +10,5 @@ with engine.connect() as conn:
     conn.commit()
 
 
-if config.environment == "TEST":
+if config.environment == "TEST" or config.environment == "DEV":
     Base.metadata.create_all(bind=engine)

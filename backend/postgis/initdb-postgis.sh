@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    GRANT ALL PRIVILEGES ON DATABASE "$POSTGRES_DB" TO "$POSTGRES_USER";
+    GRANT ALL ON SCHEMA public TO "$POSTGRES_USER";
+    CREATE EXTENSION IF NOT EXISTS postgis;
+EOSQL
+
+echo "PostGIS extension enabled in $POSTGRES_DB"
