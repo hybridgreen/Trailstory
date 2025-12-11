@@ -16,7 +16,6 @@ ENV/
 # Environment variables
 .env
 .env-docker
-trailstory-febd381c440c.json
 
 # IDE
 .vscode/
@@ -61,4 +60,5 @@ dist-ssr
 .DS_Store
 
 
-/samples
+samples/
+secrets/
