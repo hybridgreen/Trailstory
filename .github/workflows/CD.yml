@@ -30,7 +30,7 @@ jobs:
         run: "gcloud info"
 
       - name: Build Docker image
-        run: backend % docker build -t hybridgreen/trailstory:latest .
+        run: docker build -t hybridgreen/trailstory:latest .
 
       - name: Push docker image to Google Artifacts
         run: gcloud builds submit --tag europe-west2-docker.pkg.dev/trailstory/trailstory-repo/trailstory:latest
