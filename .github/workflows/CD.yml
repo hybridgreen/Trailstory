@@ -29,8 +29,5 @@ jobs:
       - name: "Use gcloud CLI"
         run: "gcloud info"
 
-      - name: Build Docker image
-        run: cd backend && docker build -t hybridgreen/trailstory:latest .
-
-      - name: Push docker image to Google Artifacts
-        run: gcloud builds submit --tag europe-west2-docker.pkg.dev/trailstory/trailstory-repo/trailstory:latest
+      - name: Build & Push docker image to Google Artifacts
+        run: cd backend && gcloud builds submit --tag europe-west2-docker.pkg.dev/trailstory/trailstory-repo/trailstory:latest
