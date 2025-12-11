@@ -33,4 +33,4 @@ jobs:
         run: cd backend && gcloud builds submit --tag europe-west2-docker.pkg.dev/trailstory/trailstory-repo/backend:latest
 
       - name: Deploy to Cloud Run
-        run: gcloud run deploy trailstory-backend --image europe-west2-docker.pkg.dev/trailstory/trailstory-repo/backend --region europe-west2 --allow-unauthenticated --project trailstory --max-instances=4
+        run: gcloud run deploy trailstory-backend --image europe-west2-docker.pkg.dev/trailstory/trailstory-repo/backend --region europe-west1 --allow-unauthenticated --project trailstory --max-instances=4
