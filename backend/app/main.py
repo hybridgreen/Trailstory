@@ -14,7 +14,8 @@ from .errors import (
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from db.schema import engine, Base
-
+from datetime import datetime, UTC
+from db.schema import engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -89,3 +90,17 @@ async def server_error_handler(req: Request, exc: ServerError):
 @app.get("/")  # Should show signup page
 def index():
     return {"Welcome to Trailstory"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "timestamp": datetime.now(UTC)}
+
+@app.get("/ready")
+def readiness_check():
+    try:
+        with engine.connect() as db:
+            db.execute("SELECT 1")
+            db.commit()
+        return {"status": "ready"}
+    except:
+        raise HTTPException(status_code=503, detail="not ready")
