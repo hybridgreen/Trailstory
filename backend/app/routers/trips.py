@@ -29,7 +29,7 @@ from app.services.file_services import s3
 from db.queries.photos import get_photo
 
 trip_router = APIRouter(
-    prefix="/trips", tags=["Trips"], dependencies=[Depends(block_guest)]
+    prefix="/trips", tags=["Trips"]
 )
 
 
@@ -195,7 +195,7 @@ async def handler_get_rides(trip_id: str) -> RideResponse | list[RideResponse]:
     return rides
 
 
-@trip_router.post("/", status_code=201)
+@trip_router.post("/", status_code=201, dependencies=[Depends(block_guest)])
 async def handler_draft_trip(
     form_data: Annotated[TripDraft, Form()],
     auth_user: Annotated[User, Depends(get_auth_user)],
@@ -214,7 +214,7 @@ async def handler_draft_trip(
     return create_trip(new_trip)
 
 
-@trip_router.post("/{trip_id}/rides/", status_code=201)
+@trip_router.post("/{trip_id}/rides/", status_code=201, dependencies=[Depends(block_guest)])
 async def handler_add_rides(
     trip_id: str,
     files: list[UploadFile],
@@ -243,7 +243,7 @@ async def handler_add_rides(
     return rides
 
 
-@trip_router.put("/{trip_id}/")
+@trip_router.put("/{trip_id}/", dependencies=[Depends(block_guest)])
 async def handler_save_trip(
     trip_id: str,
     form_data: Annotated[TripModel, Form()],
@@ -274,7 +274,7 @@ async def handler_save_trip(
     return trip
 
 
-@trip_router.delete("/{trip_id}/", status_code=204)
+@trip_router.delete("/{trip_id}/", status_code=204, dependencies=[Depends(block_guest)])
 async def handler_delete_trip(
     trip_id: str, auth_user: Annotated[User, Depends(get_auth_user)]
 ):

@@ -12,8 +12,9 @@ admin_router = APIRouter(prefix="/admin", tags=["Administrator"])
 async def handler_reset(authorization: Annotated[str, Depends(get_bearer_token)]):
     if config.auth.admin_token != authorization:
         raise UnauthorizedError("Invalid admin token")
-    if config.environment == "PROD":
-        raise UnauthorizedError("Endpoint not available in production")
+    if config.environment != "TEST":
+        raise UnauthorizedError("Endpoint only available in testing")
+    
     try:
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)

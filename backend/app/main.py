@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi import HTTPException
 from app.routers import users, auth, trips, admin, photos
+from app.config import config
 from .errors import (
     NotFoundError,
     DatabaseError,
@@ -39,8 +40,10 @@ app.include_router(auth.auth_router)
 app.include_router(users.user_router)
 app.include_router(trips.trip_router)
 app.include_router(trips.rides_router)
-app.include_router(admin.admin_router)
 app.include_router(photos.photo_router)
+
+if config.environment == "TEST":
+    app.include_router(admin.admin_router)
 
 
 @app.exception_handler(NotFoundError)
