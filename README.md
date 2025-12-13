@@ -28,10 +28,11 @@ Combine your multi-day adventure into a shareable page. Revisit your personal no
 
 ## Production Architecture
 
-- **Frontend:** React + Shadcn UI on Vercel
-- **API:** Python/FastAPI on Railway  
-- **Database:** PostgreSQL + PostGIS (Supabase)
+- **Frontend:** React + Shadcn UI
+- **API:** Python/FastAPI 
+- **Database:** PostgreSQL + PostGIS
 - **Storage:** AWS S3 for image storage
+- **Deployment:** Google Cloud Run
 
 ## Design Decisions
 
