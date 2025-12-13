@@ -28,9 +28,7 @@ from app.errors import UnauthorizedError, InvalidGPXError, InputError, ServerErr
 from app.services.file_services import s3
 from db.queries.photos import get_photo
 
-trip_router = APIRouter(
-    prefix="/trips", tags=["Trips"]
-)
+trip_router = APIRouter(prefix="/trips", tags=["Trips"])
 
 
 def generate_slug(text: str) -> str:
@@ -214,7 +212,9 @@ async def handler_draft_trip(
     return create_trip(new_trip)
 
 
-@trip_router.post("/{trip_id}/rides/", status_code=201, dependencies=[Depends(block_guest)])
+@trip_router.post(
+    "/{trip_id}/rides/", status_code=201, dependencies=[Depends(block_guest)]
+)
 async def handler_add_rides(
     trip_id: str,
     files: list[UploadFile],

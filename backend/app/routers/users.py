@@ -1,12 +1,6 @@
 from typing import Annotated, Callable
 from fastapi import APIRouter, Depends, Form
-from db.queries.users import (
-    User,
-    delete_user,
-    create_user,
-    update_user,
-    get_user_by_id
-)
+from db.queries.users import User, delete_user, create_user, update_user, get_user_by_id
 from db.queries.photos import get_photo
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token

@@ -14,7 +14,7 @@ async def handler_reset(authorization: Annotated[str, Depends(get_bearer_token)]
         raise UnauthorizedError("Invalid admin token")
     if config.environment != "TEST":
         raise UnauthorizedError("Endpoint only available in testing")
-    
+
     try:
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
