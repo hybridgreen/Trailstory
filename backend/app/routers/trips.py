@@ -23,12 +23,14 @@ from app.models import (
     RideModel,
 )
 from app.config import config
-from app.dependencies import get_auth_user
+from app.dependencies import get_auth_user, block_guest
 from app.errors import UnauthorizedError, InvalidGPXError, InputError, ServerError
 from app.services.file_services import s3
 from db.queries.photos import get_photo
 
-trip_router = APIRouter(prefix="/trips", tags=["Trips"])
+trip_router = APIRouter(
+    prefix="/trips", tags=["Trips"], dependencies=[Depends(block_guest)]
+)
 
 
 def generate_slug(text: str) -> str:

@@ -51,8 +51,12 @@ class Trip(Base, TimestampMixin):
     total_distance: Mapped[float | None]
     total_elevation: Mapped[float | None]
     high_point: Mapped[float | None]
-    route: Mapped[str | None] = mapped_column(Geometry("LINESTRING", srid= 4326), default=None)
-    bounding_box: Mapped[str | None] = mapped_column(Geometry("POLYGON", srid= 4326), default=None)
+    route: Mapped[str | None] = mapped_column(
+        Geometry("LINESTRING", srid=4326), default=None
+    )
+    bounding_box: Mapped[str | None] = mapped_column(
+        Geometry("POLYGON", srid=4326), default=None
+    )
     is_published: Mapped[bool] = mapped_column(default=False)
     cover_id: Mapped[str | None]
     thumbnail_id: Mapped[str | None]
@@ -73,7 +77,7 @@ class Ride(Base, TimestampMixin):
     high_point: Mapped[float]
     moving_time: Mapped[float]
     gpx_url: Mapped[str | None]
-    route: Mapped[str] = mapped_column(Geometry("LINESTRING", srid= 4326))
+    route: Mapped[str] = mapped_column(Geometry("LINESTRING", srid=4326))
     trip: Mapped[list["Trip"]] = relationship(back_populates="rides")
 
 

@@ -8,14 +8,16 @@ from db.queries.photos import add_photo, get_trip_photos, get_photo, delete_phot
 from db.queries.trips import get_trip, update_trip
 from db.queries.users import get_user_by_id, update_user
 from app.config import config
-from app.dependencies import get_auth_user
+from app.dependencies import get_auth_user, block_guest
 from app.errors import UnauthorizedError, InputError
 from app.routers.trips import trip_router
 from app.routers.users import user_router
 from app.services.file_services import s3, upload_to_s3, remove_from_s3
 
 
-photo_router = APIRouter(prefix="/photos", tags=["Photos"])
+photo_router = APIRouter(
+    prefix="/photos", tags=["Photos"], dependencies=[Depends(block_guest)]
+)
 
 
 def validate_photo(file: UploadFile):

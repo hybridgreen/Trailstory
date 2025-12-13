@@ -263,12 +263,12 @@ export default function AuthCard() {
 
   useEffect(() => {
     if (isAuthenticated()) {
-      navigate("/");
+      navigate("/trips");
     }
   }, [navigate]);
 
   return (
-    <div className="flex flex-col items-center gap-4 max-w-md mx-auto p-6">
+    <div className="flex flex-col items-center gap-4 max-w-md mx-auto p-24">
       <Button onClick={() => setUserStatus(!newUser)}>
         {newUser ? "Already have an account? Login" : "New user? Register"}
       </Button>
@@ -286,7 +286,7 @@ export function LoginRedirect() {
   return (
     <div className="flex flex-auto justify-center items-center">
       <Card>
-        <CardContent>Please log in to see your profile</CardContent>
+        <CardContent>Please log in to see this content</CardContent>
         <Button
           onClick={() => {
             navigate("/");
@@ -295,6 +295,55 @@ export function LoginRedirect() {
         >
           {" "}
           Log In Now
+        </Button>
+      </Card>
+    </div>
+  );
+}
+
+export function GuestMode() {
+  const [logingIn, setLogingIn] = useState(false);
+  const navigate = useNavigate();
+
+  async function guestLogin() {
+    try {
+      setLogingIn(true);
+
+      const response = await fetch(`${serverBaseURL}/auth/login/guest/`, {
+        method: "GET",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Login successful:", data);
+        storeTokens(data);
+        setActiveUser(data.user);
+        navigate("/trips");
+      } else {
+        const error = await response.json();
+        console.error("Login failed:", error);
+        toast.error("Login failed: " + (error.detail || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Unknown error:", error);
+    } finally {
+      setLogingIn(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-auto justify-center items-center">
+      <Card>
+        <CardContent>Click the button to log in as a guest</CardContent>
+        <Button
+          loading={logingIn}
+          onClick={() => {
+            guestLogin();
+          }}
+          className="m-auto w-fit"
+        >
+          {" "}
+          Demo Mode
         </Button>
       </Card>
     </div>

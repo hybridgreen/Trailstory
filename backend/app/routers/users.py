@@ -1,6 +1,12 @@
 from typing import Annotated, Callable
 from fastapi import APIRouter, Depends, Form
-from db.queries.users import User, delete_user, create_user, update_user, get_user_by_id
+from db.queries.users import (
+    User,
+    delete_user,
+    create_user,
+    update_user,
+    get_user_by_id
+)
 from db.queries.photos import get_photo
 from db.queries.trips import get_user_trips
 from db.queries.refresh_tokens import register_refresh_token
@@ -21,6 +27,7 @@ from app.dependencies import (
     get_auth_user,
     get_send_welcome_email,
     get_password_changed_email,
+    block_guest,
 )
 from app.services.file_services import s3
 
@@ -108,7 +115,7 @@ async def handler_get_trips(user_id: str) -> list[TripsResponse]:
     return trips
 
 
-@user_router.put("/", status_code=200)
+@user_router.put("/", status_code=200, dependencies=[Depends(block_guest)])
 async def handler_update_user(
     user_data: Annotated[UserUpdate, Form()],
     authed_user: Annotated[User, Depends(get_auth_user)],
@@ -121,7 +128,7 @@ async def handler_update_user(
     return user
 
 
-@user_router.put("/password/", status_code=204)
+@user_router.put("/password/", status_code=204, dependencies=[Depends(block_guest)])
 async def handler_change_password(
     old_password: Annotated[str, Form()],
     new_password: Annotated[str, Form()],
@@ -140,6 +147,6 @@ async def handler_change_password(
     changed_password(authed_user.email, authed_user.username)
 
 
-@user_router.delete("/", status_code=204)
+@user_router.delete("/", status_code=204, dependencies=[Depends(block_guest)])
 async def handler_delete_user(authed_user: Annotated[User, Depends(get_auth_user)]):
     delete_user(authed_user.id)
