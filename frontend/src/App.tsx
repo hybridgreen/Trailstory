@@ -1,4 +1,4 @@
-import Auth from "./Pages/Auth.tsx";
+import Auth, { GuestMode } from "./Pages/Auth.tsx";
 import ResetPasswordCard from "./Pages/ResetPasswordCard.tsx";
 import Trips from "./Trips/TripsPage.tsx";
 import DraftTrip from "./Trips/CreateTrip.tsx";
@@ -8,7 +8,7 @@ import ViewTripPage from "./Trips/ViewTripPage.tsx";
 
 import { BrowserRouter, Routes, Route } from "react-router";
 import { useNavigate } from "react-router";
-import { removeTokens, isAuthenticated } from "./utils.tsx";
+import { removeTokens, isAuthenticated, getActiveUser } from "./utils.tsx";
 
 import { Button } from "@/components/ui/button";
 import { toast, Toaster } from "sonner";
@@ -16,6 +16,7 @@ import { ThemeProvider } from "./components/theme-provider.tsx";
 import { ModeToggle } from "./components/toggle-mode.tsx";
 import Dashboard from "./Dashboard.tsx";
 import { VerifyPage } from "./Pages/Verify.tsx";
+import { Badge } from "./components/ui/badge.tsx";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={<Auth />} />
+          <Route path="/demo" element={<GuestMode />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/trips/new" element={<DraftTrip />} />
@@ -60,10 +62,15 @@ function NavBar() {
           <a href="/" style={{ textDecoration: "none", color: "inherit" }}>
             Trailstory{" "}
           </a>
+          {getActiveUser()?.email === "guest@trailstory.com" || undefined ? (
+            <Badge>Demo mode</Badge>
+          ) : (
+            ""
+          )}
         </div>
 
         <div className="navbar-links">
-          <a href="/trips">My Trips</a>
+          <a href="/trips">Trips</a>
           <a href="/profile/me">My Profile</a>
         </div>
         <div className="navbar-actions">

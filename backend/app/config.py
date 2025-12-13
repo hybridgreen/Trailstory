@@ -11,22 +11,6 @@ def EnvOrThrow(key: str):
     return var
 
 
-if EnvOrThrow("ENVIRONMENT") == "DEV":
-    db_url = EnvOrThrow("TEST_DB_URL")
-    echo_flag = True
-    client_url = "http://localhost:5173"
-
-if EnvOrThrow("ENVIRONMENT") == "TEST":
-    db_url = EnvOrThrow("TEST_DB_URL")
-    echo_flag = False
-    client_url = "http://localhost:5173"
-
-elif EnvOrThrow("ENVIRONMENT") == "PROD":
-    db_url = EnvOrThrow("DB_URL")
-    echo_flag = False
-    client_url = EnvOrThrow("CLIENT_BASE_URL")
-
-
 class DBConfig:
     def __init__(self, url: str, echo_flag: str):
         self.url = url
@@ -77,7 +61,9 @@ class APIConfig:
 
 
 config = APIConfig(
-    db=DBConfig(url=db_url, echo_flag=echo_flag),
+    db=DBConfig(
+        url=EnvOrThrow("DB_URL"), echo_flag=False
+    ),  # Echo flag enables SQLAlchemy on std out
     auth=AuthConfig(
         secret=EnvOrThrow("SERVER_SECRET"), admin_token=EnvOrThrow("ADMIN_TOKEN")
     ),
@@ -89,7 +75,7 @@ config = APIConfig(
         token=EnvOrThrow("AWS_TOKEN"),
     ),
     api_limits=APILimits(),
-    client=client_url,
+    client=EnvOrThrow("CLIENT_BASE_URL"),
     env=EnvOrThrow("ENVIRONMENT"),
     resend=EnvOrThrow("RESEND_API_KEY"),
 )

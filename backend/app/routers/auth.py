@@ -1,7 +1,13 @@
 from typing import Annotated, Callable
 import resend
 from fastapi import APIRouter, Depends, Form
-from db.queries.users import get_user_by_email, User, update_user, get_user_by_id
+from db.queries.users import (
+    get_user_by_email,
+    User,
+    update_user,
+    get_user_by_id,
+    create_user,
+)
 from db.queries.refresh_tokens import (
     revoke_tokens_for_user,
     revoke_refresh_token,
@@ -28,7 +34,7 @@ from app.dependencies import (
     get_auth_user,
     get_password_reset_email,
     get_verify_email,
-    get_password_changed_email,
+    get_password_changed_email
 )
 
 resend.api_key = config.resend
@@ -77,7 +83,39 @@ def refresh_handler(
     }
 
 
-@auth_router.post("/password/reset/", status_code=200)
+@auth_router.get("/login/guest/", status_code=200)
+async def handler_guestLogin() -> LoginResponse:
+    try:
+        user = get_user_by_email("guest@trailstory.com")
+    except Exception:
+        pass
+
+    if not user:
+        user_dict = {
+            "email": "guest@trailstory.com",
+            "username": "Bikepacker",
+            "hashed_password": hash_password("Trailstorybikepackingadventure229"),
+            "firstname": "Olaf",
+            "lastname": "Trailblaze",
+            "email_verified": True,
+        }
+        user = create_user(User(**user_dict))
+
+    access_token = make_JWT(user_id=user.id)
+    refresh_token = register_refresh_token(user.id, create_refresh_Token())
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token.token,
+        "user": user,
+        "token_type": "Bearer",
+        "expires_in": config.auth.jwt_expiry,
+    }
+
+
+@auth_router.post(
+    "/password/reset/", status_code=200
+)
 def reset_pwd_handler(
     email: Annotated[str, Form()],
     pwd_reset_email: Annotated[Callable, Depends(get_password_reset_email)],
@@ -97,7 +135,9 @@ def reset_pwd_handler(
         }
 
 
-@auth_router.post("/password/confirm/", status_code=204)
+@auth_router.post(
+    "/password/confirm/", status_code=204
+)
 def confirm_pwd_handler(
     token: str,
     password: Annotated[str, Form()],
@@ -111,14 +151,17 @@ def confirm_pwd_handler(
     pwd_changed(user.email, user.username)
 
 
-@auth_router.post("/email/verify/confirm/", status_code=204)
+@auth_router.post(
+    "/email/verify/confirm/", status_code=204
+)
 def confirm_email_handler(token: str):
     user = get_user_by_id(verify_onetime_token(token))
     update_dict = {"email_verified": True}
     update_user(user.id, update_dict)
 
 
-@auth_router.post("/email/verify/", status_code=204)
+@auth_router.post(
+    "/email/verify/", status_code=204)
 def verify_email_handler(
     authed_user: Annotated[User, Depends(get_auth_user)],
     verify_email_sender: Annotated[Callable, Depends(get_verify_email)],
