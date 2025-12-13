@@ -24,9 +24,9 @@ jobs:
         image: postgis/postgis
         # Provide the password for postgres
         env:
-          POSTGRES_USER: admin
+          POSTGRES_USER: root
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_DB: postgres
 
         options: >-
           --health-cmd pg_isready
@@ -71,7 +71,7 @@ jobs:
           AWS_BUCKET: ${{ vars.AWS_BUCKET}}
           AWS_REGION: ${{ vars.AWS_REGION}}
           AWS_TOKEN: token
-          TEST_DB_URL: "postgresql://admin:postgres@localhost:5432/test_db"
+          DB_URL: "postgresql://root:postgres@localhost:5432/postgres"
 
         run: python3 init_test_db.py
 
