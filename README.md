@@ -1,8 +1,7 @@
 # Trailstory - One app to track your stories
 [![Tests](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml/badge.svg)](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml)
 
-🚀 **Live at:** [Trailstory](https://trailstory.vercel.app) | 5+ active users
-
+🚀 **Live at:** [Trailstory](https://trailstory.vercel.app) 
 
 Full-stack bikepacking journey logger deployed on Railway (API), Vercel (frontend), and Supabase (PostGIS database).
 
