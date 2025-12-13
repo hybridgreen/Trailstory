@@ -85,6 +85,8 @@ def refresh_handler(
 
 @auth_router.get("/login/guest/", status_code=200)
 async def handler_guestLogin() -> LoginResponse:
+    
+    user = None
     try:
         user = get_user_by_email("guest@trailstory.com")
     except Exception:
