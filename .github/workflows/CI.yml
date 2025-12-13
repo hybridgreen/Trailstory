@@ -72,6 +72,7 @@ jobs:
           AWS_REGION: ${{ vars.AWS_REGION}}
           AWS_TOKEN: token
           DB_URL: "postgresql://root:postgres@localhost:5432/postgres"
+          CLIENT_BASE_URL: "https://trailstory.vercel.app"
 
         run: python3 init_test_db.py
 
