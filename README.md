@@ -24,6 +24,13 @@ Combine your multi-day adventure into a shareable page. Revisit your personal no
 - Custom authentication system (JWT tokens, rotating tokens, one-time tokens)
 - Relational schema for domain entities: Users, Trips, Rides, Photos
 
+### Future Features
+
+- Nearby trips: "Find trips within X km of this location"
+- Photos near route: "Show photos taken along this route"
+- Bounding box search: "Show trips in this map viewport"
+- Strava / Garmin Webhook for trip syncing
+
 ## Architecture
 
 <div align="center">
