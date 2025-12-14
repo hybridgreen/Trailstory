@@ -1,7 +1,7 @@
 from db.schema import Trip, engine
 from sqlalchemy.orm import Session
 from sqlalchemy import exc as db_err
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, func
 from app.errors import DatabaseError, NotFoundError
 
 
@@ -38,6 +38,10 @@ def get_trip(trip_id):
             raise NotFoundError(f"Trip with ID: {trip}, not found.")
         return trip
 
+def get_total_trips():
+    with Session(engine) as session:   
+        count = session.scalar(select(func.count(Trip.id)))
+        return count
 
 def update_trip(trip_id: str, values: dict):
     try:

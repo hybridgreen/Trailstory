@@ -14,6 +14,8 @@ from .errors import (
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from db.schema import engine, Base
+from db.queries.users import get_total_users
+from db.queries.trips import get_total_trips
 from datetime import datetime, UTC
 
 
@@ -106,3 +108,12 @@ def readiness_check():
         return {"status": "ready"}
     except Exception:
         raise HTTPException(status_code=503, detail="not ready")
+
+
+@app.get("/metrics")
+def metrics():
+    return {
+        "trips_count": get_total_trips(),
+        "users_count": get_total_users(),
+        "version": "0.1.0"
+    }

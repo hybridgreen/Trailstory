@@ -1,7 +1,7 @@
 from db.schema import User, engine
 from sqlalchemy.orm import Session
 from sqlalchemy import exc as db_err
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, func
 from app.errors import DatabaseError, NotFoundError
 
 
@@ -17,6 +17,10 @@ def create_user(user_data: User):
     except Exception as e:
         raise DatabaseError(f"Internal database Error:{str(e)}") from e
 
+def get_total_users():
+    with Session(engine) as session:   
+        count = session.scalar(select(func.count(User.id)))
+        return count
 
 def get_user_by_id(user_id: str):
     with Session(engine) as session:
