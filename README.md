@@ -3,7 +3,12 @@
 
 🚀 **Live at:** [Trailstory](https://trailstory.vercel.app) 
 
-Full-stack bikepacking journey logger deployed on Railway (API), Vercel (frontend), and Supabase (PostGIS database).
+Full-stack adventure tracker deployed on GCP (API), Vercel (frontend), and Supabase (PostGIS database).
+
+## Demo 
+
+ **Try the live demo at:** [Trailstory](https://trailstory.vercel.app) 
+ No signup required
 
 <div align="center">
   <img src="/static/TripPage" alt="Trailstory Trip page" width="60%"/>
