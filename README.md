@@ -1,5 +1,6 @@
 # Trailstory - One app to track your stories
-[![Tests](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml/badge.svg)](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml)
+![CI](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml/badge.svg)](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml)
+![Coverage](https://img.shields.io/badge/coverage-73%-brightgreen)
 
 🚀 **Live at:** [Trailstory](https://trailstory.vercel.app) 
 
