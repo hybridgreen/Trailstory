@@ -1,6 +1,6 @@
 # Trailstory - One app to track your stories
-![CI](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml/badge.svg)](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml)
-![Coverage](https://img.shields.io/badge/coverage-73%-brightgreen)
+[![CI](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml/badge.svg)](https://github.com/hybridgreen/Trailstory/actions/workflows/CI.yml)
+![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhybridgreen%2FTrailstory%2Frefs%2Fheads%2Fmain%2Fbackend%2Fcoverage.json&query=%24.totals.percent_statements_covered_display&style=flat-square&label=Coverage&color=brightgreen)
 
 🚀 **Live at:** [Trailstory](https://trailstory.vercel.app) 
 
