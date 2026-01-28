@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function DraftTripForm() {
   const navigate = useNavigate();
@@ -41,7 +42,9 @@ export default function DraftTripForm() {
       } else {
         const error = await response.json();
         console.error("Error:", error);
-        alert("Failed to create trip: " + (error.detail || "Unknown error"));
+        toast.error(
+          "Failed to create trip: " + (error.detail || "Unknown error")
+        );
       }
     } catch (error) {
       console.error("Unknown error:", error);
