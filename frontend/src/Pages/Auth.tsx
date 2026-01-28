@@ -268,15 +268,25 @@ export default function AuthCard() {
   }, [navigate]);
 
   return (
-    <div className="flex flex-col items-center gap-4 max-w-md mx-auto p-24">
-      <Button onClick={() => setUserStatus(!newUser)}>
-        {newUser ? "Already have an account? Login" : "New user? Register"}
-      </Button>
-      <DisplayForm
-        onSuccess={() => {
-          navigate("/trips");
-        }}
-      ></DisplayForm>
+    <div
+      style={{
+        backgroundImage: 'url("/static/ben-guernsey-rfuOpSqD0ks-unsplash.jpg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
+      }}
+    >
+      <div className="flex flex-col items-center gap-4 max-w-md mx-auto p-24">
+        <Button onClick={() => setUserStatus(!newUser)}>
+          {newUser ? "Already have an account? Login" : "New user? Register"}
+        </Button>
+        <DisplayForm
+          onSuccess={() => {
+            navigate("/trips");
+          }}
+        ></DisplayForm>
+      </div>
     </div>
   );
 }
@@ -332,20 +342,30 @@ export function GuestMode() {
   }
 
   return (
-    <div className="flex flex-auto justify-center items-center">
-      <Card>
-        <CardContent>Click the button to log in as a guest</CardContent>
-        <Button
-          loading={logingIn}
-          onClick={() => {
-            guestLogin();
-          }}
-          className="m-auto w-fit"
-        >
-          {" "}
-          Demo Mode
-        </Button>
-      </Card>
+    <div
+      style={{
+        backgroundImage: 'url("/static/ben-guernsey-rfuOpSqD0ks-unsplash.jpg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
+      }}
+    >
+      <div className="flex flex-auto justify-center items-center p-48">
+        <Card>
+          <CardContent>Click the button to log in as a guest</CardContent>
+          <Button
+            loading={logingIn}
+            onClick={() => {
+              guestLogin();
+            }}
+            className="m-auto w-fit"
+          >
+            {" "}
+            Demo Mode
+          </Button>
+        </Card>
+      </div>
     </div>
   );
 }
