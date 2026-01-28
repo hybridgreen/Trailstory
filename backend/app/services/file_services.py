@@ -13,20 +13,21 @@ s3 = boto3.resource(
     region_name=config.s3.region,
 )
 
-
 async def upload_to_s3(file: UploadFile, content: bytes, owner_id: str, id: str):
     extension = os.path.splitext(file.filename)[1]
     key = f"{owner_id}/{id}{extension}"
-    try:
-        await asyncio.to_thread(
-            lambda: s3.Bucket(config.s3.bucket).put_object(
-                Key=key, Body=content, ContentType=file.content_type
-            )
+    content_type = file.content_type
+    
+    def _upload():
+        s3.Bucket(config.s3.bucket).put_object(
+            Key=key, Body=content, ContentType=content_type
         )
-
+    
+    try:
+        await asyncio.to_thread(_upload)
     except Exception as e:
         raise ServerError(str(e))
-
+    
     return key
 
 
