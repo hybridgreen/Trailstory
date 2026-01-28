@@ -23,7 +23,7 @@ photo_router = APIRouter(
 def validate_photo(file: UploadFile):
     if file.size == 0:
         raise InputError(f"File : {file.filename} is empty")
-    if not file.filename.endswith((".jpg", ".png", ".heic", ".jpeg")):
+    if not file.filename.lower().endswith((".jpg", ".png", ".heic", ".jpeg")):
         raise InputError(
             f"File : {file.filename} has Invalid file type. Supported types: .jpeg, .png .heic"
         )
@@ -118,6 +118,7 @@ async def uploadPhotosHandler(
         }
 
         db_photo = add_photo(Photo(**photo_data))
+        
         url = s3.meta.client.generate_presigned_url(
             "get_object",
             Params={"Bucket": config.s3.bucket, "Key": db_photo.s3_key},
