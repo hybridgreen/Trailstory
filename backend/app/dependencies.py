@@ -30,7 +30,7 @@ def block_guest(req: Request, auth_user: Annotated[User, Depends(get_auth_user)]
         and auth_user.email == "guest@trailstory.com"
         and config.environment == "PROD"
     ):
-        raise UnauthorizedError("Method not allowed in guest mode")
+        raise UnauthorizedError("Action not allowed in guest mode")
 
 
 async def get_bearer_token(authorization: Annotated[str, Header()]):
